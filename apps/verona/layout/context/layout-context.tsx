@@ -2,6 +2,8 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type { LayoutConfig, LayoutState, LayoutContextProps, Breadcrumb, Tab } from '@/types/layout';
 
+const alwaysFalse = () => false;
+
 const LayoutContext = createContext<LayoutContextProps>({} as LayoutContextProps);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
@@ -36,9 +38,9 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
     onMenuToggle,
     isDesktop,
     isSidebarActive,
-    isSlim: () => false,
-    isSlimPlus: () => false,
-    isHorizontal: () => false,
+    isSlim: alwaysFalse,
+    isSlimPlus: alwaysFalse,
+    isHorizontal: alwaysFalse,
     breadcrumbs,
     setBreadcrumbs,
     tabs,
