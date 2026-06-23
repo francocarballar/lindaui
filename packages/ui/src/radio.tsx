@@ -6,9 +6,12 @@ import {
   RadioIndicator,
   type RadioProps,
 } from "@heroui/react";
+import type { ReactNode } from "react";
 export type { RadioProps };
 
-export function Radio({ children, ...props }: RadioProps) {
+type UIRadioProps = Omit<RadioProps, "children"> & { children?: ReactNode };
+
+export function Radio({ children, ...props }: UIRadioProps) {
   return (
     <HeroRadio {...props}>
       <RadioContent>

@@ -6,14 +6,17 @@ import {
   CheckboxIndicator,
   type CheckboxProps,
 } from "@heroui/react";
+import type { ReactNode } from "react";
 export type { CheckboxProps };
+
+type UICheckboxProps = Omit<CheckboxProps, "children"> & { children?: ReactNode };
 
 /**
  * HeroUI v3 splits the checkbox into a field root + interactive button
  * (Content) + Control/Indicator. This wrapper composes them so callers use
  * the flat `<Checkbox>label</Checkbox>` form with a working role=checkbox.
  */
-export function Checkbox({ children, ...props }: CheckboxProps) {
+export function Checkbox({ children, ...props }: UICheckboxProps) {
   return (
     <HeroCheckbox {...props}>
       <CheckboxContent>

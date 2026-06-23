@@ -6,9 +6,12 @@ import {
   SwitchThumb,
   type SwitchProps,
 } from "@heroui/react";
+import type { ReactNode } from "react";
 export type { SwitchProps };
 
-export function Switch({ children, ...props }: SwitchProps) {
+type UISwitchProps = Omit<SwitchProps, "children"> & { children?: ReactNode };
+
+export function Switch({ children, ...props }: UISwitchProps) {
   return (
     <HeroSwitch {...props}>
       <SwitchContent>

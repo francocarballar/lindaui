@@ -72,7 +72,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "bunchee",
+    "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
     "dev": "bunchee --watch",
     "test": "vitest run",
     "test:watch": "vitest"
@@ -98,6 +98,8 @@
     "jsdom": "^24.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "react-hook-form": "^7.53.0",
     "zod": "^3.23.0",
     "@hookform/resolvers": "^3.9.0",
