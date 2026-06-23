@@ -34,7 +34,12 @@
     "./color-slider": { "types": "./dist/color-slider.d.ts", "import": "./dist/color-slider.js" },
     "./color-field": { "types": "./dist/color-field.d.ts", "import": "./dist/color-field.js" },
     "./color-swatch": { "types": "./dist/color-swatch.d.ts", "import": "./dist/color-swatch.js" },
-    "./color-swatch-picker": { "types": "./dist/color-swatch-picker.d.ts", "import": "./dist/color-swatch-picker.js" }
+    "./color-swatch-picker": { "types": "./dist/color-swatch-picker.d.ts", "import": "./dist/color-swatch-picker.js" },
+    "./dialog": { "types": "./dist/dialog.d.ts", "import": "./dist/dialog.js" },
+    "./alert-dialog": { "types": "./dist/alert-dialog.d.ts", "import": "./dist/alert-dialog.js" },
+    "./drawer": { "types": "./dist/drawer.d.ts", "import": "./dist/drawer.js" },
+    "./popover": { "types": "./dist/popover.d.ts", "import": "./dist/popover.js" },
+    "./tooltip": { "types": "./dist/tooltip.d.ts", "import": "./dist/tooltip.js" }
   },
   "files": ["dist"],
   "scripts": {
