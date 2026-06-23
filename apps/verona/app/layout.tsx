@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import localFont from 'next/font/local';
 import '../styles/globals.css';
 import '../styles/layout/layout.scss';
+import { LayoutProvider } from '../layout/context/layout-context';
 
 const lato = localFont({
   src: [
@@ -21,7 +22,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es" className={lato.variable}>
-      <body>{children}</body>
+      <body>
+        <LayoutProvider>{children}</LayoutProvider>
+      </body>
     </html>
   );
 }
