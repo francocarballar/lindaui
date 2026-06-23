@@ -13,7 +13,9 @@
     "./textarea": { "types": "./dist/textarea.d.ts", "import": "./dist/textarea.js" },
     "./otp-input": { "types": "./dist/otp-input.d.ts", "import": "./dist/otp-input.js" },
     "./input-group": { "types": "./dist/input-group.d.ts", "import": "./dist/input-group.js" },
-    "./search-field": { "types": "./dist/search-field.d.ts", "import": "./dist/search-field.js" }
+    "./search-field": { "types": "./dist/search-field.d.ts", "import": "./dist/search-field.js" },
+    "./select": { "types": "./dist/select.d.ts", "import": "./dist/select.js" },
+    "./combobox": { "types": "./dist/combobox.d.ts", "import": "./dist/combobox.js" }
   },
   "files": ["dist"],
   "scripts": {
