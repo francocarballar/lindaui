@@ -22,7 +22,19 @@
     "./radio-group": { "types": "./dist/radio-group.d.ts", "import": "./dist/radio-group.js" },
     "./switch": { "types": "./dist/switch.d.ts", "import": "./dist/switch.js" },
     "./switch-group": { "types": "./dist/switch-group.d.ts", "import": "./dist/switch-group.js" },
-    "./slider": { "types": "./dist/slider.d.ts", "import": "./dist/slider.js" }
+    "./slider": { "types": "./dist/slider.d.ts", "import": "./dist/slider.js" },
+    "./date-input": { "types": "./dist/date-input.d.ts", "import": "./dist/date-input.js" },
+    "./date-picker": { "types": "./dist/date-picker.d.ts", "import": "./dist/date-picker.js" },
+    "./date-range-picker": { "types": "./dist/date-range-picker.d.ts", "import": "./dist/date-range-picker.js" },
+    "./time-input": { "types": "./dist/time-input.d.ts", "import": "./dist/time-input.js" },
+    "./calendar": { "types": "./dist/calendar.d.ts", "import": "./dist/calendar.js" },
+    "./range-calendar": { "types": "./dist/range-calendar.d.ts", "import": "./dist/range-calendar.js" },
+    "./color-picker": { "types": "./dist/color-picker.d.ts", "import": "./dist/color-picker.js" },
+    "./color-area": { "types": "./dist/color-area.d.ts", "import": "./dist/color-area.js" },
+    "./color-slider": { "types": "./dist/color-slider.d.ts", "import": "./dist/color-slider.js" },
+    "./color-field": { "types": "./dist/color-field.d.ts", "import": "./dist/color-field.js" },
+    "./color-swatch": { "types": "./dist/color-swatch.d.ts", "import": "./dist/color-swatch.js" },
+    "./color-swatch-picker": { "types": "./dist/color-swatch-picker.d.ts", "import": "./dist/color-swatch-picker.js" }
   },
   "files": ["dist"],
   "scripts": {
