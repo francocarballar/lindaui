@@ -1,0 +1,33 @@
+/* Puente: vars PrimeReact/Verona -> tokens @ts/tokens (light por defecto en :root) */
+:root {
+  --primary-color: var(--accent);
+  --primary-color-text: var(--accent-foreground);
+  --primary-400: var(--accent);
+  --primary-500: var(--accent);
+  --primary-800: var(--accent);
+
+  --surface-ground: var(--surface);
+  --surface-card: var(--surface-raised);
+  --surface-overlay: var(--overlay);
+  --surface-border: color-mix(in oklch, var(--text-color) 14%, transparent);
+  --surface-hover: color-mix(in oklch, var(--text-color) 6%, transparent);
+
+  --text-color: var(--text-color);
+  --text-color-secondary: var(--text-secondary);
+
+  --border-radius: var(--border-radius);
+  --font-family: var(--font-sans);
+  --transition-duration: 0.2s;
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+
+  /* Verona-specific (--v-*) */
+  --v-body-bg: var(--surface);
+  --v-menuitem-text-color: var(--text-color);
+  --v-menuitem-text-color-secondary: var(--text-secondary);
+  --v-menuitem-hover-bg: var(--surface-hover);
+  --v-overlay-menuitem-text-color: var(--text-color);
+  --v-overlay-menuitem-hover-bg: var(--surface-hover);
+  --v-topbar-search-button-bg: var(--surface-hover);
+  --v-topbar-search-button-icon-color: var(--text-secondary);
+  --menuitem-text-color: var(--text-color);
+}
