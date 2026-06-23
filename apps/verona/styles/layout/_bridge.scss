@@ -16,7 +16,7 @@
   --text-color-secondary: var(--text-secondary);
 
   --border-radius: var(--border-radius);
-  --font-family: var(--font-sans);
+  --font-family: var(--font-lato, var(--font-sans));
   --transition-duration: 0.2s;
   --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
 
