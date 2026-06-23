@@ -1,0 +1,40 @@
+{
+  "name": "@ts/ui",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {},
+  "files": ["dist"],
+  "scripts": {
+    "build": "bunchee",
+    "dev": "bunchee --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19",
+    "react-hook-form": ">=7",
+    "@ts/tokens": "*"
+  },
+  "dependencies": {
+    "@heroui/react": "^3.2.1",
+    "tailwind-variants": "^3.0.0",
+    "tailwind-merge": "^3.0.0"
+  },
+  "devDependencies": {
+    "bunchee": "^6.0.0",
+    "vitest": "^2.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@testing-library/jest-dom": "^6.4.0",
+    "jsdom": "^24.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.53.0",
+    "zod": "^3.23.0",
+    "@hookform/resolvers": "^3.9.0",
+    "typescript": "^5.5.0",
+    "@ts/tokens": "workspace:*"
+  }
+}
