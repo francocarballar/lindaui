@@ -43,7 +43,15 @@
     "./menu": { "types": "./dist/menu.d.ts", "import": "./dist/menu.js" },
     "./breadcrumbs": { "types": "./dist/breadcrumbs.d.ts", "import": "./dist/breadcrumbs.js" },
     "./link": { "types": "./dist/link.d.ts", "import": "./dist/link.js" },
-    "./pagination": { "types": "./dist/pagination.d.ts", "import": "./dist/pagination.js" }
+    "./pagination": { "types": "./dist/pagination.d.ts", "import": "./dist/pagination.js" },
+    "./table": { "types": "./dist/table.d.ts", "import": "./dist/table.js" },
+    "./avatar": { "types": "./dist/avatar.d.ts", "import": "./dist/avatar.js" },
+    "./badge": { "types": "./dist/badge.d.ts", "import": "./dist/badge.js" },
+    "./status-chip": { "types": "./dist/status-chip.d.ts", "import": "./dist/status-chip.js" },
+    "./chip": { "types": "./dist/chip.d.ts", "import": "./dist/chip.js" },
+    "./tag": { "types": "./dist/tag.d.ts", "import": "./dist/tag.js" },
+    "./tag-group": { "types": "./dist/tag-group.d.ts", "import": "./dist/tag-group.js" },
+    "./listbox": { "types": "./dist/listbox.d.ts", "import": "./dist/listbox.js" }
   },
   "files": ["dist"],
   "scripts": {
