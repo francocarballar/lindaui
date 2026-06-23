@@ -1,0 +1,26 @@
+/* ── Light ── */
+:root {
+  --accent:              oklch(0.55 0.18 250);
+  --accent-foreground:   oklch(0.99 0   0);
+  --surface:             oklch(0.99 0   0);
+  --surface-raised:      oklch(0.97 0   0);
+  --overlay:             oklch(0.95 0   0);
+  --text-color:          oklch(0.15 0   0);
+  --text-secondary:      oklch(0.45 0   0);
+  --border-radius:       0.5rem;
+  --font-sans:           "Inter", system-ui, sans-serif;
+
+  /* HeroUI v3 override vars */
+  --heroui-accent:       var(--accent);
+  --heroui-radius:       var(--border-radius);
+}
+
+/* ── Dark ── */
+.dark {
+  --accent:              oklch(0.65 0.18 250);
+  --surface:             oklch(0.12 0   0);
+  --surface-raised:      oklch(0.16 0   0);
+  --overlay:             oklch(0.20 0   0);
+  --text-color:          oklch(0.95 0   0);
+  --text-secondary:      oklch(0.65 0   0);
+}
