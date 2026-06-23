@@ -7,7 +7,13 @@
     "./button": { "types": "./dist/button.d.ts", "import": "./dist/button.js" },
     "./close-button": { "types": "./dist/close-button.d.ts", "import": "./dist/close-button.js" },
     "./toggle-button": { "types": "./dist/toggle-button.d.ts", "import": "./dist/toggle-button.js" },
-    "./toggle-button-group": { "types": "./dist/toggle-button-group.d.ts", "import": "./dist/toggle-button-group.js" }
+    "./toggle-button-group": { "types": "./dist/toggle-button-group.d.ts", "import": "./dist/toggle-button-group.js" },
+    "./input": { "types": "./dist/input.d.ts", "import": "./dist/input.js" },
+    "./number-input": { "types": "./dist/number-input.d.ts", "import": "./dist/number-input.js" },
+    "./textarea": { "types": "./dist/textarea.d.ts", "import": "./dist/textarea.js" },
+    "./otp-input": { "types": "./dist/otp-input.d.ts", "import": "./dist/otp-input.js" },
+    "./input-group": { "types": "./dist/input-group.d.ts", "import": "./dist/input-group.js" },
+    "./search-field": { "types": "./dist/search-field.d.ts", "import": "./dist/search-field.js" }
   },
   "files": ["dist"],
   "scripts": {
