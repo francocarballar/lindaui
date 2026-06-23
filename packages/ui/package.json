@@ -39,7 +39,11 @@
     "./alert-dialog": { "types": "./dist/alert-dialog.d.ts", "import": "./dist/alert-dialog.js" },
     "./drawer": { "types": "./dist/drawer.d.ts", "import": "./dist/drawer.js" },
     "./popover": { "types": "./dist/popover.d.ts", "import": "./dist/popover.js" },
-    "./tooltip": { "types": "./dist/tooltip.d.ts", "import": "./dist/tooltip.js" }
+    "./tooltip": { "types": "./dist/tooltip.d.ts", "import": "./dist/tooltip.js" },
+    "./menu": { "types": "./dist/menu.d.ts", "import": "./dist/menu.js" },
+    "./breadcrumbs": { "types": "./dist/breadcrumbs.d.ts", "import": "./dist/breadcrumbs.js" },
+    "./link": { "types": "./dist/link.d.ts", "import": "./dist/link.js" },
+    "./pagination": { "types": "./dist/pagination.d.ts", "import": "./dist/pagination.js" }
   },
   "files": ["dist"],
   "scripts": {
