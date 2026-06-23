@@ -2,7 +2,9 @@
   "name": "@ts/ui",
   "version": "0.0.1",
   "type": "module",
-  "exports": {},
+  "exports": {
+    "./field": { "types": "./dist/field.d.ts", "import": "./dist/field.js" }
+  },
   "files": ["dist"],
   "scripts": {
     "build": "bunchee",
