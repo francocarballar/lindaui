@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    "./field": { "types": "./dist/field.d.ts", "import": "./dist/field.js" }
+    "./field": { "types": "./dist/field.d.ts", "import": "./dist/field.js" },
+    "./button": { "types": "./dist/button.d.ts", "import": "./dist/button.js" },
+    "./close-button": { "types": "./dist/close-button.d.ts", "import": "./dist/close-button.js" },
+    "./toggle-button": { "types": "./dist/toggle-button.d.ts", "import": "./dist/toggle-button.js" },
+    "./toggle-button-group": { "types": "./dist/toggle-button-group.d.ts", "import": "./dist/toggle-button-group.js" }
   },
   "files": ["dist"],
   "scripts": {
