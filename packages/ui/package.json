@@ -15,7 +15,14 @@
     "./input-group": { "types": "./dist/input-group.d.ts", "import": "./dist/input-group.js" },
     "./search-field": { "types": "./dist/search-field.d.ts", "import": "./dist/search-field.js" },
     "./select": { "types": "./dist/select.d.ts", "import": "./dist/select.js" },
-    "./combobox": { "types": "./dist/combobox.d.ts", "import": "./dist/combobox.js" }
+    "./combobox": { "types": "./dist/combobox.d.ts", "import": "./dist/combobox.js" },
+    "./checkbox": { "types": "./dist/checkbox.d.ts", "import": "./dist/checkbox.js" },
+    "./checkbox-group": { "types": "./dist/checkbox-group.d.ts", "import": "./dist/checkbox-group.js" },
+    "./radio": { "types": "./dist/radio.d.ts", "import": "./dist/radio.js" },
+    "./radio-group": { "types": "./dist/radio-group.d.ts", "import": "./dist/radio-group.js" },
+    "./switch": { "types": "./dist/switch.d.ts", "import": "./dist/switch.js" },
+    "./switch-group": { "types": "./dist/switch-group.d.ts", "import": "./dist/switch-group.js" },
+    "./slider": { "types": "./dist/slider.d.ts", "import": "./dist/slider.js" }
   },
   "files": ["dist"],
   "scripts": {
