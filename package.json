@@ -6,6 +6,9 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "test": "turbo test",
+    "gen:component": "node scripts/gen.mjs component",
+    "gen:block": "node scripts/gen.mjs block",
+    "gen:exports": "node scripts/gen.mjs exports",
     "release": "changeset publish"
   },
   "devDependencies": {
