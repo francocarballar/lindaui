@@ -60,6 +60,13 @@
   --viewer-foreground: oklch(0.88 0.012 220);
   --viewer-border: oklch(0.3 0.025 214);
 
+  /* Paleta categórica de charts (anclada en la marca teal) */
+  --chart-1: oklch(0.55 0.12 183); /* teal (marca) */
+  --chart-2: oklch(0.6 0.12 220); /* azul */
+  --chart-3: oklch(0.65 0.14 150); /* verde */
+  --chart-4: oklch(0.72 0.15 80); /* ámbar */
+  --chart-5: oklch(0.62 0.19 25); /* coral */
+
   /* ════════ B) HeroUI v3 (refs a A — CONTRATO, no renombrar) ════════
      --background/--foreground/--border/--success/--warning/--radius comparten
      nombre y significado con (A): HeroUI los lee directo, no se repiten acá. */
@@ -110,6 +117,12 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.79 0.12 181);
   /* viewer-* sin cambios: el visor queda oscuro en ambos modos */
+  /* charts: más brillantes para contraste sobre fondo oscuro */
+  --chart-1: oklch(0.7 0.13 183);
+  --chart-2: oklch(0.7 0.13 220);
+  --chart-3: oklch(0.72 0.15 150);
+  --chart-4: oklch(0.78 0.15 80);
+  --chart-5: oklch(0.7 0.18 25);
 }
 
 /* ════════ C) Utilities Tailwind (@theme inline — CONTRATO de clases) ════════
@@ -141,6 +154,13 @@
   --color-viewer-bg: var(--viewer-bg);
   --color-viewer-foreground: var(--viewer-foreground);
   --color-viewer-border: var(--viewer-border);
+
+  /* Charts: fill-chart-1 / stroke-chart-1 / bg-chart-1 ... (paleta categórica) */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
 
   /* Radius (escala DESIGN.md) */
   --radius-sm: calc(var(--radius) * 0.6);
