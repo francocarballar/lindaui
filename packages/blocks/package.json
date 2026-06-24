@@ -1,0 +1,55 @@
+{
+  "name": "@ts/blocks",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    "./login-form": { "types": "./dist/login-form.d.ts", "import": "./dist/login-form.js" },
+    "./list-item": { "types": "./dist/list-item.d.ts", "import": "./dist/list-item.js" },
+    "./list-pane": { "types": "./dist/list-pane.d.ts", "import": "./dist/list-pane.js" },
+    "./detail-panel": { "types": "./dist/detail-panel.d.ts", "import": "./dist/detail-panel.js" },
+    "./confirm-dialog": { "types": "./dist/confirm-dialog.d.ts", "import": "./dist/confirm-dialog.js" },
+    "./image-viewer": { "types": "./dist/image-viewer.d.ts", "import": "./dist/image-viewer.js" },
+    "./split-workspace": { "types": "./dist/split-workspace.d.ts", "import": "./dist/split-workspace.js" },
+    "./document-panel": { "types": "./dist/document-panel.d.ts", "import": "./dist/document-panel.js" },
+    "./document-reader": { "types": "./dist/document-reader.d.ts", "import": "./dist/document-reader.js" },
+    "./recording-overlay": { "types": "./dist/recording-overlay.d.ts", "import": "./dist/recording-overlay.js" },
+    "./field-array-form": { "types": "./dist/field-array-form.d.ts", "import": "./dist/field-array-form.js" },
+    "./auth-provider": { "types": "./dist/auth-provider.d.ts", "import": "./dist/auth-provider.js" },
+    "./auth-layout": { "types": "./dist/auth-layout.d.ts", "import": "./dist/auth-layout.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
+    "dev": "bunchee --watch",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19",
+    "react-hook-form": ">=7",
+    "lucide-react": ">=0.4",
+    "@ts/ui": "*",
+    "@ts/tokens": "*"
+  },
+  "devDependencies": {
+    "bunchee": "^6.0.0",
+    "vitest": "^2.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@testing-library/jest-dom": "^6.4.0",
+    "jsdom": "^24.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react-hook-form": "^7.53.0",
+    "lucide-react": "^0.460.0",
+    "zod": "^3.23.0",
+    "@hookform/resolvers": "^3.9.0",
+    "typescript": "^5.5.0",
+    "@ts/ui": "workspace:*",
+    "@ts/tokens": "workspace:*"
+  }
+}
