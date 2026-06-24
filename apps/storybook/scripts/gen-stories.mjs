@@ -34,6 +34,10 @@ const HANDWRITTEN = new Set([
   "list-item", "list-pane", "detail-panel", "confirm-dialog",
   "image-viewer", "document-panel", "document-reader", "recording-overlay",
   "split-workspace", "field-array-form", "auth-provider", "auth-layout",
+  // charts — handwritten
+  "chart", "search",
+  "area-chart", "bar-chart", "line-chart", "pie-chart", "radar-chart",
+  "radial-chart", "stat-card", "chart-card", "stats-grid",
 ]);
 
 // ARGS: render con props simples → Storybook da controls (solo @ts/ui).
