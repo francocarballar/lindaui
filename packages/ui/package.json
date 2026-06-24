@@ -69,7 +69,8 @@
     "./text": { "types": "./dist/text.d.ts", "import": "./dist/text.js" },
     "./scroll-shadow": { "types": "./dist/scroll-shadow.d.ts", "import": "./dist/scroll-shadow.js" },
     "./kbd": { "types": "./dist/kbd.d.ts", "import": "./dist/kbd.js" },
-    "./search": { "types": "./dist/search.d.ts", "import": "./dist/search.js" }
+    "./search": { "types": "./dist/search.d.ts", "import": "./dist/search.js" },
+    "./chart": { "types": "./dist/chart.d.ts", "import": "./dist/chart.js" }
   },
   "files": ["dist"],
   "scripts": {
@@ -87,7 +88,8 @@
   "dependencies": {
     "@heroui/react": "^3.2.1",
     "tailwind-variants": "^3.0.0",
-    "tailwind-merge": "^3.0.0"
+    "tailwind-merge": "^3.0.0",
+    "recharts": "^3.9.0"
   },
   "devDependencies": {
     "bunchee": "^6.0.0",
