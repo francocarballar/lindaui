@@ -40,7 +40,7 @@ export function Field<
           )}
           {children({ field, invalid: fieldState.invalid })}
           {hint && !fieldState.error && (
-            <small className="text-secondary text-sm">{hint}</small>
+            <small className="text-muted-foreground text-sm">{hint}</small>
           )}
           {fieldState.error && (
             <small className="text-danger text-sm">{fieldState.error.message}</small>

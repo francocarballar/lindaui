@@ -7,7 +7,7 @@ export interface BadgeProps {
 }
 
 const variantStyles: Record<NonNullable<BadgeProps["variant"]>, string> = {
-  default: "bg-[var(--overlay)] text-[var(--text-color)]",
+  default: "bg-[var(--overlay)] text-[var(--foreground)]",
   success: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
   warning: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
   danger: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",

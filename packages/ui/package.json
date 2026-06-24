@@ -68,7 +68,8 @@
     "./divider": { "types": "./dist/divider.d.ts", "import": "./dist/divider.js" },
     "./text": { "types": "./dist/text.d.ts", "import": "./dist/text.js" },
     "./scroll-shadow": { "types": "./dist/scroll-shadow.d.ts", "import": "./dist/scroll-shadow.js" },
-    "./kbd": { "types": "./dist/kbd.d.ts", "import": "./dist/kbd.js" }
+    "./kbd": { "types": "./dist/kbd.d.ts", "import": "./dist/kbd.js" },
+    "./search": { "types": "./dist/search.d.ts", "import": "./dist/search.js" }
   },
   "files": ["dist"],
   "scripts": {
