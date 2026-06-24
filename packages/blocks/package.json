@@ -15,7 +15,16 @@
     "./recording-overlay": { "types": "./dist/recording-overlay.d.ts", "import": "./dist/recording-overlay.js" },
     "./field-array-form": { "types": "./dist/field-array-form.d.ts", "import": "./dist/field-array-form.js" },
     "./auth-provider": { "types": "./dist/auth-provider.d.ts", "import": "./dist/auth-provider.js" },
-    "./auth-layout": { "types": "./dist/auth-layout.d.ts", "import": "./dist/auth-layout.js" }
+    "./auth-layout": { "types": "./dist/auth-layout.d.ts", "import": "./dist/auth-layout.js" },
+    "./area-chart": { "types": "./dist/area-chart.d.ts", "import": "./dist/area-chart.js" },
+    "./bar-chart": { "types": "./dist/bar-chart.d.ts", "import": "./dist/bar-chart.js" },
+    "./line-chart": { "types": "./dist/line-chart.d.ts", "import": "./dist/line-chart.js" },
+    "./pie-chart": { "types": "./dist/pie-chart.d.ts", "import": "./dist/pie-chart.js" },
+    "./radar-chart": { "types": "./dist/radar-chart.d.ts", "import": "./dist/radar-chart.js" },
+    "./radial-chart": { "types": "./dist/radial-chart.d.ts", "import": "./dist/radial-chart.js" },
+    "./stat-card": { "types": "./dist/stat-card.d.ts", "import": "./dist/stat-card.js" },
+    "./chart-card": { "types": "./dist/chart-card.d.ts", "import": "./dist/chart-card.js" },
+    "./stats-grid": { "types": "./dist/stats-grid.d.ts", "import": "./dist/stats-grid.js" }
   },
   "files": ["dist"],
   "scripts": {
@@ -29,6 +38,7 @@
     "react-dom": ">=19",
     "react-hook-form": ">=7",
     "lucide-react": ">=0.4",
+    "recharts": ">=3",
     "@ts/ui": "*",
     "@ts/tokens": "*"
   },
@@ -46,6 +56,7 @@
     "@types/react-dom": "^19.0.0",
     "react-hook-form": "^7.53.0",
     "lucide-react": "^0.460.0",
+    "recharts": "^3.9.0",
     "zod": "^3.23.0",
     "@hookform/resolvers": "^3.9.0",
     "typescript": "^5.5.0",
