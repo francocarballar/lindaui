@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Alert } from "@ts/ui/alert";
 import { Spinner } from "@ts/ui/spinner";
 import { Skeleton } from "@ts/ui/skeleton";

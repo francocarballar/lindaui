@@ -5,24 +5,29 @@
   "type": "module",
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "gen:stories": "node scripts/gen-stories.mjs"
   },
   "devDependencies": {
-    "@storybook/react": "^8.0.0",
-    "@storybook/react-vite": "^8.0.0",
-    "@storybook/addon-essentials": "^8.0.0",
-    "@storybook/addon-a11y": "^8.0.0",
-    "storybook": "^8.0.0",
+    "@storybook/react": "^10.4.6",
+    "@storybook/react-vite": "^10.4.6",
+    "@storybook/addon-a11y": "^10.4.6",
+    "storybook": "^10.4.6",
     "vite": "^5.0.0",
     "@vitejs/plugin-react": "^4.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "react-hook-form": "^7.53.0",
     "@hookform/resolvers": "^3.9.0",
-    "zod": "^3.23.0"
+    "zod": "^3.23.0",
+    "lucide-react": "^0.460.0",
+    "@storybook/addon-docs": "^10.4.6"
   },
   "dependencies": {
     "@ts/tokens": "workspace:*",
-    "@ts/ui": "workspace:*"
+    "@ts/ui": "workspace:*",
+    "@ts/blocks": "workspace:*"
   }
 }
