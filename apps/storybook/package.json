@@ -13,7 +13,7 @@
     "@storybook/react-vite": "^10.4.6",
     "@storybook/addon-a11y": "^10.4.6",
     "storybook": "^10.4.6",
-    "vite": "^5.0.0",
+    "vite": "^6.4.3",
     "@vitejs/plugin-react": "^4.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -32,3 +32,4 @@
     "@ts/blocks": "workspace:*"
   }
 }
+

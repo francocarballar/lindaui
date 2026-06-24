@@ -14,7 +14,7 @@
   "devDependencies": {
     "turbo": "^2.0.0",
     "@changesets/cli": "^2.27.0",
-    "typescript": "^5.5.0"
+    "typescript": "^6.0.3"
   },
   "engines": {
     "node": ">=20",
@@ -22,3 +22,4 @@
   },
   "packageManager": "pnpm@11.7.0"
 }
+
