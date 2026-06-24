@@ -1,26 +1,165 @@
-/* ── Light ── */
-:root {
-  --accent:              oklch(0.55 0.18 250);
-  --accent-foreground:   oklch(0.99 0   0);
-  --surface:             oklch(0.99 0   0);
-  --surface-raised:      oklch(0.97 0   0);
-  --overlay:             oklch(0.95 0   0);
-  --text-color:          oklch(0.15 0   0);
-  --text-secondary:      oklch(0.45 0   0);
-  --border-radius:       0.5rem;
-  --font-sans:           "Inter", system-ui, sans-serif;
+/* ============================================================
+   Design system — tema ThinkInformes (clínico/médico, teal).
+   Valores: poc_generator DESIGN.md (OKLCH; light en :root, dark en .dark).
 
-  /* HeroUI v3 override vars */
-  --heroui-accent:       var(--accent);
-  --heroui-radius:       var(--border-radius);
+   ── TRES SISTEMAS DE NOMBRES (no mezclarlos) ──
+   A) CANÓNICOS (shadcn-style): única fuente de verdad de color. SOLO estos
+      cambian en dark. Ej: --background, --foreground, --primary, --card.
+   B) HeroUI v3 (CONTRATO — no renombrar): nombres que @heroui/styles LEE para
+      pintar sus componentes. Acá son refs a (A). Ej: --accent, --surface,
+      --default, --muted, --danger, --focus.
+   C) Utilities Tailwind (CONTRATO — no renombrar): los --color-* del bloque
+      @theme inline definen las clases bg-* / text-* / border-* que usan los
+      blocks. Ej: --color-primary → bg-primary; --color-muted-foreground →
+      text-muted-foreground.
+
+   ── COLISIONES DE NOMBRE (la fuente de confusión — leer) ──
+     --accent    = MARCA primaria teal (semántica HeroUI), NO el "accent" neutro
+                   de shadcn.
+     --default   = superficie/botón NEUTRO (== --secondary), NO el primario.
+     --muted     = TEXTO atenuado (== --muted-foreground), NO una superficie.
+                   La utility text-muted pinta ese gris (CardDescription, etc).
+     --secondary = superficie NEUTRA clara (utility bg-secondary). Su texto va
+                   con text-muted / text-muted-foreground.
+     --surface   = --card  ·  --overlay = --popover   (superficies, nombres HeroUI).
+   ============================================================ */
+
+:root {
+  /* ════════ A) CANÓNICOS (light) — fuente de verdad ════════ */
+
+  /* Superficies + texto base */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.97 0 0); /* superficie neutra */
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.556 0 0); /* texto atenuado */
+
+  /* Marca */
+  --primary: oklch(0.47 0.097 183); /* teal-700 #0F766E */
+  --primary-foreground: oklch(0.985 0 0);
+
+  /* Estado */
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.59 0.163 148); /* green-600 */
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.56 0.14 58); /* amber-700 */
+  --warning-foreground: oklch(1 0 0);
+
+  /* Bordes / input / foco / radio */
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.47 0.097 183);
+  --radius: 0.625rem;
+
+  /* Visor PACS — oscuro SIEMPRE (también en light) */
+  --viewer-bg: oklch(0.22 0.027 214);
+  --viewer-foreground: oklch(0.88 0.012 220);
+  --viewer-border: oklch(0.3 0.025 214);
+
+  /* ════════ B) HeroUI v3 (refs a A — CONTRATO, no renombrar) ════════
+     --background/--foreground/--border/--success/--warning/--radius comparten
+     nombre y significado con (A): HeroUI los lee directo, no se repiten acá. */
+  --surface: var(--card);
+  --surface-foreground: var(--card-foreground);
+  --overlay: var(--popover);
+  --overlay-foreground: var(--popover-foreground);
+  --accent: var(--primary); /* acción primaria = marca teal */
+  --accent-foreground: var(--primary-foreground);
+  --default: var(--secondary); /* superficie/botón neutro */
+  --default-foreground: var(--secondary-foreground);
+  --muted: var(--muted-foreground); /* texto atenuado / placeholder */
+  --danger: var(--destructive);
+  --danger-foreground: var(--primary-foreground);
+  --separator: var(--border);
+  --focus: var(--ring);
+
+  /* Variantes soft on-brand (HeroUI *-soft, ej. Button danger-soft) */
+  --accent-soft: color-mix(in oklch, var(--primary) 14%, var(--surface));
+  --accent-soft-foreground: var(--primary);
+  --danger-soft: color-mix(in oklch, var(--destructive) 14%, var(--surface));
+  --danger-soft-foreground: var(--destructive);
+  --success-soft: color-mix(in oklch, var(--success) 14%, var(--surface));
+  --success-soft-foreground: var(--success);
+  --warning-soft: color-mix(in oklch, var(--warning) 16%, var(--surface));
+  --warning-soft-foreground: var(--warning);
 }
 
-/* ── Dark ── */
+/* ════════ Dark: SOLO redefine los canónicos (A). Las refs HeroUI (B) siguen. ════════ */
 .dark {
-  --accent:              oklch(0.65 0.18 250);
-  --surface:             oklch(0.12 0   0);
-  --surface-raised:      oklch(0.16 0   0);
-  --overlay:             oklch(0.20 0   0);
-  --text-color:          oklch(0.95 0   0);
-  --text-secondary:      oklch(0.65 0   0);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --primary: oklch(0.79 0.12 181); /* teal-400, más brillante en dark */
+  --primary-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.7 0.16 150);
+  --success-foreground: oklch(0.205 0 0);
+  --warning: oklch(0.75 0.14 70);
+  --warning-foreground: oklch(0.205 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.79 0.12 181);
+  /* viewer-* sin cambios: el visor queda oscuro en ambos modos */
+}
+
+/* ════════ C) Utilities Tailwind (@theme inline — CONTRATO de clases) ════════
+   Cada --color-X habilita bg-X / text-X / border-X. HeroUI ya mapea las suyas
+   (background/foreground/surface/accent/default/muted/...) vía @heroui/styles;
+   acá agregamos las shadcn que el consumidor usa y HeroUI no expone igual. */
+@theme inline {
+  /* Marca / superficies / estado */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Texto atenuado → text-muted-foreground.
+     NO declarar --color-muted: HeroUI ya lo usa para `text-muted` (= var(--muted)
+     = gris legible). Pisarlo con una superficie deja el texto invisible. Para
+     superficie neutra usar bg-secondary; texto secundario = text-muted/-foreground. */
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Visor: bg-viewer-bg / text-viewer-foreground / border-viewer-border
+     (mismos nombres que el source del poc → migra verbatim). */
+  --color-viewer-bg: var(--viewer-bg);
+  --color-viewer-foreground: var(--viewer-foreground);
+  --color-viewer-border: var(--viewer-border);
+
+  /* Radius (escala DESIGN.md) */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Tipografía (el consumidor inyecta --font-* vía next/font; fallbacks acá) */
+  --font-sans: var(--font-atkinson, var(--font-lato, ui-sans-serif, system-ui, sans-serif));
+  --font-mono: var(--font-geist-mono, ui-monospace, monospace);
+  --font-heading: var(--font-sans);
+}
+
+/* Base raíz 18px (público médico 60+); todo el escalado rem sube proporcional. */
+@layer base {
+  html {
+    font-size: 18px;
+  }
 }

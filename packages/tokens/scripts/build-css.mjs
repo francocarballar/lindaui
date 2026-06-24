@@ -12,7 +12,15 @@ await mkdir(path.join(root, "dist"), { recursive: true });
 // Tailwind v4 entry: pull in Tailwind, HeroUI styles, then brand tokens.
 // HeroUI v3 ships its Tailwind plugin + base styles via the `@heroui/styles`
 // package; importing it after Tailwind layers the component styles in.
+// `@source` hace que Tailwind v4 escanee el source de los paquetes de la lib y
+// genere las utilities que usan (flex, gap, max-w, etc.). Sin esto, index.css
+// trae HeroUI + tokens pero CERO utilities → los blocks/bespoke se ven sin
+// estilo. Paths relativos a _entry.css (packages/tokens/). Así un solo
+// `@ts/tokens/css` rinde la lib completa en cualquier consumidor.
 const entry = `@import "tailwindcss";
+@source "../ui/src";
+@source "../blocks/src";
+@source "../../apps/storybook/src";
 @import "@heroui/styles";
 @import "./src/theme.css";
 `;
