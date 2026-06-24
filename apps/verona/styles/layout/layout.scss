@@ -1,14 +1,11 @@
-$scale: 14px !default;
-$breakpoint: 992px !default;
-
-@import './bridge';
-@import './main';
-@import './sidebar_vertical';
-@import './topbar';
-@import './breadcrumb';
-@import './footer';
-@import './content';
-@import './responsive';
-@import './typography';
-@import './utils';
-@import './config';
+@use 'bridge';
+@use 'main';
+@use 'sidebar_vertical';
+@use 'topbar';
+@use 'breadcrumb';
+@use 'footer';
+@use 'content';
+@use 'responsive';
+@use 'typography';
+@use 'utils';
+@use 'config';
