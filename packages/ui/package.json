@@ -70,7 +70,10 @@
     "./scroll-shadow": { "types": "./dist/scroll-shadow.d.ts", "import": "./dist/scroll-shadow.js" },
     "./kbd": { "types": "./dist/kbd.d.ts", "import": "./dist/kbd.js" },
     "./search": { "types": "./dist/search.d.ts", "import": "./dist/search.js" },
-    "./chart": { "types": "./dist/chart.d.ts", "import": "./dist/chart.js" }
+    "./chart": { "types": "./dist/chart.d.ts", "import": "./dist/chart.js" },
+    "./cn": { "types": "./dist/cn.d.ts", "import": "./dist/cn.js" },
+    "./use-disclosure": { "types": "./dist/use-disclosure.d.ts", "import": "./dist/use-disclosure.js" },
+    "./use-media-query": { "types": "./dist/use-media-query.d.ts", "import": "./dist/use-media-query.js" }
   },
   "files": ["dist"],
   "scripts": {

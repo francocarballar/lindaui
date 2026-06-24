@@ -5,7 +5,7 @@ import {
   Tooltip as RechartsTooltip,
   Legend as RechartsLegend,
 } from "recharts";
-import { twMerge } from "tailwind-merge";
+import { cn } from "./cn";
 
 // Primitivo de charts: réplica del patrón de shadcn (ChartContainer + ChartConfig
 // + tooltip/legend), sobre recharts, themable por CSS vars. NO usa Radix. El
@@ -13,9 +13,6 @@ import { twMerge } from "tailwind-merge";
 // El color de cada serie se inyecta como `--color-<key>` desde el `config`, así
 // los hijos recharts usan `var(--color-<key>)` y el dark-mode sale gratis (los
 // tokens --chart-* ya cambian en .dark).
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  twMerge(classes.filter(Boolean).join(" "));
 
 export type ChartConfig = Record<
   string,

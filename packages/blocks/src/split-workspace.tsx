@@ -1,29 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-
-function useIsDesktop(): boolean {
-  const [isDesktop, setIsDesktop] = useState<boolean>(() => {
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia
-    ) {
-      return window.matchMedia("(min-width: 768px)").matches;
-    }
-    return true; // default to desktop when unavailable (jsdom)
-  });
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia("(min-width: 768px)");
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  return isDesktop;
-}
+import { useIsDesktop } from "@ts/ui/use-media-query";
 
 export interface SplitWorkspaceProps {
   media: ReactNode;
