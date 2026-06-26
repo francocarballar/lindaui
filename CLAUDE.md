@@ -74,7 +74,7 @@ Antes del primer mensaje, 3 chequeos. **Solo hablar si hay algo accionable** (si
 
 **PROHIBIDO aunque lo pidan (sin confirmación):** `changeset publish` / `npm publish` · `git push` a remoto · `git push --force` · crear repo remoto · borrar trabajo sin confirmación tipeada.
 
-**Estado de publicación (importante):** la release está **diferida a propósito**. Para publicar hace falta: (1) configurar un git remote (no hay ninguno), (2) `gh` CLI instalado (no está), (3) `NPM_TOKEN` como secret, (4) **verificar que el scope `@ts` en npm esté disponible** — probablemente está tomado y haya que renombrar el scope. `.github/workflows/release.yml` ya corre `changeset publish` en push a `main`; falta solo lo de arriba.
+**Estado de publicación (importante):** la release está **diferida a propósito**. **Metadata YA lista** (hecho): los 3 paquetes publicables tienen `license: "MIT"` + `description` + `repository` + `publishConfig.access: "public"`; `@ts/ui`/`@ts/blocks` además `sideEffects: false` (tokens no, es CSS). Hay `LICENSE` (MIT, `Copyright (c) 2026 Franco Carballar`) en raíz + en los 3 paquetes y `README.md` en raíz + 3 paquetes; ambos en el array `files` → entran al tarball (verificado con `npm pack --dry-run`). `.changeset/config.json` ya tiene `access: "public"`. Falta solo lo externo: (1) configurar un git remote (no hay ninguno), (2) `gh` CLI instalado (no está), (3) `NPM_TOKEN` como secret, (4) **scope npm**: `npm view @ts/ui` da 404 → el *nombre* `@ts/ui` está libre, pero que el *org* `@ts` (scope corto) sea reclamable solo se confirma al publicar con la cuenta real; si está tomado, renombrar el scope. `.github/workflows/release.yml` ya corre `changeset publish` en push a `main`; falta solo lo de arriba.
 
 ## Arquitectura (referencia rápida)
 
@@ -107,6 +107,9 @@ apps/storybook  (Storybook 10 / react-vite — preview)
 | Capa de blocks (secciones compuestas) | `@ts/blocks` | `packages/blocks/` |
 | Generador + derive-exports | — | `scripts/` |
 | Storybook (preview, privado) | `storybook` | `apps/storybook/` |
+| App Next.js (consumidor real, privado) | `verona` | `apps/verona/` |
+
+> **Workspace = 6 proyectos:** `@ts/tokens`, `@ts/ui`, `@ts/blocks`, `apps/storybook`, `apps/verona` (+ raíz). `apps/verona` es una app Next.js que consume la lib (no se publica); aparece en `pnpm build`/`test` vía turbo. `LICENSE` + `README.md` viven en la raíz y en cada paquete publicable (`packages/{ui,blocks,tokens}`), incluidos en el array `files`.
 
 ```
 packages/tokens/
@@ -136,7 +139,7 @@ apps/storybook/
   scripts/gen-stories.mjs           # codegen de stories desde el exports de @ts/ui + @ts/blocks
   src/stories/*.stories.tsx         # + generated/ (codegen, COMMITEADO: el catálogo carga al clonar sin correr gen:stories)
 
-raíz: pnpm-workspace.yaml · turbo.json · tsconfig.base.json · scripts/ · .changeset/ · .github/workflows/{ci,release}.yml
+raíz: pnpm-workspace.yaml · turbo.json · tsconfig.base.json · scripts/ · .changeset/ · .github/workflows/{ci,release}.yml · LICENSE · README.md · docs/superpowers/{specs,plans}/ (SDD: specs + plans de metadata/license-readmes/test-coverage)
 ```
 
 ## `@ts/ui` — estilos de wrapper (leer antes de tocar componentes)
@@ -235,10 +238,14 @@ pnpm release                 # changeset publish (NO correr sin confirmar)
 9. **`apps/storybook` sin `tsconfig.json` → JSX classic** → Vite/esbuild busca `tsconfig.json` (no `tsconfig.base.json`); sin él cae a JSX `classic` (`React.createElement`) y las stories con JSX inline revientan con `ReferenceError: React is not defined` (las que solo declaran `component`/args sobreviven). Fix: `apps/storybook/tsconfig.json` extendiendo base (`jsx: react-jsx`) → runtime automatic. Necesita `@types/react`+`@types/react-dom` como devDeps para typecheck. Tras el cambio, limpiar `node_modules/.cache` (la cache de Vite guarda los módulos compilados en classic).
 10. **CSS sin utilities → blocks/bespoke se ven "solo texto"** → `@ts/tokens/css` solo trae las utilities de Tailwind si el build escanea el source que las usa (`@source "../ui/src"` + `"../blocks/src"` en `build-css.mjs`). Si un block aparece sin estilo en Storybook/consumidor: falta el `@source`, o no se rebuildeó `@ts/tokens` tras usar utilities nuevas. HeroUI (Button/Input/Card) se pinta igual con sus clases BEM; lo que se rompe son los layouts con utilities y los bespoke (badge/status-chip). **CRÍTICO:** tras agregar clases nuevas (sobre todo responsive `sm:/md:/lg:` o arbitrarias `[...]`) en cualquier block/componente/story, **rebuildeá `@ts/tokens`** (`cd packages/tokens && pnpm build`). `pnpm storybook:build`/`storybook dev` NO re-corren Tailwind — consumen el `dist/index.css` prebuildeado; si no rebuildeás, las clases nuevas faltan y el layout sale mobile/sin estilo a todo ancho. Síntoma típico: `lg:`/`grid-cols-[...]` "no funcionan". Para debuggear si una clase existe en el CSS, ojo con el escaping: el `:` va como `\:` y `[`/`.` van escapados → un `grep` ingenuo da falso negativo.
 11. **Naming de utilities = el del `@theme inline`, no el del poc** → las utilities Tailwind salen de los `--color-*` que declara `theme.css`, NO de los nombres de variable crudos. Trampa pisada: el poc usa `bg-viewer-bg` pero teníamos `--color-viewer` → la utility era `bg-viewer` y `bg-viewer-bg` no existía (panel sin fondo, texto invisible). Fix: alias `--color-viewer-bg` en `@theme inline`. Regla: si vas a reusar clases del source migrado verbatim, exponé el `--color-*` con ese nombre exacto. Utilities viewer válidas hoy: `bg-viewer` / `bg-viewer-bg` (alias) / `text-viewer-foreground` / `border-viewer-border`.
+12. **Mover la carpeta del repo rompe `node_modules` de pnpm** → pnpm guarda el path absoluto en `node_modules/.modules.yaml`; tras un `Move-Item`/`mv` del workspace, el próximo `pnpm install`/`turbo build` intenta purgar y recrear el modules dir y aborta sin TTY (`ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`). Fix: `CI=true pnpm install` (reusa el store, ~reinstala links sin descargar). No es que `node_modules` "se preserve" al mover — hay que reinstalar. Además, un `git worktree` anidado (ej. `.claude/worktrees/*`) registra paths absolutos en `.git/worktrees` → removerlo (`git worktree remove --force` + purgar el dir; si "Filename too long", robocopy mirror-from-empty) ANTES de mover.
 
 ## Convenciones de tests
 
-Vitest + jsdom + `@testing-library/react` + `user-event`. Co-locados. **Solo queries semánticas** (`getByRole`, `getByLabelText`, `findByRole`) — sin `getByTestId`. Para componentes compound re-exportados que requieren `@internationalized/date` o composición pesada (date/color), el test asserta que el export resuelve (`toBeDefined`), no renderiza media composición. Para debuggear estructura RAC en jsdom: `console.log(container.innerHTML)`.
+Vitest + jsdom + `@testing-library/react` + `user-event`. Co-locados. **Solo queries semánticas** (`getByRole`, `getByLabelText`, `findByRole`; `getByText` ok para bespoke sin rol) — sin `getByTestId`. Para componentes compound re-exportados que requieren `@internationalized/date` o composición pesada (date/color), el test asserta que el export resuelve (`toBeDefined`), no renderiza media composición. Para debuggear estructura RAC en jsdom: `console.log(container.innerHTML)`. **Cobertura: cero gap** — todo módulo fuente de `@ts/ui` aparece en ≥1 test (suite actual: 38 files / 112 tests). Dos suites compartidas agrupan los `toBeDefined`: `src/date-time-color.test.tsx` (date/time/color) y `src/compound-exports.test.tsx` (los 22 re-export: accordion/card/popover/tooltip/drawer/etc.). Trampas de test pisadas:
+- **`otp-input`**: HeroUI `InputOTP` (lib `input-otp`) agenda trabajo async (ResizeObserver/timers) que en jsdom dispara un *unhandled error* flaky post-test → su test asserta solo el export (`toBeDefined`), no renderiza. Si SÍ tenés que renderizar algo basado en `input-otp` o charts, polyfilleá `globalThis.ResizeObserver ||= class { observe(){} unobserve(){} disconnect(){} }` en `beforeAll`.
+- **`ToggleButtonGroup` con `selectionMode="single"`** rinde sus hijos `ToggleButton` con **`role="radio"`** (no `button`); `onSelectionChange` emite un `Set<Key>` (`[...set]` para materializar). `CheckboxGroup` emite `onChange(string[])`. Confirmar el rol observado con `container.innerHTML`, no asumirlo.
+- **`SwitchGroup` es layout puro** (sin `value`/`onChange`); **`avatar` wrapper expone solo el Root** — `Avatar.Image`/`Avatar.Fallback` (donde vive el fallback de `src` roto) NO son alcanzables vía `@ts/ui/avatar`. Ambos sin comportamiento testeable más allá del smoke render.
 
 ## Release
 
