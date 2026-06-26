@@ -1,6 +1,16 @@
 {
   "name": "@ts/ui",
   "version": "0.0.1",
+  "description": "React 19 design-system components wrapping HeroUI v3 (react-aria-components) behind stable per-component entry points.",
+  "author": "Franco Carballar <francocarballar@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francocarballar/ts-design-system.git",
+    "directory": "packages/ui"
+  },
+  "publishConfig": { "access": "public" },
+  "sideEffects": false,
   "type": "module",
   "exports": {
     "./field": { "types": "./dist/field.d.ts", "import": "./dist/field.js" },
@@ -75,7 +85,7 @@
     "./use-disclosure": { "types": "./dist/use-disclosure.d.ts", "import": "./dist/use-disclosure.js" },
     "./use-media-query": { "types": "./dist/use-media-query.d.ts", "import": "./dist/use-media-query.js" }
   },
-  "files": ["dist"],
+  "files": ["dist", "LICENSE", "README.md"],
   "scripts": {
     "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
     "dev": "bunchee --watch",

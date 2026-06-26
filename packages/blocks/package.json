@@ -1,6 +1,16 @@
 {
   "name": "@ts/blocks",
   "version": "0.0.1",
+  "description": "Composed UI sections (auth, lists, master-detail, charts) built on @ts/ui — importable npm package, not a copy-paste registry.",
+  "author": "Franco Carballar <francocarballar@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francocarballar/ts-design-system.git",
+    "directory": "packages/blocks"
+  },
+  "publishConfig": { "access": "public" },
+  "sideEffects": false,
   "type": "module",
   "exports": {
     "./login-form": { "types": "./dist/login-form.d.ts", "import": "./dist/login-form.js" },
@@ -26,7 +36,7 @@
     "./chart-card": { "types": "./dist/chart-card.d.ts", "import": "./dist/chart-card.js" },
     "./stats-grid": { "types": "./dist/stats-grid.d.ts", "import": "./dist/stats-grid.js" }
   },
-  "files": ["dist"],
+  "files": ["dist", "LICENSE", "README.md"],
   "scripts": {
     "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
     "dev": "bunchee --watch",
