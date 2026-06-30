@@ -9,6 +9,10 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # changesets empuja el commit/tag de version
+      pull-requests: write # changesets abre/actualiza el "Version Packages" PR
+      id-token: write # OIDC: auth a npm sin token + provenance attestation
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,6 +26,9 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      # OIDC Trusted Publishing necesita npm >= 11.5 (el runner trae 10.x)
+      - run: npm install -g npm@latest
+
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm turbo build
@@ -33,4 +40,9 @@ jobs:
           commit: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Provenance attestation (supply-chain): requiere id-token: write
+          NPM_CONFIG_PROVENANCE: true
+          # Bootstrap: token SOLO para el primer publish (crea los 3 paquetes).
+          # Tras configurar Trusted Publisher en npmjs.com por paquete, OIDC toma
+          # el control automaticamente; borra el secret NPM_TOKEN + esta linea.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
