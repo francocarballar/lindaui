@@ -43,6 +43,7 @@ jobs:
           # Provenance attestation (supply-chain): requiere id-token: write
           NPM_CONFIG_PROVENANCE: true
           # Bootstrap: token SOLO para el primer publish (crea los 3 paquetes).
-          # Tras configurar Trusted Publisher en npmjs.com por paquete, OIDC toma
-          # el control automaticamente; borra el secret NPM_TOKEN + esta linea.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # changesets/action lee NPM_TOKEN (no NODE_AUTH_TOKEN) para elegir
+          # token sobre OIDC. Tras configurar Trusted Publisher en npmjs.com por
+          # paquete, borra el secret NPM_TOKEN + esta linea -> OIDC puro.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
