@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/tokens",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Brand design tokens (OKLCH light/dark) + HeroUI v3 + Tailwind v4 compiled into a single CSS bundle.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
@@ -9,12 +9,18 @@
     "url": "git+https://github.com/francocarballar/ts-design-system.git",
     "directory": "packages/tokens"
   },
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "exports": {
     "./css": "./dist/index.css"
   },
-  "files": ["dist", "LICENSE", "README.md"],
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "build": "node scripts/build-css.mjs",
     "dev": "node scripts/build-css.mjs --watch"
@@ -25,4 +31,3 @@
     "@heroui/react": "^3.2.1"
   }
 }
-
