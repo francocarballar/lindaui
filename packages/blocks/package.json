@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/francocarballar/ts-design-system.git",
+    "url": "git+https://github.com/francocarballar/lindaui.git",
     "directory": "packages/blocks"
   },
   "publishConfig": {
