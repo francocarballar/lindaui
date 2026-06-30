@@ -35,15 +35,23 @@ jobs:
 
       - uses: changesets/action@v1
         with:
-          publish: pnpm changeset publish
+          # NO usar `changeset publish`: changesets@2.31 + npm 11 crashea en
+          # isAlreadyPublishedError (TypeError ...reading 'includes') al parsear
+          # la respuesta de npm, enmascarando el error real. `pnpm -r publish` es
+          # robusto, reemplaza workspace:*, saltea paquetes ya publicados, y
+          # respeta NPM_CONFIG_PROVENANCE. El Version PR lo sigue armando
+          # changesets (este step solo cambia el comando de publish).
+          publish: pnpm -r publish --access public --no-git-checks
           title: "chore: version packages"
           commit: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Provenance attestation (supply-chain): requiere id-token: write
           NPM_CONFIG_PROVENANCE: true
-          # Bootstrap: token SOLO para el primer publish (crea los 3 paquetes).
-          # changesets/action lee NPM_TOKEN (no NODE_AUTH_TOKEN) para elegir
-          # token sobre OIDC. Tras configurar Trusted Publisher en npmjs.com por
-          # paquete, borra el secret NPM_TOKEN + esta linea -> OIDC puro.
+          # El secret NPM_TOKEN DEBE bypassear 2FA (Automation o granular con
+          # "bypass 2FA"); un token sin bypass da E403 que npm enmascara como
+          # E404 en el PUT. changesets/action lo lee como NPM_TOKEN (no
+          # NODE_AUTH_TOKEN) y escribe el .npmrc. Tras configurar Trusted
+          # Publisher (OIDC) en npmjs.com por paquete, borra el secret + esta
+          # linea -> OIDC puro (el id-token: write de arriba ya esta).
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
