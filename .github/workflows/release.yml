@@ -34,15 +34,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # DEBUG temporal: confirma quien es el token del secret. Si tira "Unable
-      # to authenticate"/ENEEDAUTH -> el secret NPM_TOKEN esta mal (valor viejo,
-      # newline al pegar, o sin permiso en @lindaui). Si imprime "francocarballar"
-      # el token esta bien y el problema es otro. Borrar este step despues.
-      - name: debug npm identity
-        run: npm whoami --registry https://registry.npmjs.org
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - run: pnpm turbo build
 
       - uses: changesets/action@v1
@@ -58,12 +49,12 @@ jobs:
           commit: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NPM_CONFIG_PROVENANCE: true  # RE-AGREGAR junto con id-token: write
-          # SOLO tras configurar OIDC Trusted Publisher. Provenance necesita la
-          # via OIDC; pedirla sin Trusted Publisher rompe el publish con token.
-          # El secret NPM_TOKEN DEBE bypassear 2FA (Automation o granular con
-          # "bypass 2FA"). changesets/action lo lee como NPM_TOKEN (no
-          # NODE_AUTH_TOKEN) y escribe el .npmrc. Es el MISMO token que publico
-          # el 0.0.2 local. Camino final: OIDC Trusted Publisher -> borrar el
-          # secret + esta linea + re-agregar id-token/provenance arriba.
+          # AUTH: setup-node (registry-url) setea NPM_CONFIG_USERCONFIG -> su
+          # .npmrc con _authToken=${NODE_AUTH_TOKEN}. Ese .npmrc gana sobre el
+          # que escribe changesets/action, asi que el token DEBE llegar como
+          # NODE_AUTH_TOKEN (no solo NPM_TOKEN), sino resuelve a vacio -> E404.
+          # NPM_TOKEN queda para que changesets/action no caiga a OIDC.
+          # NPM_CONFIG_PROVENANCE: true  # RE-AGREGAR con id-token: write SOLO
+          # tras configurar OIDC Trusted Publisher (provenance necesita OIDC).
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
