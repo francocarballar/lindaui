@@ -1,5 +1,11 @@
 # @lindaui/tokens
 
+## 0.0.3
+
+### Patch Changes
+
+- da0aa04: ship llms.txt in tarball
+
 ## 0.0.2
 
 ### Patch Changes

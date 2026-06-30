@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/ui",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React 19 design-system components wrapping HeroUI v3 (react-aria-components) behind stable per-component entry points.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",

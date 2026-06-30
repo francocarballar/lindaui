@@ -1,5 +1,14 @@
 # @lindaui/blocks
 
+## 0.0.3
+
+### Patch Changes
+
+- da0aa04: ship llms.txt in tarball
+- Updated dependencies [da0aa04]
+  - @lindaui/tokens@0.0.3
+  - @lindaui/ui@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes
