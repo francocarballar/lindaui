@@ -12,7 +12,10 @@ jobs:
     permissions:
       contents: write # changesets empuja el commit/tag de version
       pull-requests: write # changesets abre/actualiza el "Version Packages" PR
-      id-token: write # OIDC: auth a npm sin token + provenance attestation
+      # id-token: write  # RE-AGREGAR al configurar OIDC Trusted Publisher.
+      # Con id-token presente pnpm intenta OIDC primero; sin Trusted Publisher
+      # el token-exchange da 404 y, con provenance activa, el publish con token
+      # termina en E404. Hasta configurar OIDC, publicamos con token puro.
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,12 +49,12 @@ jobs:
           commit: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Provenance attestation (supply-chain): requiere id-token: write
-          NPM_CONFIG_PROVENANCE: true
+          # NPM_CONFIG_PROVENANCE: true  # RE-AGREGAR junto con id-token: write
+          # SOLO tras configurar OIDC Trusted Publisher. Provenance necesita la
+          # via OIDC; pedirla sin Trusted Publisher rompe el publish con token.
           # El secret NPM_TOKEN DEBE bypassear 2FA (Automation o granular con
-          # "bypass 2FA"); un token sin bypass da E403 que npm enmascara como
-          # E404 en el PUT. changesets/action lo lee como NPM_TOKEN (no
-          # NODE_AUTH_TOKEN) y escribe el .npmrc. Tras configurar Trusted
-          # Publisher (OIDC) en npmjs.com por paquete, borra el secret + esta
-          # linea -> OIDC puro (el id-token: write de arriba ya esta).
+          # "bypass 2FA"). changesets/action lo lee como NPM_TOKEN (no
+          # NODE_AUTH_TOKEN) y escribe el .npmrc. Es el MISMO token que publico
+          # el 0.0.2 local. Camino final: OIDC Trusted Publisher -> borrar el
+          # secret + esta linea + re-agregar id-token/provenance arriba.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
