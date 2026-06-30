@@ -303,7 +303,8 @@
   "files": [
     "dist",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "llms.txt"
   ],
   "scripts": {
     "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
