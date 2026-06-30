@@ -33,8 +33,52 @@ That single import brings:
 Toggle a `.dark` class on any ancestor element. Only the canonical tokens are
 redefined in `.dark`; the HeroUI vars are references, so everything follows.
 
-## Notes for agents
+## Custom theme (per consuming project)
 
-- It is the only export: `@lindaui/tokens/css`. There is no JS entry point.
-- `@lindaui/ui` and `@lindaui/blocks` declare this as a peer — install it alongside.
-- If a layout looks unstyled ("just text"), the consumer usually forgot this import.
+Theming = overriding the **canonical** CSS vars; everything reads them at runtime, so
+no rebuild and no component changes. Override AFTER the base import:
+
+```tsx
+import "@lindaui/tokens/css";   // default (teal) theme
+import "./theme.css";            // your brand — wins by source order
+```
+
+```css
+/* theme.css — override ONLY canonical vars */
+:root { --primary: oklch(0.55 0.2 264); --primary-foreground: oklch(.98 0 0); --ring: oklch(0.55 0.2 264); --radius: 0.5rem; --chart-1: oklch(0.6 0.2 264); }
+.dark { --primary: oklch(0.72 0.16 264); --primary-foreground: oklch(.2 0 0); --ring: oklch(0.72 0.16 264); }
+```
+
+There are THREE var systems — override only (A):
+- **(A) canonical** (source of truth, override these): `--background`, `--foreground`,
+  `--card(-foreground)`, `--popover(-foreground)`, `--secondary(-foreground)`,
+  `--muted-foreground`, `--primary(-foreground)`, `--destructive`, `--success(-foreground)`,
+  `--warning(-foreground)`, `--border`, `--input`, `--ring`, `--radius`,
+  `--chart-1..5`, `--viewer-*`.
+- **(B) HeroUI** (`--accent`/`--surface`/`--default`/`--danger`/`--focus`/...) — refs to (A),
+  DO NOT override.
+- **(C) utilities** (`--color-*` from `@theme inline`) — refs to (A), DO NOT override.
+  Soft variants (`--accent-soft`/`--danger-soft`/...) are `color-mix` of (A), follow for free.
+
+A ready, commented starting point ships as `@lindaui/tokens/theme-template.css` — copy it
+into your project and fill in your brand. Resolve its path with
+`require.resolve('@lindaui/tokens/theme-template.css')`.
+
+### Runtime-switchable themes
+
+For multiple themes in one app (beyond dark/light), scope each theme under a selector
+instead of `:root` (matrix = theme × mode):
+
+```css
+[data-theme="ocean"]      { --primary: oklch(0.55 0.13 240); --ring: oklch(0.55 0.13 240); }
+[data-theme="ocean"].dark { --primary: oklch(0.78 0.12 240); }
+```
+
+Toggle with `document.documentElement.dataset.theme = "ocean"` + the `.dark` class.
+
+## Exports & notes for agents
+
+- `@lindaui/tokens/css` → the compiled stylesheet (the only thing you import for runtime).
+- `@lindaui/tokens/theme-template.css` → commented theme template to copy (not imported).
+- No JS entry point. `@lindaui/ui` and `@lindaui/blocks` declare this as a peer.
+- If a layout looks unstyled ("just text"), the consumer usually forgot the `/css` import.

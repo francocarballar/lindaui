@@ -14,13 +14,15 @@
   },
   "type": "module",
   "exports": {
-    "./css": "./dist/index.css"
+    "./css": "./dist/index.css",
+    "./theme-template.css": "./theme-template.css"
   },
   "files": [
     "dist",
     "LICENSE",
     "README.md",
-    "llms.txt"
+    "llms.txt",
+    "theme-template.css"
   ],
   "scripts": {
     "build": "node scripts/build-css.mjs",

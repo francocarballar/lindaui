@@ -1,0 +1,126 @@
+/* ============================================================
+   @lindaui — THEME TEMPLATE (copiá este archivo a tu proyecto)
+
+   Cada proyecto consumidor define su marca pisando las variables
+   CANÓNICAS de abajo. NO necesitás rebuildear @lindaui/tokens ni tocar
+   componentes: HeroUI v3, los bespoke, las utilities (bg-primary, ...) y
+   los charts leen estas vars en runtime, así que re-skinean solos.
+
+   USO (orden importa — el tema va DESPUÉS de la base):
+     import "@lindaui/tokens/css";   // HeroUI + utilities + tema default
+     import "./theme.css";            // este archivo, con TUS valores
+
+   REGLA DE ORO: pisá SOLO las variables de este archivo (las "canónicas").
+   NO toques las de HeroUI (--accent/--surface/--default/--danger/--focus/...)
+   ni las utilities (--color-*): son referencias a estas y se actualizan solas.
+   Las variantes soft (--accent-soft, --danger-soft, ...) salen por color-mix
+   desde --primary/--destructive → cambian con tu marca automáticamente.
+
+   Los valores de acá son los DEFAULT (teal). Cambialos por los tuyos.
+   Color en OKLCH: oklch(L C H) — L 0..1 (luz), C croma, H 0..360 (matiz).
+   ============================================================ */
+
+:root {
+  /* ── Superficies + texto base ── */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.97 0 0); /* superficie neutra (bg-secondary) */
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted-foreground: oklch(0.556 0 0); /* texto atenuado (text-muted-foreground) */
+
+  /* ── Marca (lo más importante) ── */
+  --primary: oklch(0.47 0.097 183); /* <- TU color de marca */
+  --primary-foreground: oklch(0.985 0 0); /* texto sobre la marca */
+
+  /* ── Estado ── */
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.59 0.163 148);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.56 0.14 58);
+  --warning-foreground: oklch(1 0 0);
+
+  /* ── Bordes / input / foco / radio ── */
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.47 0.097 183); /* normalmente == --primary */
+  --radius: 0.625rem; /* escala sm/md/lg/xl... deriva de esto */
+
+  /* ── Paleta categórica de charts ── */
+  --chart-1: oklch(0.55 0.12 183);
+  --chart-2: oklch(0.6 0.12 220);
+  --chart-3: oklch(0.65 0.14 150);
+  --chart-4: oklch(0.72 0.15 80);
+  --chart-5: oklch(0.62 0.19 25);
+
+  /* ── Visor media (oscuro SIEMPRE; opcional, borralo si no usás image-viewer) ── */
+  --viewer-bg: oklch(0.22 0.027 214);
+  --viewer-foreground: oklch(0.88 0.012 220);
+  --viewer-border: oklch(0.3 0.025 214);
+
+  /* Tipografía: inyectá tus fuentes vía --font-sans / --font-mono / --font-heading
+     (ej. next/font expone --font-xxx). Si no, quedan los fallbacks del default. */
+}
+
+/* ── Dark mode: redefiní SOLO lo que cambia en oscuro (toggleás la clase .dark) ── */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --primary: oklch(0.79 0.12 181); /* marca más brillante en dark */
+  --primary-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.7 0.16 150);
+  --success-foreground: oklch(0.205 0 0);
+  --warning: oklch(0.75 0.14 70);
+  --warning-foreground: oklch(0.205 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.79 0.12 181);
+  --chart-1: oklch(0.7 0.13 183);
+  --chart-2: oklch(0.7 0.13 220);
+  --chart-3: oklch(0.72 0.15 150);
+  --chart-4: oklch(0.78 0.15 80);
+  --chart-5: oklch(0.7 0.18 25);
+}
+
+/* ============================================================
+   TEMAS CONMUTABLES EN RUNTIME (opcional)
+
+   Si querés varios temas en el MISMO proyecto, conmutables sin reload
+   (además de dark/light), scopeá cada tema bajo un selector en vez de
+   :root. La matriz es tema × modo. Toggleás el atributo data-theme en
+   <html> (o cualquier ancestro) y la clase .dark como siempre.
+
+   <html data-theme="ocean" class="dark">
+
+   Default (sin data-theme) = el bloque :root/.dark de arriba.
+   Cada tema extra define su light bajo [data-theme="x"] y su dark bajo
+   [data-theme="x"].dark. Solo necesitás repetir las vars que cambian.
+
+   [data-theme="ocean"] {
+     --primary: oklch(0.55 0.13 240);
+     --primary-foreground: oklch(0.985 0 0);
+     --ring: oklch(0.55 0.13 240);
+     --chart-1: oklch(0.6 0.14 240);
+     ...
+   }
+   [data-theme="ocean"].dark {
+     --primary: oklch(0.78 0.12 240);
+     --primary-foreground: oklch(0.205 0 0);
+     --ring: oklch(0.78 0.12 240);
+     ...
+   }
+
+   En JS: document.documentElement.dataset.theme = "ocean";  // cambiar
+          document.documentElement.classList.toggle("dark"); // modo
+   ============================================================ */

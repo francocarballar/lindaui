@@ -263,6 +263,17 @@ Si Franco dice explícito *"dejá su diseño tal cual"* / *"no lo adaptes"* / *"
 
 `src/theme.css` hostea el **design system ThinkInformes** (médico/teal, valores de poc_generator DESIGN.md, OKLCH `:root` light + `.dark`): (1) tokens semánticos shadcn-style canónicos (`--primary` teal, `--card`, `--destructive`, `--ring`, `--viewer-*`, paleta de charts `--chart-1..5` anclada en teal, etc.); (2) las vars **nativas de HeroUI v3** (`--accent`/`--surface`/`--overlay`/`--default`/`--danger`/`--focus`/`--radius`) referencian los canónicos vía `var()` → los componentes HeroUI se pintan con la marca teal (HeroUI rellena soft/hover/field con sus defaults de `@heroui/styles`, que se overridean por estar `theme.css` **unlayered**, gana sobre `layer(theme)`); (3) un `@theme inline` expone las utilities shadcn que el consumidor usa (`bg-primary`, `text-muted-foreground`, `bg-card`, escala de radius DESIGN, `font-*`) + base raíz 18px. `.dark` solo redefine los canónicos; las vars HeroUI (refs) siguen. Colisiones de nombre resueltas: `--accent` = marca (HeroUI), no el neutro shadcn; `--muted` raw = texto (HeroUI), y `bg-muted` (neutro) sale por `@theme` desde `--secondary`.
 
+**Theming por consumidor (cada proyecto su marca, SIN rebuild).** Como (B) y (C) son `var()` a los canónicos (A) y el `@theme inline` mantiene la ref en runtime, **un consumidor re-skina toda la lib redefiniendo las vars (A)** — no se rebuildea `@lindaui/tokens` ni se tocan componentes. Patrón: importar el tema **después** de `@lindaui/tokens/css` (mismo specificity + orden posterior gana; ambos unlayered):
+
+```css
+@import "@lindaui/tokens/css";   /* default teal */
+/* o en JS: import "@lindaui/tokens/css"; import "./theme.css"; */
+:root { --primary: oklch(...); --primary-foreground: ...; --ring: ...; --radius: ...; --chart-1: ...; }
+.dark { --primary: oklch(...); ... }
+```
+
+Regla: **pisar SOLO los canónicos (A)**; nunca (B) HeroUI ni (C) `--color-*` (son refs). Las soft (`--accent-soft`/`--danger-soft`) salen por `color-mix` de (A) → siguen la marca solas. Ship `@lindaui/tokens/theme-template.css` (export + en `files`): skeleton comentado con todos los canónicos (`:root` + `.dark`) + el patrón **conmutable en runtime** (`[data-theme="x"]` / `[data-theme="x"].dark`, matriz tema×modo). El template es referencia, NO obligatorio — el override a mano alcanza (probado en el consumidor `apps/verona` y en proyectos externos). Documentado en `packages/tokens/README.md` + `llms.txt`. **No confundir** con el `@theme inline` que un consumidor pueda tener en su `globals.css` para mapear SUS utilities a los canónicos (es su puente, no el de la lib).
+
 ## Anti-regresiones (trampas ya pisadas — no repetir)
 
 1. **bunchee dts-bundle OOM** → el build es de dos pasos. El path de declaraciones bundleadas de bunchee revienta el heap de Node (>4GB) sobre las ~66 entries con el grafo de tipos pesado de HeroUI. `tsc --emitDeclarationOnly` es estable en memoria. **No volver a `bunchee` pelado.** `@types/react` + `@types/react-dom` son devDeps necesarias para que `tsc` emita (vitest no las necesitaba, tsc sí).
