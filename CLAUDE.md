@@ -30,6 +30,7 @@ Antes del primer mensaje, 3 chequeos. **Solo hablar si hay algo accionable** (si
 | Verbo / framing | Acción | Pre-requisito |
 |---|---|---|
 | *"agregá el componente X"*, *"falta wrapper de Y"* | Componente nuevo en `@lindaui/ui` | Leer el `.d.ts` real de HeroUI + elegir estilo de wrapper (abajo) + TDD |
+| *"cloná/portá/adaptá este componente"*, pego un `.tsx` de otro DS | Portar al DS de `@lindaui` (ver "Clonar/portar de otro DS") | **Adaptar por default, NO copiar**: mapear primitivos→`@lindaui/ui`, colores/tokens→utilities propias, aplicar convenciones. Preservar solo la lógica |
 | *"cambiá el token X"*, *"el acento de marca"* | Editar `packages/tokens/src/theme.css` | Rebuild `dist/index.css` |
 | *"está fallando"*, *"no renderiza"*, *"el test rompe"* | Debug | Reproducir con vitest antes de hipotetizar; mirar el DOM real con `container.innerHTML` |
 | *"escribí el test primero"*, *"TDD esto"* | TDD | Test co-locado, queries semánticas |
@@ -218,6 +219,43 @@ pnpm release                 # changeset publish (NO correr sin confirmar)
 - El codegen vive en `scripts/` (Node `.mjs`, templates string — sin plop/hygen). `gen.mjs` orquesta; `derive-exports.mjs` hace la derivación (reusable por paquete).
 
 **Entries no-componente de `@lindaui/ui` (hooks + util):** además de los 68 wrappers, `@lindaui/ui` exporta utilidades (cada `src/<n>.{ts,tsx}` no-test = una entry, igual que los componentes): `@lindaui/ui/search` (`normalizeText`/`matchesSearch`), `@lindaui/ui/cn` (re-export de `cn` de `tailwind-variants` — mismo merge+dedup tailwind que usa HeroUI; punto único, `chart.tsx` lo consume en vez de copia local), `@lindaui/ui/use-disclosure` (estado boolean para overlays controlados: `isOpen`/`open`/`close`/`toggle`, callbacks estables — HeroUI v3 no trae uno) y `@lindaui/ui/use-media-query` (`useMediaQuery(q)` SSR-safe + helpers `useIsDesktop`/`useIsMobile` ancladas al breakpoint md 768px; el block `split-workspace` lo consume). Los hooks llevan `"use client"`; test co-locado con `renderHook` (jsdom no trae `matchMedia` → los tests lo stubean, el hook degrada a `false` sin tirar).
+
+## Clonar / portar componentes de otro design system (comportamiento PRIORITARIO)
+
+Cuando Franco pega un `.tsx` (o varios) de **otro design system** — shadcn, NextUI v2, MUI, Chakra, Ant, Mantine, Radix pelado, Tailwind UI, o un dump de v0/Lovable/Bolt — y pide *"cloná esto"* / *"portá"* / *"adaptá"* / *"sumá este componente"*: **el default es PORTARLO al DS de `@lindaui`, NO copiar-pegar.** Esto pisa cualquier reflejo de preservar el código tal cual. Lo único que se preserva intacto es la **lógica/estado/comportamiento/accesibilidad**; toda la capa visual y de componentes se normaliza a `@lindaui`.
+
+### Pipeline determinista (en orden, sin preguntar salvo el paso 5)
+
+1. **Mapear primitivos → `@lindaui/ui`.** Sus componentes UI → el entry point equivalente. Tabla abajo. Si el origen es shadcn/NextUI v2 la correspondencia suele ser 1:1 conceptual (pero la API es la de `@lindaui`, no la de ellos — ver "estilos de wrapper" y las convenciones).
+2. **Reemplazar colores/tokens/valores arbitrarios → utilities propias.** `#0ea5e9`/`bg-sky-500`/`text-gray-500`/`rounded-[12px]`/`shadow-[...]` → `bg-primary`/`text-muted-foreground`/`rounded-lg` (escala de radius del `@theme inline`)/`bg-card`/`border`. Cero hex hardcoded, cero `bg-<palette>-<n>` de Tailwind crudo, cero arbitrary `[...]` salvo que no exista token (y si se repite, se promueve a token en `theme.css`).
+3. **Tirar la capa de DS ajena.** Imports tipo `@/components/ui/*`, `@radix-ui/*`, `@mui/*`, `class-variance-authority` propio, CSS-in-JS (styled/emotion), sus archivos de tokens. Su `cn`/`clsx` → `@lindaui/ui/cn`.
+4. **Aplicar convenciones del repo.** `"use client"` si es interactivo; handlers correctos (`onChange(value)` no `onValueChange`, `onPress` en Button, etc.); `Button variant` no `color`; nada de `SelectItem`/`ModalContent`; responsive **mobile-first** (`base` + `sm/md/lg`); sin emojis; copy en español si el original lo tenía hardcodeado y no es dominio.
+5. **Decidir destino y huecos — acá SÍ una pregunta si hay trade-off real:** ¿es primitivo (`@lindaui/ui`) o sección compuesta (`@lindaui/blocks`)? Si un primitivo del origen **no tiene equivalente** en `@lindaui/ui` → ¿creo wrapper nuevo de HeroUI v3 (leyendo su `.d.ts`), uso un bespoke con tokens, o lo inlineo? Si **acopla dominio** → qué generalizar. Una pregunta concreta, no menú.
+6. **Cerrar como cualquier entry nueva.** `pnpm gen:component`/`gen:block` para el scaffold + entry; TDD (test co-locado, queries semánticas); si usa utilities nuevas (sobre todo responsive/arbitrary) **rebuild `@lindaui/tokens`** (Anti-regresión #10); actualizar el `llms.txt` del paquete (protocolo); changeset (componente/block nuevo = **minor**).
+
+### Tabla de mapeo (origen → `@lindaui`)
+
+| Vienen con… | Va a… |
+|---|---|
+| `<Button>` (cualquier DS), `variant`/`color` ajeno | `@lindaui/ui/button` — `variant: primary\|secondary\|ghost\|danger\|link` |
+| input/textarea/select/checkbox/radio/switch/slider | el wrapper ergonómico homónimo de `@lindaui/ui` (API flat, `onChange`) |
+| modal/dialog, alert/confirm | `@lindaui/ui/dialog` / `@lindaui/ui/alert-dialog` (controlado `open`/`onClose`) |
+| dropdown/menu de acciones | `@lindaui/ui/menu` (`items[]` + `trigger` contenido) |
+| tabla/datagrid | `@lindaui/ui/table` (`columns`/`rows`) |
+| card, accordion, tabs, tooltip, popover, badge, avatar, etc. | el entry homónimo (thin wrap / compound re-export / bespoke según "estilos de wrapper") |
+| date/time/color pickers | los compound re-export de `@lindaui/ui` (necesitan `@internationalized/date`) |
+| charts (recharts/visx/nivo) | `@lindaui/ui/chart` + los chart blocks de `@lindaui/blocks` (API flat `data`+`config`) |
+| sección compuesta (login, lista, master-detail, settings…) | block en `@lindaui/blocks` componiendo primitivos de `@lindaui/ui` |
+| `#hex`, `bg-sky-500`, `text-gray-*`, `rounded-[Npx]` | `bg-primary`/`text-muted-foreground`/`bg-card`/`rounded-<escala>` (tokens) |
+| `cn`/`clsx`/`twMerge` propio | `@lindaui/ui/cn` |
+
+### Checklist de verificación post-clon
+
+Cero hex/`bg-<palette>-<n>` hardcoded · cero imports de DS ajeno · primitivos = `@lindaui/ui` · `onChange` (no `onValueChange`) · `"use client"` si interactivo · responsive mobile-first · entry en el `exports` (gen) · test semántico verde · `@lindaui/tokens` rebuildeado si hay utilities nuevas · `llms.txt` + changeset.
+
+### Lo único que invierte el default
+
+Si Franco dice explícito *"dejá su diseño tal cual"* / *"no lo adaptes"* / *"copia fiel"* → ahí sí se preserva el diseño del origen. El default (adaptar) NO se invierte por inferencia: salvo ese pedido explícito, se porta a `@lindaui`.
 
 ## build de @lindaui/tokens
 
