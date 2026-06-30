@@ -1,0 +1,40 @@
+# @lindaui/tokens
+
+> The brand/design-token CSS bundle for the @lindaui design system. No JS/React — a
+> single prebuilt stylesheet that renders HeroUI v3 styles + brand tokens (OKLCH, teal
+> medical palette) + the Tailwind v4 utilities the libraries use. This file is for
+> coding agents.
+
+## Install
+
+```bash
+pnpm add @lindaui/tokens
+```
+
+## Usage (once, at app root)
+
+```tsx
+import "@lindaui/tokens/css";
+```
+
+That single import brings:
+- HeroUI v3 component styles (`@heroui/styles`)
+- Brand tokens: canonical shadcn-style semantic vars (`--primary` teal, `--card`,
+  `--destructive`, `--ring`, `--viewer-*`, chart palette `--chart-1..5`, ...) in OKLCH,
+  with a `:root` (light) set and a `.dark` set
+- HeroUI v3 native vars (`--accent`/`--surface`/`--overlay`/`--default`/`--danger`/
+  `--focus`/`--radius`) referencing the canonical ones → HeroUI components paint with
+  the teal brand
+- The Tailwind utilities the libraries emit (`bg-primary`, `text-muted-foreground`,
+  `bg-card`, radius scale, `bg-viewer`/`bg-viewer-bg`, bespoke `badge`/`status-chip`)
+
+## Dark mode
+
+Toggle a `.dark` class on any ancestor element. Only the canonical tokens are
+redefined in `.dark`; the HeroUI vars are references, so everything follows.
+
+## Notes for agents
+
+- It is the only export: `@lindaui/tokens/css`. There is no JS entry point.
+- `@lindaui/ui` and `@lindaui/blocks` declare this as a peer — install it alongside.
+- If a layout looks unstyled ("just text"), the consumer usually forgot this import.

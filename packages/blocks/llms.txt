@@ -1,0 +1,108 @@
+# @lindaui/blocks
+
+> Composed UI sections built on **@lindaui/ui** primitives — auth forms, master-detail,
+> lists, dialogs, media viewers, and charts. Importable npm package (NOT a copy-paste
+> registry). Each block has its OWN flat API and does not leak HeroUI/RAC types.
+> This file is for coding agents: every entry, import path, and public API.
+
+All blocks are generic, controlled/mobile-first, and contain zero data-fetching, no
+`next`, no `sonner`. Controlled blocks receive state + handlers from you. For the exact
+type of any export, read `node_modules/@lindaui/blocks/dist/<name>.d.ts`.
+
+## Install
+
+```bash
+pnpm add @lindaui/blocks @lindaui/ui @lindaui/tokens
+```
+
+Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, `recharts >=3`
+(only for chart blocks), plus `@lindaui/ui` and `@lindaui/tokens`. Import the CSS once
+at app root: `import "@lindaui/tokens/css";`.
+
+## Import convention
+
+One block per import path: `@lindaui/blocks/<name>`.
+
+---
+
+## Auth & forms
+
+### @lindaui/blocks/login-form
+`<LoginForm onSubmit={(values)=>...} title emailLabel passwordLabel submitLabel loading
+error bare />` — RHF handled internally; `onSubmit({email,password})`. `bare` drops the
+Card/title for embedding inside a shell (e.g. AuthLayout).
+
+### @lindaui/blocks/auth-layout
+Split-screen auth shell. Slots: `logo`, `compactLogo`, `brandHeadline`,
+`brandDescription`, `brandFeatures: {icon,label}[]`, `brandFooter`, `title`,
+`description`, `footer`, and `children` (the form). Desktop shows a dark brand panel;
+without `brandHeadline`/`brandFeatures` it collapses to a single centered form column.
+
+### @lindaui/blocks/auth-provider
+Context `{ user }` + `useAuth()` hook. Wrap your app; read the current user anywhere.
+
+### @lindaui/blocks/field-array-form
+A select + repeatable rows form via RHF `useFieldArray`.
+
+## Lists & master-detail (controlled)
+
+### @lindaui/blocks/list-item
+Selectable row. Controlled selected state + `onSelect`.
+
+### @lindaui/blocks/list-pane
+Filterable/searchable list shell with loading/empty/error states. Controlled:
+`filters: {key,label,count?}[]`, `activeFilter`, `onFilterChange`, `searchValue`,
+`onSearchChange`, `loading`, `error`, `onRetry`, `isEmpty`, empty/error slots. Items go
+in via `children`. Does NOT filter for you — filter your data (use `@lindaui/ui/search`).
+
+### @lindaui/blocks/detail-panel
+Master-detail right side: empty state + header + meta card + CTA. Controlled.
+
+### @lindaui/blocks/split-workspace
+Responsive split `media | panel` (controlled). Props: `media`, `panel`, `overlay?`,
+`back?`. Two-column on desktop, stacked on mobile (uses `useIsDesktop`).
+
+## Dialogs & overlays
+
+### @lindaui/blocks/confirm-dialog
+`<ConfirmDialog open onOpenChange onConfirm title description confirmLabel cancelLabel
+icon destructive identity={{name}} />` — `destructive` → red confirm button + red icon
+box; `identity` → actor chip under the description.
+
+### @lindaui/blocks/image-viewer
+Full-bleed media viewer with zoom (uses `viewer-*` tokens).
+
+### @lindaui/blocks/recording-overlay
+Voice-recording overlay: timer / waveform / stop.
+
+## Documents
+
+### @lindaui/blocks/document-panel
+Header + per-state body + footer. Controlled.
+
+### @lindaui/blocks/document-reader
+Sectioned text reader.
+
+## Charts (over @lindaui/ui/chart + recharts)
+
+All chart blocks share a flat API:
+`data: Record<string,string|number>[]`, `config: ChartConfig` (serie → {label,color}),
+`categoryKey: string`, `series: string[]` (or `valueKey`/`nameKey` for pie/radial),
+`variant?`, `className?`. Series color comes from `var(--color-<key>)` that
+`ChartContainer` injects from `config`; dark mode is free.
+
+```tsx
+import { AreaChart } from "@lindaui/blocks/area-chart";
+const config = { sales: { label: "Sales", color: "var(--chart-1)" } };
+<AreaChart data={data} config={config} categoryKey="month" series={["sales"]} />
+```
+
+- `@lindaui/blocks/area-chart` — `variant: "default"|"stacked"|"gradient"`
+- `@lindaui/blocks/bar-chart`
+- `@lindaui/blocks/line-chart`
+- `@lindaui/blocks/pie-chart`
+- `@lindaui/blocks/radar-chart`
+- `@lindaui/blocks/radial-chart`
+- `@lindaui/blocks/stat-card` — KPI card: label/value/delta/sparkline
+- `@lindaui/blocks/chart-card` — Card shell wrapping a chart
+- `@lindaui/blocks/stats-grid` — responsive grid of KPI stat-cards
