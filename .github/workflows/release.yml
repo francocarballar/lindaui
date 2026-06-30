@@ -34,6 +34,15 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # DEBUG temporal: confirma quien es el token del secret. Si tira "Unable
+      # to authenticate"/ENEEDAUTH -> el secret NPM_TOKEN esta mal (valor viejo,
+      # newline al pegar, o sin permiso en @lindaui). Si imprime "francocarballar"
+      # el token esta bien y el problema es otro. Borrar este step despues.
+      - name: debug npm identity
+        run: npm whoami --registry https://registry.npmjs.org
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - run: pnpm turbo build
 
       - uses: changesets/action@v1
