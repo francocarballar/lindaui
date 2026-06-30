@@ -45,6 +45,23 @@ Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, and
 - `button`: `variant` (`primary|secondary|ghost|danger|link`), NOT `color`.
 - Dark mode: toggle a `.dark` class on an ancestor.
 
+## Custom theme (per project)
+
+The whole system is driven by CSS custom properties read at runtime, so a consumer
+re-skins everything by overriding the **canonical** vars after the base import — no
+rebuild, no component changes:
+
+```tsx
+import "@lindaui/tokens/css";   // default (teal) theme
+import "./theme.css";            // your brand — overrides --primary, --card, --ring, --radius, --chart-1..5, ...
+```
+
+Override ONLY the canonical vars (not the HeroUI `--accent`/`--surface`/... or the
+`--color-*` utilities — they reference the canonical ones). A commented starting point
+ships as `@lindaui/tokens/theme-template.css`. Runtime-switchable themes: scope each
+under `[data-theme="x"]` instead of `:root`. Full detail in
+[@lindaui/tokens](./packages/tokens/llms.txt).
+
 ## Source
 
 Repo: https://github.com/francocarballar/lindaui — for the exact type of any export,
