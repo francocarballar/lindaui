@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Chip } from "@ts/ui/chip";
+import { Chip } from "@lindaui/ui/chip";
 
 const meta: Meta<typeof Chip> = {
   title: "Status/Chip",

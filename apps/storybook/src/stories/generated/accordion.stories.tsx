@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as M from "@ts/ui/accordion";
+import * as M from "@lindaui/ui/accordion";
 
 const meta: Meta = { title: "Components/Accordion" };
 export default meta;

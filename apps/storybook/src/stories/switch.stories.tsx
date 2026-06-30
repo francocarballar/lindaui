@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Switch } from "@ts/ui/switch";
+import { Switch } from "@lindaui/ui/switch";
 
 const meta: Meta<typeof Switch> = {
   title: "Forms/Switch",

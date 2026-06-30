@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { BarChart } from "@ts/blocks/bar-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { BarChart } from "@lindaui/blocks/bar-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof BarChart> = { title: "Charts/BarChart", component: BarChart };
 export default meta;

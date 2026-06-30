@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { FileText } from "lucide-react";
-import { DocumentPanel } from "@ts/blocks/document-panel";
-import { Badge } from "@ts/ui/badge";
-import { Button } from "@ts/ui/button";
-import { Alert } from "@ts/ui/alert";
+import { DocumentPanel } from "@lindaui/blocks/document-panel";
+import { Badge } from "@lindaui/ui/badge";
+import { Button } from "@lindaui/ui/button";
+import { Alert } from "@lindaui/ui/alert";
 
 const meta: Meta<typeof DocumentPanel> = {
   title: "Blocks/DocumentPanel",

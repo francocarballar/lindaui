@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity, Mic, FileText, Shield, Lock } from "lucide-react";
-import { AuthLayout } from "@ts/blocks/auth-layout";
-import { LoginForm } from "@ts/blocks/login-form";
+import { AuthLayout } from "@lindaui/blocks/auth-layout";
+import { LoginForm } from "@lindaui/blocks/login-form";
 
 const meta: Meta<typeof AuthLayout> = {
   title: "Blocks/AuthLayout",

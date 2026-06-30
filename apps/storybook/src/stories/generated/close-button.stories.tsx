@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { CloseButton } from "@ts/ui/close-button";
+import { CloseButton } from "@lindaui/ui/close-button";
 
 const meta: Meta<typeof CloseButton> = {
   title: "Components/CloseButton",

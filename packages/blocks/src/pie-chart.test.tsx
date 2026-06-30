@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeAll } from "vitest";
 import { render } from "@testing-library/react";
 import { PieChart } from "./pie-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 beforeAll(() => {
   globalThis.ResizeObserver ||= class {

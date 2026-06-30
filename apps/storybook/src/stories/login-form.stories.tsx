@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { LoginForm } from "@ts/blocks/login-form";
+import { LoginForm } from "@lindaui/blocks/login-form";
 
 const meta: Meta<typeof LoginForm> = {
   title: "Blocks/LoginForm",

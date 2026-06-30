@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { Send, CheckCircle, Trash2, UserX } from "lucide-react";
-import { ConfirmDialog } from "@ts/blocks/confirm-dialog";
-import { Button } from "@ts/ui/button";
+import { ConfirmDialog } from "@lindaui/blocks/confirm-dialog";
+import { Button } from "@lindaui/ui/button";
 
 const meta: Meta<typeof ConfirmDialog> = {
   title: "Blocks/ConfirmDialog",

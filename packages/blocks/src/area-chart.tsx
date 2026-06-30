@@ -6,7 +6,7 @@ import {
   ChartLegend,
   ChartLegendContent,
   type ChartConfig,
-} from "@ts/ui/chart";
+} from "@lindaui/ui/chart";
 import {
   AreaChart as RAreaChart,
   Area,

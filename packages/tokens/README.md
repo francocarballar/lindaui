@@ -1,15 +1,15 @@
-# @ts/tokens
+# @lindaui/tokens
 
 Brand design tokens (OKLCH, light + dark) + HeroUI v3 + Tailwind v4, compiled
 into a single CSS bundle. No JS — this package is just the stylesheet that makes
-`@ts/ui` and `@ts/blocks` render correctly.
+`@lindaui/ui` and `@lindaui/blocks` render correctly.
 
 ## Usage
 
 Import once at your app root:
 
 ```tsx
-import "@ts/tokens/css";
+import "@lindaui/tokens/css";
 ```
 
 That single import ships HeroUI's styles, the brand tokens, and the Tailwind
@@ -24,11 +24,11 @@ components re-skin for free.
 ## Local build
 
 ```bash
-pnpm --filter @ts/tokens build
+pnpm --filter @lindaui/tokens build
 ```
 
 Regenerates `dist/index.css`. The build chains `@import "tailwindcss"` +
-`@source` scans of `@ts/ui` / `@ts/blocks` source + `@heroui/styles` + the
+`@source` scans of `@lindaui/ui` / `@lindaui/blocks` source + `@heroui/styles` + the
 brand `theme.css`, run through `@tailwindcss/cli` (Tailwind v4).
 
 ## License

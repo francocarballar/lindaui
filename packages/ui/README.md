@@ -1,4 +1,4 @@
-# @ts/ui
+# @lindaui/ui
 
 React 19 design-system components wrapping **HeroUI v3** (react-aria-components)
 behind stable, per-component entry points. The public API is intentionally its
@@ -8,11 +8,11 @@ composition or types in those places.
 ## Install
 
 ```bash
-pnpm add @ts/ui @ts/tokens
+pnpm add @lindaui/ui @lindaui/tokens
 ```
 
 Peer dependencies (you provide them): `react >=19`, `react-dom >=19`,
-`react-hook-form >=7`. `@ts/tokens` is a peer too — it ships the CSS.
+`react-hook-form >=7`. `@lindaui/tokens` is a peer too — it ships the CSS.
 
 ## Setup the styles (once)
 
@@ -20,7 +20,7 @@ Import the token bundle once at your app root. It renders HeroUI + brand tokens
 + the Tailwind utilities the library uses:
 
 ```tsx
-import "@ts/tokens/css";
+import "@lindaui/tokens/css";
 ```
 
 Dark mode: toggle a `.dark` class on an ancestor element.
@@ -30,9 +30,9 @@ Dark mode: toggle a `.dark` class on an ancestor element.
 Import per entry point — one component per import path:
 
 ```tsx
-import { Button } from "@ts/ui/button";
-import { Select } from "@ts/ui/select";
-import { Dialog } from "@ts/ui/dialog";
+import { Button } from "@lindaui/ui/button";
+import { Select } from "@lindaui/ui/select";
+import { Dialog } from "@lindaui/ui/dialog";
 
 export function Example() {
   return <Button variant="primary">Guardar</Button>;
@@ -41,12 +41,12 @@ export function Example() {
 
 ## Non-component entries
 
-Besides the component wrappers, `@ts/ui` exports utilities:
+Besides the component wrappers, `@lindaui/ui` exports utilities:
 
-- `@ts/ui/cn` — Tailwind class merge (`cn`).
-- `@ts/ui/search` — `normalizeText` / `matchesSearch` (accent-insensitive filtering).
-- `@ts/ui/use-disclosure` — boolean state for controlled overlays.
-- `@ts/ui/use-media-query` — `useMediaQuery` + `useIsDesktop` / `useIsMobile`.
+- `@lindaui/ui/cn` — Tailwind class merge (`cn`).
+- `@lindaui/ui/search` — `normalizeText` / `matchesSearch` (accent-insensitive filtering).
+- `@lindaui/ui/use-disclosure` — boolean state for controlled overlays.
+- `@lindaui/ui/use-media-query` — `useMediaQuery` + `useIsDesktop` / `useIsMobile`.
 
 ## A note on the API
 

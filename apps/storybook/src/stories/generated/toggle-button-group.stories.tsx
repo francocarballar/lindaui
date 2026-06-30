@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@ts/ui/toggle-button-group";
+import * as Mod from "@lindaui/ui/toggle-button-group";
 
 // Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
 const exportNames = Object.keys(Mod);

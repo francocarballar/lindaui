@@ -2,9 +2,9 @@
 import Link from 'next/link';
 import { useLayout } from './context/layout-context';
 import { Icon } from '@/lib/icon';
-import { SearchField } from '@ts/ui/search-field';
-import { Avatar } from '@ts/ui/avatar';
-import { Menu } from '@ts/ui/menu';
+import { SearchField } from '@lindaui/ui/search-field';
+import { Avatar } from '@lindaui/ui/avatar';
+import { Menu } from '@lindaui/ui/menu';
 
 export default function AppTopbar() {
   const { onMenuToggle } = useLayout();

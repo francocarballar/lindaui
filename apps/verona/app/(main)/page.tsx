@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle, CardContent } from '@ts/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@lindaui/ui/card';
 
 export default function Dashboard() {
   return (
@@ -7,7 +7,7 @@ export default function Dashboard() {
         <CardTitle>SaaS Dashboard</CardTitle>
       </CardHeader>
       <CardContent>
-        Shell de Verona sobre @ts/ui — Fase 0 lista. Las páginas llegan en fases siguientes.
+        Shell de Verona sobre @lindaui/ui — Fase 0 lista. Las páginas llegan en fases siguientes.
       </CardContent>
     </Card>
   );

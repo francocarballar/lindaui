@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Alert } from "@ts/ui/alert";
-import { Spinner } from "@ts/ui/spinner";
-import { Skeleton } from "@ts/ui/skeleton";
+import { Alert } from "@lindaui/ui/alert";
+import { Spinner } from "@lindaui/ui/spinner";
+import { Skeleton } from "@lindaui/ui/skeleton";
 
 function FeedbackDemo() {
   return (

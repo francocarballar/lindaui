@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ComboBox } from "@ts/ui/combobox";
+import { ComboBox } from "@lindaui/ui/combobox";
 
 const meta: Meta<typeof ComboBox> = {
   title: "Components/ComboBox",

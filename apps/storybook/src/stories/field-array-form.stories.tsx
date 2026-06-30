@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FieldArrayForm } from "@ts/blocks/field-array-form";
+import { FieldArrayForm } from "@lindaui/blocks/field-array-form";
 
 const meta: Meta<typeof FieldArrayForm> = {
   title: "Blocks/FieldArrayForm",

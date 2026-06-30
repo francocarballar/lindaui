@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ts/tokens": "workspace:*",
-    "@ts/ui": "workspace:*",
+    "@lindaui/tokens": "workspace:*",
+    "@lindaui/ui": "workspace:*",
     "lucide-react": "^0.460.0",
     "next": "16.2.9",
     "react": "^19.0.0",

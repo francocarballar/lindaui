@@ -6,7 +6,7 @@
 
 ## Problema
 
-Los 3 `package.json` publicables (`@ts/ui`, `@ts/blocks`, `@ts/tokens`) no tienen
+Los 3 `package.json` publicables (`@lindaui/ui`, `@lindaui/blocks`, `@lindaui/tokens`) no tienen
 metadata de publicación: `license`, `description`, `repository`, `publishConfig`,
 `sideEffects` están todos `undefined`. Efectos:
 
@@ -37,9 +37,9 @@ Agregar a `packages/ui/package.json`, `packages/blocks/package.json`,
 | `publishConfig` | `{ "access": "public" }` |
 | `author` | `"Franco Carballar <francocarballar@gmail.com>"` |
 
-`@ts/ui` y `@ts/blocks` además: `"sideEffects": false`.
-`@ts/tokens` NO lleva `sideEffects` (es solo CSS, sin JS); su único artefacto
-`dist/index.css` se importa explícito vía `@ts/tokens/css`.
+`@lindaui/ui` y `@lindaui/blocks` además: `"sideEffects": false`.
+`@lindaui/tokens` NO lleva `sideEffects` (es solo CSS, sin JS); su único artefacto
+`dist/index.css` se importa explícito vía `@lindaui/tokens/css`.
 
 La URL del `repository` es el valor intencional (usuario `francocarballar`,
 repo `ts-design-system`). Debe coincidir con el remote real cuando se cree;
@@ -48,13 +48,13 @@ y editable, no `TBD`.
 
 ### R2 — Descripciones (copy verbatim)
 
-- `@ts/ui`: `"React 19 design-system components wrapping HeroUI v3 (react-aria-components) behind stable per-component entry points."`
-- `@ts/blocks`: `"Composed UI sections (auth, lists, master-detail, charts) built on @ts/ui — importable npm package, not a copy-paste registry."`
-- `@ts/tokens`: `"Brand design tokens (OKLCH light/dark) + HeroUI v3 + Tailwind v4 compiled into a single CSS bundle."`
+- `@lindaui/ui`: `"React 19 design-system components wrapping HeroUI v3 (react-aria-components) behind stable per-component entry points."`
+- `@lindaui/blocks`: `"Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry."`
+- `@lindaui/tokens`: `"Brand design tokens (OKLCH light/dark) + HeroUI v3 + Tailwind v4 compiled into a single CSS bundle."`
 
 ### R3 — `sideEffects: false` no debe romper imports
 
-`@ts/ui` y `@ts/blocks` exportan solo funciones componentes y re-exports puros
+`@lindaui/ui` y `@lindaui/blocks` exportan solo funciones componentes y re-exports puros
 (verificado: ningún módulo tiene efecto de import top-level; `"use client"` es
 una directiva, no un side effect runtime). `sideEffects: false` es seguro.
 Verificación obligatoria: tras el cambio, `pnpm build` + suite de tests pasan,
@@ -65,15 +65,15 @@ y un import smoke de cada entry resuelve.
 Antes de publicar, verificar si el scope `@ts` está disponible en npm:
 
 ```
-npm view @ts/ui version    # 404 = libre ; cualquier version = tomado
+npm view @lindaui/ui version    # 404 = libre ; cualquier version = tomado
 ```
 
 - Si **libre**: no se hace nada, el scope `@ts` queda.
 - Si **tomado**: renombrar el scope en todo el workspace a un scope que el
   owner controle (default propuesto: `@francocarballar` — su usuario npm;
-  el owner confirma el scope final al ejecutar). Sustituir `@ts/` → `@<nuevo>/`
+  el owner confirma el scope final al ejecutar). Sustituir `@lindaui/` → `@<nuevo>/`
   en: los 3 `name`, todos los `peerDependencies`/`dependencies` internos,
-  imports `@ts/ui/*` y `@ts/tokens/css` en `packages/blocks/src`,
+  imports `@lindaui/ui/*` y `@lindaui/tokens/css` en `packages/blocks/src`,
   `apps/storybook`, y referencias en `CLAUDE.md`. Re-derivar nada (los exports
   son rutas relativas, no cambian). `pnpm install` + `pnpm build` + `pnpm test`
   deben pasar tras el rename.
@@ -90,10 +90,10 @@ El owner decide el scope destino en ese momento (no se hardcodea acá).
 
 ## Criterios de aceptación
 
-1. `node -e "p=require('./packages/ui/package.json'); console.log(p.license, !!p.description, !!p.repository, p.publishConfig?.access, p.sideEffects)"` imprime `MIT true true public false`. Ídem `@ts/blocks`.
-2. Para `@ts/tokens`: `license=MIT`, `description` presente, `publishConfig.access=public`, `sideEffects` ausente.
+1. `node -e "p=require('./packages/ui/package.json'); console.log(p.license, !!p.description, !!p.repository, p.publishConfig?.access, p.sideEffects)"` imprime `MIT true true public false`. Ídem `@lindaui/blocks`.
+2. Para `@lindaui/tokens`: `license=MIT`, `description` presente, `publishConfig.access=public`, `sideEffects` ausente.
 3. `pnpm build` y `pnpm test` pasan sin regresión.
-4. `pnpm --filter @ts/ui publish --dry-run --no-git-checks` (y blocks, tokens)
+4. `pnpm --filter @lindaui/ui publish --dry-run --no-git-checks` (y blocks, tokens)
    reporta `access: public` y no falla por metadata faltante.
-5. `npm view @ts/ui version` corrido y su resultado registrado; si tomado, el
+5. `npm view @lindaui/ui version` corrido y su resultado registrado; si tomado, el
    rename de scope quedó aplicado y el build/test pasan.

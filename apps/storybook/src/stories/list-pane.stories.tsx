@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { User } from "lucide-react";
-import { ListPane } from "@ts/blocks/list-pane";
-import { ListItem } from "@ts/blocks/list-item";
-import { matchesSearch } from "@ts/ui/search";
+import { ListPane } from "@lindaui/blocks/list-pane";
+import { ListItem } from "@lindaui/blocks/list-item";
+import { matchesSearch } from "@lindaui/ui/search";
 
 const meta: Meta<typeof ListPane> = {
   title: "Blocks/ListPane",

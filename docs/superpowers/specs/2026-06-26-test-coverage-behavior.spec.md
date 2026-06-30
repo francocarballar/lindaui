@@ -1,4 +1,4 @@
-# Spec: Cobertura behavioral (trade-offs + edge cases) — @ts/ui
+# Spec: Cobertura behavioral (trade-offs + edge cases) — @lindaui/ui
 
 **Fecha:** 2026-06-26
 **Workstream:** D (sigue a C). Profundiza tests de humo en tests de comportamiento
@@ -7,7 +7,7 @@ donde hay comportamiento real que verificar.
 
 ## Contexto
 
-El workstream C cerró el gap de cobertura: todo módulo de `@ts/ui` aparece en
+El workstream C cerró el gap de cobertura: todo módulo de `@lindaui/ui` aparece en
 ≥1 test. Pero esos tests son de **humo/caracterización** — afirman "renderiza
 DOM" o "el export resuelve", no comportamiento. No cubren props/variants,
 estados (selección, disabled), interacción (onChange), ni roles ARIA.
@@ -33,7 +33,7 @@ testeable en jsdom**, sin caer en busywork ni en aserciones frágiles de clases 
   propio estado. No hay onChange/value que ejercitar. El test de humo existente
   (render DOM) es la cobertura correcta. Subirlo sería inventar comportamiento
   que el componente no tiene.
-- **avatar**: el wrapper `@ts/ui/avatar` es `return <HeroAvatar {...props}/>`,
+- **avatar**: el wrapper `@lindaui/ui/avatar` es `return <HeroAvatar {...props}/>`,
   que envuelve `AvatarRoot`. La lógica interesante (fallback cuando `src` falla)
   vive en `Avatar.Image` (`onError` → muestra `Avatar.Fallback`), sub-componentes
   que el wrapper no re-exporta. Sin acceso a Image/Fallback no hay edge case
@@ -48,7 +48,7 @@ testeable en jsdom**, sin caer en busywork ni en aserciones frágiles de clases 
 ### R1 — `checkbox-group`: tests de comportamiento
 
 Reemplazar el smoke `checkbox-group.test.tsx` por tests que compongan hijos
-`Checkbox` (de `@ts/ui/checkbox`, que pasa `value` por spread) y verifiquen:
+`Checkbox` (de `@lindaui/ui/checkbox`, que pasa `value` por spread) y verifiquen:
 
 1. **Roles de hijos + label de grupo**: render con `aria-label` + 2 checkboxes
    con `value` → ambos `getByRole("checkbox", { name })` presentes.
@@ -61,7 +61,7 @@ Reemplazar el smoke `checkbox-group.test.tsx` por tests que compongan hijos
 ### R2 — `toggle-button-group`: tests de comportamiento
 
 Reemplazar el smoke `toggle-button-group.test.tsx` por tests que compongan
-hijos `ToggleButton` (de `@ts/ui/toggle-button`, pasa `id` por spread):
+hijos `ToggleButton` (de `@lindaui/ui/toggle-button`, pasa `id` por spread):
 
 1. **Render de hijos**: `selectionMode="single"` + 2 toggle buttons → ambos
    localizables por rol + nombre.
@@ -80,7 +80,7 @@ Ampliar `chip.test.tsx` (manteniendo el de children existente) con:
 
 ### R4 — No regresión
 
-La suite completa de `@ts/ui` queda verde y estable (sin unhandled errors),
+La suite completa de `@lindaui/ui` queda verde y estable (sin unhandled errors),
 y no se introduce `getByTestId`. Los roles ARIA asumidos se confirman al correr
 (TDD): si RAC difiere del rol esperado, se ajusta la query a la realidad
 observada, no se fuerza.
@@ -98,6 +98,6 @@ observada, no se fuerza.
 1. `checkbox-group.test.tsx` tiene ≥3 tests cubriendo R1 (roles, onChange, controlado), todos verdes.
 2. `toggle-button-group.test.tsx` tiene ≥3 tests cubriendo R2 (render, onSelectionChange, disabled), todos verdes.
 3. `chip.test.tsx` cubre R3 (props + children) además del test de children previo.
-4. `pnpm --filter @ts/ui test` verde y estable en 3 corridas, 0 unhandled errors.
+4. `pnpm --filter @lindaui/ui test` verde y estable en 3 corridas, 0 unhandled errors.
 5. Ningún test usa `getByTestId`. Las interacciones usan `user-event` + queries semánticas.
 6. El gap de cobertura sigue en 0 (no se elimina ningún módulo de los tests).

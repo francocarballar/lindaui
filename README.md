@@ -1,8 +1,8 @@
-# @ts design system
+# lindaui design system
 
 Monorepo (pnpm + Turborepo) of a React 19 design system: brand tokens
-(`@ts/tokens`), component library (`@ts/ui`) and composed sections
-(`@ts/blocks`), all on top of **HeroUI v3** (react-aria-components).
+(`@lindaui/tokens`), component library (`@lindaui/ui`) and composed sections
+(`@lindaui/blocks`), all on top of **HeroUI v3** (react-aria-components).
 
 ## Architecture
 
@@ -10,31 +10,31 @@ Monorepo (pnpm + Turborepo) of a React 19 design system: brand tokens
 apps/storybook  (preview)
        │ consumes ui + blocks
        ▼
-@ts/blocks  ──composes──►  @ts/ui  ──wraps──►  @heroui/react (RAC)
+@lindaui/blocks  ──composes──►  @lindaui/ui  ──wraps──►  @heroui/react (RAC)
        │ peer                  │ peer
        ▼                       ▼
-@ts/tokens (dist/index.css)  ──►  @heroui/styles + tailwindcss v4
+@lindaui/tokens (dist/index.css)  ──►  @heroui/styles + tailwindcss v4
 ```
 
 ## Packages
 
 | Package | What | Path |
 |---|---|---|
-| `@ts/tokens` | Brand CSS bundle (tokens + HeroUI + Tailwind) | `packages/tokens/` |
-| `@ts/ui` | React 19 component wrappers over HeroUI v3 | `packages/ui/` |
-| `@ts/blocks` | Composed sections built on `@ts/ui` | `packages/blocks/` |
+| `@lindaui/tokens` | Brand CSS bundle (tokens + HeroUI + Tailwind) | `packages/tokens/` |
+| `@lindaui/ui` | React 19 component wrappers over HeroUI v3 | `packages/ui/` |
+| `@lindaui/blocks` | Composed sections built on `@lindaui/ui` | `packages/blocks/` |
 | `storybook` | Preview catalog (private) | `apps/storybook/` |
 
 ## Quickstart (consumer)
 
 ```bash
-pnpm add @ts/ui @ts/blocks @ts/tokens
+pnpm add @lindaui/ui @lindaui/blocks @lindaui/tokens
 ```
 
 ```tsx
-import "@ts/tokens/css";            // once, at the app root
-import { Button } from "@ts/ui/button";
-import { LoginForm } from "@ts/blocks/login-form";
+import "@lindaui/tokens/css";            // once, at the app root
+import { Button } from "@lindaui/ui/button";
+import { LoginForm } from "@lindaui/blocks/login-form";
 ```
 
 Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`

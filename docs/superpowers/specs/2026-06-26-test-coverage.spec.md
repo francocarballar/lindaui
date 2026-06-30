@@ -1,4 +1,4 @@
-# Spec: Cerrar el gap de cobertura de tests (@ts/ui)
+# Spec: Cerrar el gap de cobertura de tests (@lindaui/ui)
 
 **Fecha:** 2026-06-26
 **Workstream:** C (de 3) — independiente de A y B.
@@ -8,7 +8,7 @@
 ## Problema
 
 `CLAUDE.md` declara como regla inquebrantable: "Tests co-locados + queries
-semánticas". Realidad medida: **31 módulos fuente de `@ts/ui` no aparecen en
+semánticas". Realidad medida: **31 módulos fuente de `@lindaui/ui` no aparecen en
 ningún test** (ni co-locado ni en suite compartida). Contradicción contrato↔código.
 
 Aclaración del conteo: el conteo naive "43 sin test co-locado" estaba inflado.
@@ -75,13 +75,13 @@ los sub-símbolos clave. No renderizar composición parcial.
 ### R3 — La regla queda honrada, no relajada
 
 No se edita `CLAUDE.md` para relajar. Tras este workstream, todo módulo fuente
-de `@ts/ui` aparece en al menos un test. Se actualiza la nota de cobertura si
+de `@lindaui/ui` aparece en al menos un test. Se actualiza la nota de cobertura si
 `CLAUDE.md` afirma un número de entries cubiertas (no hay número hoy → no hace
 falta editar el contrato).
 
 ## Fuera de scope
 
-- Tests de `@ts/blocks` (ya 100% cubierto).
+- Tests de `@lindaui/blocks` (ya 100% cubierto).
 - Tests de integración / visual / Storybook.
 - Aumentar profundidad de los tests existentes.
 
@@ -89,7 +89,7 @@ falta editar el contrato).
 
 1. Existe al menos una referencia de import a cada uno de los 31 módulos en
    archivos `*.test.*` de `packages/ui/src`.
-2. `pnpm --filter @ts/ui test` pasa, sin tests skippeados.
+2. `pnpm --filter @lindaui/ui test` pasa, sin tests skippeados.
 3. Los 9 del Grupo 1 tienen archivo `*.test.tsx` co-locado propio con al menos
    una aserción de render semántica.
 4. Los 22 del Grupo 2 están cubiertos por `src/compound-exports.test.tsx` con

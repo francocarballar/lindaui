@@ -2,7 +2,7 @@
 import { Button as HeroButton, type ButtonProps as HeroButtonProps } from "@heroui/react";
 
 /**
- * Public, stable button variants for @ts/ui. These map onto HeroUI v3's
+ * Public, stable button variants for @lindaui/ui. These map onto HeroUI v3's
  * native button variants; `link` has no direct v3 equivalent and maps to
  * `tertiary` (the lowest-emphasis text-like style).
  */

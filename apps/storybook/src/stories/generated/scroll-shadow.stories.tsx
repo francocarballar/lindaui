@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as M from "@ts/ui/scroll-shadow";
+import * as M from "@lindaui/ui/scroll-shadow";
 
 const meta: Meta = { title: "Components/ScrollShadow" };
 export default meta;

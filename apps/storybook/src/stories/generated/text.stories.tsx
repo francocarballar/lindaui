@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Text } from "@ts/ui/text";
+import { Text } from "@lindaui/ui/text";
 
 const meta: Meta<typeof Text> = {
   title: "Components/Text",

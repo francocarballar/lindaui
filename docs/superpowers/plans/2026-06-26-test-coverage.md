@@ -1,8 +1,8 @@
-# Test Coverage Gap (@ts/ui) — Implementation Plan
+# Test Coverage Gap (@lindaui/ui) — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Llevar a 0 los módulos de `@ts/ui` sin test: tests de render reales para los 9 thin-wrap y una suite `toBeDefined` para los 22 compound re-export.
+**Goal:** Llevar a 0 los módulos de `@lindaui/ui` sin test: tests de render reales para los 9 thin-wrap y una suite `toBeDefined` para los 22 compound re-export.
 
 **Architecture:** Tests co-locados Vitest + jsdom + Testing Library. Los 9 thin-wrap llevan archivo `*.test.tsx` propio con una aserción de render. Los 22 re-export se cubren en una sola suite nueva `src/compound-exports.test.tsx` (mismo patrón que el `date-time-color.test.tsx` existente). **Nota TDD:** la implementación (los wrappers) ya existe; estos son tests de caracterización, así que el ciclo es write → run → PASS (si un test falla, la aserción/rol asumido es incorrecto → corregir la aserción, no el wrapper).
 
@@ -14,7 +14,7 @@
 - Solo queries semánticas (`getByRole`/`getByLabelText`/`getByText`). **Prohibido `getByTestId`.**
 - Para compound re-exports que requieren composición pesada, afirmar que el export resuelve (`toBeDefined`), no renderizar media composición — precedente: `src/date-time-color.test.tsx`.
 - `container.firstChild` toBeInTheDocument es aserción válida de "renderizó DOM sin throw" (no es un test-id query) para thin-wraps cuyo rol ARIA no es estable/conocido en jsdom; no adivinar roles.
-- Comando de test: `pnpm --filter @ts/ui test` (o `cd packages/ui && pnpm test`). Un archivo: `pnpm --filter @ts/ui test src/<file>.test.tsx`.
+- Comando de test: `pnpm --filter @lindaui/ui test` (o `cd packages/ui && pnpm test`). Un archivo: `pnpm --filter @lindaui/ui test src/<file>.test.tsx`.
 
 ---
 
@@ -90,7 +90,7 @@ describe("Skeleton", () => {
 
 - [ ] **Step 2: Correr los 4**
 
-Run: `pnpm --filter @ts/ui test src/avatar.test.tsx src/chip.test.tsx src/spinner.test.tsx src/skeleton.test.tsx`
+Run: `pnpm --filter @lindaui/ui test src/avatar.test.tsx src/chip.test.tsx src/spinner.test.tsx src/skeleton.test.tsx`
 Expected: PASS los 4. Si `Chip` no renderiza el texto plano como nodo de texto (poco probable), cambiar a la aserción `container.firstChild` como en los otros y dejar comentario del porqué.
 
 - [ ] **Step 3: Commit**
@@ -161,7 +161,7 @@ describe("ToggleButtonGroup", () => {
 
 - [ ] **Step 2: Correr los 3**
 
-Run: `pnpm --filter @ts/ui test src/checkbox-group.test.tsx src/switch-group.test.tsx src/toggle-button-group.test.tsx`
+Run: `pnpm --filter @lindaui/ui test src/checkbox-group.test.tsx src/switch-group.test.tsx src/toggle-button-group.test.tsx`
 Expected: PASS los 3. Si alguno tira por requerir items hijos para montar, envolver con un hijo mínimo válido del compound de HeroUI (revisar el `.d.ts` real del componente) o degradar a `expect(Componente).toBeDefined()` con comentario, como en `date-time-color.test.tsx`.
 
 - [ ] **Step 3: Commit**
@@ -215,7 +215,7 @@ describe("OtpInput", () => {
 
 - [ ] **Step 2: Correr los 2**
 
-Run: `pnpm --filter @ts/ui test src/input-group.test.tsx src/otp-input.test.tsx`
+Run: `pnpm --filter @lindaui/ui test src/input-group.test.tsx src/otp-input.test.tsx`
 Expected: PASS. Si `OtpInput` requiere props obligatorias (ej. `length`/`maxLength`), abrir `node_modules/.pnpm/@heroui+react@*/node_modules/@heroui/react/dist/components/input-otp/index.d.ts`, pasar el prop mínimo requerido, y re-correr.
 
 - [ ] **Step 3: Commit**
@@ -302,7 +302,7 @@ describe("Compound re-export surface", () => {
 
 - [ ] **Step 2: Correr la suite**
 
-Run: `pnpm --filter @ts/ui test src/compound-exports.test.tsx`
+Run: `pnpm --filter @lindaui/ui test src/compound-exports.test.tsx`
 Expected: PASS (23 casos). Si un import falla por nombre incorrecto, corregir el named import contra la fuente del módulo (`packages/ui/src/<x>.tsx`) — no contra memoria.
 
 - [ ] **Step 3: Commit**
@@ -331,9 +331,9 @@ cd packages/ui && comps=$(ls src/*.tsx src/*.ts | grep -vE '\.test\.|test-setup'
 ```
 Expected: `TOTAL gap real: 0` (sin líneas `GAP:`).
 
-- [ ] **Step 2: Suite completa de `@ts/ui`**
+- [ ] **Step 2: Suite completa de `@lindaui/ui`**
 
-Run: `pnpm --filter @ts/ui test`
+Run: `pnpm --filter @lindaui/ui test`
 Expected: todos los tests pasan, 0 skipped.
 
 - [ ] **Step 3: Verificar ausencia de `getByTestId`**

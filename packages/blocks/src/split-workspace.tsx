@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useIsDesktop } from "@ts/ui/use-media-query";
+import { useIsDesktop } from "@lindaui/ui/use-media-query";
 
 export interface SplitWorkspaceProps {
   media: ReactNode;

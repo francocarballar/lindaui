@@ -1,7 +1,7 @@
 "use client";
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import { Badge } from "@ts/ui/badge";
+import { Badge } from "@lindaui/ui/badge";
 
 export interface ListItemProps {
   title: string;

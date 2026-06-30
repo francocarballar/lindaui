@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { NumberInput } from "@ts/ui/number-input";
+import { NumberInput } from "@lindaui/ui/number-input";
 
 const meta: Meta<typeof NumberInput> = {
   title: "Components/NumberInput",

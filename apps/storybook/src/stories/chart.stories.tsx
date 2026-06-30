@@ -7,7 +7,7 @@ import {
   ChartLegend,
   ChartLegendContent,
   type ChartConfig,
-} from "@ts/ui/chart";
+} from "@lindaui/ui/chart";
 
 // Primitivo de charts (réplica shadcn sobre recharts). El consumidor compone
 // los tipos recharts adentro; el color sale del config via var(--color-<key>).

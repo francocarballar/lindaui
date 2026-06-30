@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState, useEffect } from "react";
-import { RecordingOverlay } from "@ts/blocks/recording-overlay";
+import { RecordingOverlay } from "@lindaui/blocks/recording-overlay";
 
 const meta: Meta<typeof RecordingOverlay> = {
   title: "Blocks/RecordingOverlay",

@@ -20,8 +20,8 @@ const repoRoot = resolve(__dirname, "../../..");
 const outDir = resolve(__dirname, "../src/stories/generated");
 
 const PACKAGES = [
-  { pkg: "packages/ui/package.json", importBase: "@ts/ui", group: "WIP" },
-  { pkg: "packages/blocks/package.json", importBase: "@ts/blocks", group: "Blocks" },
+  { pkg: "packages/ui/package.json", importBase: "@lindaui/ui", group: "WIP" },
+  { pkg: "packages/blocks/package.json", importBase: "@lindaui/blocks", group: "Blocks" },
 ];
 
 // Entries con story escrita a mano -> no generar (evita colisión de título).
@@ -40,7 +40,7 @@ const HANDWRITTEN = new Set([
   "radial-chart", "stat-card", "chart-card", "stats-grid",
 ]);
 
-// ARGS: render con props simples → Storybook da controls (solo @ts/ui).
+// ARGS: render con props simples → Storybook da controls (solo @lindaui/ui).
 const ARGS = {
   kbd: '{ children: "Ctrl" }',
   "toggle-button": '{ children: "Toggle" }',
@@ -60,7 +60,7 @@ const ARGS = {
     '{ label: "País", placeholder: "Elegí…", items: [{ value: "ar", label: "Argentina" }, { value: "uy", label: "Uruguay" }, { value: "cl", label: "Chile" }] }',
 };
 
-// RENDER: composición real (solo @ts/ui). `M` = namespace del entry; `imports`
+// RENDER: composición real (solo @lindaui/ui). `M` = namespace del entry; `imports`
 // agrega componentes de otros entries (ej. Radio para radio-group).
 const RENDER = {
   divider: { jsx: '<div style={{ width: 220 }}><M.Divider /></div>' },
@@ -83,11 +83,11 @@ const RENDER = {
     jsx: '<M.Breadcrumbs><M.BreadcrumbsItem>Inicio</M.BreadcrumbsItem><M.BreadcrumbsItem>Sección</M.BreadcrumbsItem></M.Breadcrumbs>',
   },
   "radio-group": {
-    imports: ['import { Radio } from "@ts/ui/radio";'],
+    imports: ['import { Radio } from "@lindaui/ui/radio";'],
     jsx: '<M.RadioGroup aria-label="Plan" defaultValue="basico"><Radio value="basico">Básico</Radio><Radio value="pro">Pro</Radio></M.RadioGroup>',
   },
   "checkbox-group": {
-    imports: ['import { Checkbox } from "@ts/ui/checkbox";'],
+    imports: ['import { Checkbox } from "@lindaui/ui/checkbox";'],
     jsx: '<M.CheckboxGroup aria-label="Opciones" defaultValue={["a"]}><Checkbox value="a">Opción A</Checkbox><Checkbox value="b">Opción B</Checkbox></M.CheckboxGroup>',
   },
 };
@@ -171,7 +171,7 @@ for (const { pkg, importBase, group } of PACKAGES) {
 
   for (const entry of entries) {
     if (HANDWRITTEN.has(entry)) { nSkipped++; continue; }
-    const isUi = importBase === "@ts/ui";
+    const isUi = importBase === "@lindaui/ui";
     let content, kind;
     if (isUi && entry in ARGS) { content = argsStory(entry, importBase); kind = "args"; }
     else if (isUi && entry in RENDER) { content = renderStory(entry, importBase); kind = "render"; }

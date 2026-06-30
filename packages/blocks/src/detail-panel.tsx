@@ -1,9 +1,9 @@
 "use client";
 import type { ReactNode } from "react";
 import { FileText } from "lucide-react";
-import { Button } from "@ts/ui/button";
-import { Card } from "@ts/ui/card";
-import { Divider } from "@ts/ui/divider";
+import { Button } from "@lindaui/ui/button";
+import { Card } from "@lindaui/ui/card";
+import { Divider } from "@lindaui/ui/divider";
 
 export interface DetailPanelMetaRow {
   icon?: ReactNode;

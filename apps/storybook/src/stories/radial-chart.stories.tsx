@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { RadialChart } from "@ts/blocks/radial-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { RadialChart } from "@lindaui/blocks/radial-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof RadialChart> = { title: "Charts/RadialChart", component: RadialChart };
 export default meta;

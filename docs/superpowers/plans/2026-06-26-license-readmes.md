@@ -132,19 +132,19 @@ git commit -m "chore: include LICENSE and README in published files"
 
 ---
 
-### Task 4: README de `@ts/ui`
+### Task 4: README de `@lindaui/ui`
 
 **Files:**
 - Create: `packages/ui/README.md`
 
 **Interfaces:**
 - Consumes: el `exports` map de `packages/ui/package.json` (para snippets válidos).
-- Produces: doc de install/uso de `@ts/ui`.
+- Produces: doc de install/uso de `@lindaui/ui`.
 
 - [ ] **Step 1: Crear `packages/ui/README.md`**
 
 ```markdown
-# @ts/ui
+# @lindaui/ui
 
 React 19 design-system components wrapping **HeroUI v3** (react-aria-components)
 behind stable, per-component entry points. The public API is intentionally its
@@ -154,11 +154,11 @@ composition or types in those places.
 ## Install
 
 ```bash
-pnpm add @ts/ui @ts/tokens
+pnpm add @lindaui/ui @lindaui/tokens
 ```
 
 Peer dependencies (you provide them): `react >=19`, `react-dom >=19`,
-`react-hook-form >=7`. `@ts/tokens` is a peer too — it ships the CSS.
+`react-hook-form >=7`. `@lindaui/tokens` is a peer too — it ships the CSS.
 
 ## Setup the styles (once)
 
@@ -166,7 +166,7 @@ Import the token bundle once at your app root. It renders HeroUI + brand tokens
 + the Tailwind utilities the library uses:
 
 ```tsx
-import "@ts/tokens/css";
+import "@lindaui/tokens/css";
 ```
 
 Dark mode: toggle a `.dark` class on an ancestor element.
@@ -176,9 +176,9 @@ Dark mode: toggle a `.dark` class on an ancestor element.
 Import per entry point — one component per import path:
 
 ```tsx
-import { Button } from "@ts/ui/button";
-import { Select } from "@ts/ui/select";
-import { Dialog } from "@ts/ui/dialog";
+import { Button } from "@lindaui/ui/button";
+import { Select } from "@lindaui/ui/select";
+import { Dialog } from "@lindaui/ui/dialog";
 
 export function Example() {
   return <Button variant="primary">Guardar</Button>;
@@ -187,12 +187,12 @@ export function Example() {
 
 ## Non-component entries
 
-Besides the component wrappers, `@ts/ui` exports utilities:
+Besides the component wrappers, `@lindaui/ui` exports utilities:
 
-- `@ts/ui/cn` — Tailwind class merge (`cn`).
-- `@ts/ui/search` — `normalizeText` / `matchesSearch` (accent-insensitive filtering).
-- `@ts/ui/use-disclosure` — boolean state for controlled overlays.
-- `@ts/ui/use-media-query` — `useMediaQuery` + `useIsDesktop` / `useIsMobile`.
+- `@lindaui/ui/cn` — Tailwind class merge (`cn`).
+- `@lindaui/ui/search` — `normalizeText` / `matchesSearch` (accent-insensitive filtering).
+- `@lindaui/ui/use-disclosure` — boolean state for controlled overlays.
+- `@lindaui/ui/use-media-query` — `useMediaQuery` + `useIsDesktop` / `useIsMobile`.
 
 ## A note on the API
 
@@ -219,28 +219,28 @@ git commit -m "docs(ui): add README (install/setup/usage)"
 
 ---
 
-### Task 5: README de `@ts/blocks`
+### Task 5: README de `@lindaui/blocks`
 
 **Files:**
 - Create: `packages/blocks/README.md`
 
 **Interfaces:**
 - Consumes: el `exports` map de `packages/blocks/package.json`.
-- Produces: doc de install/uso de `@ts/blocks`.
+- Produces: doc de install/uso de `@lindaui/blocks`.
 
 - [ ] **Step 1: Crear `packages/blocks/README.md`**
 
 ```markdown
-# @ts/blocks
+# @lindaui/blocks
 
-Composed UI sections built on **@ts/ui** — auth flows, lists, master-detail
+Composed UI sections built on **@lindaui/ui** — auth flows, lists, master-detail
 panels, and charts. This is an importable npm package, **not** a copy-paste /
 shadcn-style registry: you `import` the blocks, you don't vendor their source.
 
 ## Install
 
 ```bash
-pnpm add @ts/blocks @ts/ui @ts/tokens
+pnpm add @lindaui/blocks @lindaui/ui @lindaui/tokens
 ```
 
 Peer dependencies: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, and
@@ -249,9 +249,9 @@ Peer dependencies: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, and
 ## Usage
 
 ```tsx
-import "@ts/tokens/css";
-import { LoginForm } from "@ts/blocks/login-form";
-import { BarChart } from "@ts/blocks/bar-chart";
+import "@lindaui/tokens/css";
+import { LoginForm } from "@lindaui/blocks/login-form";
+import { BarChart } from "@lindaui/blocks/bar-chart";
 ```
 
 Controlled blocks (`list-pane`, `detail-panel`, `document-panel`,
@@ -265,7 +265,7 @@ data-fetching / backend in the library — you wire that up.
 `image-viewer`, `document-panel`, `document-reader`, `recording-overlay`,
 `split-workspace`.
 
-**Charts** (on `@ts/ui/chart`): `area-chart`, `bar-chart`, `line-chart`,
+**Charts** (on `@lindaui/ui/chart`): `area-chart`, `bar-chart`, `line-chart`,
 `pie-chart`, `radar-chart`, `radial-chart`, `stat-card`, `chart-card`,
 `stats-grid`.
 
@@ -288,7 +288,7 @@ git commit -m "docs(blocks): add README (install/usage/catalog)"
 
 ---
 
-### Task 6: README de `@ts/tokens`
+### Task 6: README de `@lindaui/tokens`
 
 **Files:**
 - Create: `packages/tokens/README.md`
@@ -300,18 +300,18 @@ git commit -m "docs(blocks): add README (install/usage/catalog)"
 - [ ] **Step 1: Crear `packages/tokens/README.md`**
 
 ```markdown
-# @ts/tokens
+# @lindaui/tokens
 
 Brand design tokens (OKLCH, light + dark) + HeroUI v3 + Tailwind v4, compiled
 into a single CSS bundle. No JS — this package is just the stylesheet that makes
-`@ts/ui` and `@ts/blocks` render correctly.
+`@lindaui/ui` and `@lindaui/blocks` render correctly.
 
 ## Usage
 
 Import once at your app root:
 
 ```tsx
-import "@ts/tokens/css";
+import "@lindaui/tokens/css";
 ```
 
 That single import ships HeroUI's styles, the brand tokens, and the Tailwind
@@ -326,11 +326,11 @@ components re-skin for free.
 ## Local build
 
 ```bash
-pnpm --filter @ts/tokens build
+pnpm --filter @lindaui/tokens build
 ```
 
 Regenerates `dist/index.css`. The build chains `@import "tailwindcss"` +
-`@source` scans of `@ts/ui` / `@ts/blocks` source + `@heroui/styles` + the
+`@source` scans of `@lindaui/ui` / `@lindaui/blocks` source + `@heroui/styles` + the
 brand `theme.css`, run through `@tailwindcss/cli` (Tailwind v4).
 
 ## License
@@ -367,8 +367,8 @@ git commit -m "docs(tokens): add README (CSS usage/dark mode/build)"
 # @ts design system
 
 Monorepo (pnpm + Turborepo) of a React 19 design system: brand tokens
-(`@ts/tokens`), component library (`@ts/ui`) and composed sections
-(`@ts/blocks`), all on top of **HeroUI v3** (react-aria-components).
+(`@lindaui/tokens`), component library (`@lindaui/ui`) and composed sections
+(`@lindaui/blocks`), all on top of **HeroUI v3** (react-aria-components).
 
 ## Architecture
 
@@ -376,31 +376,31 @@ Monorepo (pnpm + Turborepo) of a React 19 design system: brand tokens
 apps/storybook  (preview)
        │ consumes ui + blocks
        ▼
-@ts/blocks  ──composes──►  @ts/ui  ──wraps──►  @heroui/react (RAC)
+@lindaui/blocks  ──composes──►  @lindaui/ui  ──wraps──►  @heroui/react (RAC)
        │ peer                  │ peer
        ▼                       ▼
-@ts/tokens (dist/index.css)  ──►  @heroui/styles + tailwindcss v4
+@lindaui/tokens (dist/index.css)  ──►  @heroui/styles + tailwindcss v4
 ```
 
 ## Packages
 
 | Package | What | Path |
 |---|---|---|
-| `@ts/tokens` | Brand CSS bundle (tokens + HeroUI + Tailwind) | `packages/tokens/` |
-| `@ts/ui` | React 19 component wrappers over HeroUI v3 | `packages/ui/` |
-| `@ts/blocks` | Composed sections built on `@ts/ui` | `packages/blocks/` |
+| `@lindaui/tokens` | Brand CSS bundle (tokens + HeroUI + Tailwind) | `packages/tokens/` |
+| `@lindaui/ui` | React 19 component wrappers over HeroUI v3 | `packages/ui/` |
+| `@lindaui/blocks` | Composed sections built on `@lindaui/ui` | `packages/blocks/` |
 | `storybook` | Preview catalog (private) | `apps/storybook/` |
 
 ## Quickstart (consumer)
 
 ```bash
-pnpm add @ts/ui @ts/blocks @ts/tokens
+pnpm add @lindaui/ui @lindaui/blocks @lindaui/tokens
 ```
 
 ```tsx
-import "@ts/tokens/css";            // once, at the app root
-import { Button } from "@ts/ui/button";
-import { LoginForm } from "@ts/blocks/login-form";
+import "@lindaui/tokens/css";            // once, at the app root
+import { Button } from "@lindaui/ui/button";
+import { LoginForm } from "@lindaui/blocks/login-form";
 ```
 
 Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`
@@ -453,13 +453,13 @@ Expected: completa sin error.
 
 - [ ] **Step 2: Dry-run y revisar tarball contents**
 
-Run: `pnpm --filter @ts/ui publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/ui publish --dry-run --no-git-checks`
 Expected: la sección "Tarball Contents" lista `LICENSE` y `README.md` además de `dist/` y `package.json`.
 
 - [ ] **Step 3: Ídem blocks y tokens**
 
-Run: `pnpm --filter @ts/blocks publish --dry-run --no-git-checks`
-Run: `pnpm --filter @ts/tokens publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/blocks publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/tokens publish --dry-run --no-git-checks`
 Expected: ambos listan `LICENSE` y `README.md`.
 
 - [ ] **Step 4: Registrar resultado**

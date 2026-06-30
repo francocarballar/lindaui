@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as M from "@ts/ui/breadcrumbs";
+import * as M from "@lindaui/ui/breadcrumbs";
 
 const meta: Meta = { title: "Components/Breadcrumbs" };
 export default meta;

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { DocumentReader } from "@ts/blocks/document-reader";
+import { DocumentReader } from "@lindaui/blocks/document-reader";
 
 const meta: Meta<typeof DocumentReader> = {
   title: "Blocks/DocumentReader",

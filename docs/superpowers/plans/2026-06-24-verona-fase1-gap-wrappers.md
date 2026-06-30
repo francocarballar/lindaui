@@ -1,8 +1,8 @@
-# Verona Fase 1 — Gap wrappers en @ts/ui — Implementation Plan
+# Verona Fase 1 — Gap wrappers en @lindaui/ui — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Construir en `@ts/ui` los 6 componentes que Verona usa y HeroUI v3 no provee (`timeline`, `file-upload`, `chart`, `tree`, `rich-text`, `event-calendar`), cada uno con API pública propia, TDD y entry en el `exports` map.
+**Goal:** Construir en `@lindaui/ui` los 6 componentes que Verona usa y HeroUI v3 no provee (`timeline`, `file-upload`, `chart`, `tree`, `rich-text`, `event-calendar`), cada uno con API pública propia, TDD y entry en el `exports` map.
 
 **Architecture:** Cada wrapper es un archivo `packages/ui/src/<x>.tsx` (+ `<x>.test.tsx` co-locado), `"use client"` primera línea, una entry en `package.json` `exports`. Dos son bespoke (timeline, file-upload sobre primitivos RAC); cuatro envuelven una lib externa (Recharts, react-aria-components Tree, TipTap, FullCalendar) detrás de API propia que **no filtra los types de la lib externa**.
 
@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - **Monorepo pnpm@11.7.0 + Turborepo.** Node ≥20 (entorno: v26). ESM only (`"type":"module"`). pnpm only.
-- **`@ts/ui` envuelve HeroUI v3 = react-aria-components (RAC).** Para gaps sin HeroUI, se envuelve la lib externa, pero **la API pública es propia** — no se re-exportan ni filtran types de la lib externa.
+- **`@lindaui/ui` envuelve HeroUI v3 = react-aria-components (RAC).** Para gaps sin HeroUI, se envuelve la lib externa, pero **la API pública es propia** — no se re-exportan ni filtran types de la lib externa.
 - **`"use client";` primera línea** en los 6 (todos usan hooks/interacción de cliente).
 - **Tests co-locados, solo queries semánticas** (`getByRole`/`getByLabelText`/`findByRole`/`getByText`). **Prohibido `getByTestId`.** Excepción documentada: inputs de archivo (RAC `FileTrigger`) y nodos SVG de Recharts no tienen rol ARIA → se permite `container.querySelector('input[type="file"]')` / `container.querySelector("svg…")` solo para esos casos, nunca `data-testid`.
 - **Toda entry nueva va al `exports` map** de `packages/ui/package.json`: `"./x": { "types": "./dist/x.d.ts", "import": "./dist/x.js" }`. bunchee descubre las entries desde ahí.
@@ -1234,7 +1234,7 @@ const DEFAULT_TOOLBAR = {
   right: "dayGridMonth,timeGridWeek,timeGridDay",
 };
 
-// Mapea las CSS vars de FullCalendar v6 a los tokens de @ts/tokens.
+// Mapea las CSS vars de FullCalendar v6 a los tokens de @lindaui/tokens.
 const fcVars = {
   "--fc-border-color": "var(--surface-border)",
   "--fc-button-bg-color": "var(--accent)",
@@ -1316,7 +1316,7 @@ No tiene test (es documentación), pero es deliverable obligatorio del "Protocol
 
 - [ ] **Step 1: Agregar la 4ª categoría de wrapper**
 
-En la sección **"`@ts/ui` — estilos de wrapper"**, después de "3. Compound re-export", agregar:
+En la sección **"`@lindaui/ui` — estilos de wrapper"**, después de "3. Compound re-export", agregar:
 ```markdown
 ### 4. Wrapper sobre lib externa (no HeroUI)
 
@@ -1335,7 +1335,7 @@ Casos actuales:
 
 - [ ] **Step 2: Actualizar el conteo de entries y deps en "Arquitectura"**
 
-En el diagrama/línea de Arquitectura, cambiar el conteo de entries de `@ts/ui` de **66** a **72**. En las dependencies reales de `@ts/ui`, agregar: `recharts`, `@tiptap/react`+`@tiptap/starter-kit`+`@tiptap/pm`, `@fullcalendar/react`+`daygrid`+`timegrid`+`interaction`, `react-aria-components`.
+En el diagrama/línea de Arquitectura, cambiar el conteo de entries de `@lindaui/ui` de **66** a **72**. En las dependencies reales de `@lindaui/ui`, agregar: `recharts`, `@tiptap/react`+`@tiptap/starter-kit`+`@tiptap/pm`, `@fullcalendar/react`+`daygrid`+`timegrid`+`interaction`, `react-aria-components`.
 
 - [ ] **Step 3: Agregar anti-regresiones nuevas**
 

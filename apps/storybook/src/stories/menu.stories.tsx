@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Menu } from "@ts/ui/menu";
+import { Menu } from "@lindaui/ui/menu";
 
 const items = [
   { key: "perfil", label: "Perfil", onAction: () => {} },

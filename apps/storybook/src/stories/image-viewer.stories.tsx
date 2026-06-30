@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { ImageViewer } from "@ts/blocks/image-viewer";
-import { Badge } from "@ts/ui/badge";
+import { ImageViewer } from "@lindaui/blocks/image-viewer";
+import { Badge } from "@lindaui/ui/badge";
 
 const meta: Meta<typeof ImageViewer> = {
   title: "Blocks/ImageViewer",

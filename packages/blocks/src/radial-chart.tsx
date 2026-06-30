@@ -12,7 +12,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@ts/ui/chart";
+} from "@lindaui/ui/chart";
 
 export interface RadialChartProps {
   data: Array<Record<string, string | number>>;

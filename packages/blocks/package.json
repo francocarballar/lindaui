@@ -1,7 +1,7 @@
 {
-  "name": "@ts/blocks",
+  "name": "@lindaui/blocks",
   "version": "0.0.1",
-  "description": "Composed UI sections (auth, lists, master-detail, charts) built on @ts/ui — importable npm package, not a copy-paste registry.",
+  "description": "Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -49,8 +49,8 @@
     "react-hook-form": ">=7",
     "lucide-react": ">=0.4",
     "recharts": ">=3",
-    "@ts/ui": "*",
-    "@ts/tokens": "*"
+    "@lindaui/ui": "*",
+    "@lindaui/tokens": "*"
   },
   "devDependencies": {
     "bunchee": "^6.0.0",
@@ -71,8 +71,8 @@
     "zod": "^3.23.0",
     "@hookform/resolvers": "^3.9.0",
     "typescript": "^6.0.3",
-    "@ts/ui": "workspace:*",
-    "@ts/tokens": "workspace:*"
+    "@lindaui/ui": "workspace:*",
+    "@lindaui/tokens": "workspace:*"
   }
 }
 

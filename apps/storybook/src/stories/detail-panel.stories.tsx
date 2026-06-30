@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Calendar, User, Stethoscope, FileText, Play } from "lucide-react";
-import { DetailPanel } from "@ts/blocks/detail-panel";
-import { Badge } from "@ts/ui/badge";
+import { DetailPanel } from "@lindaui/blocks/detail-panel";
+import { Badge } from "@lindaui/ui/badge";
 
 const meta: Meta<typeof DetailPanel> = {
   title: "Blocks/DetailPanel",

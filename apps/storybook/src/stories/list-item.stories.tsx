@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { FileText, User, Stethoscope } from "lucide-react";
-import { ListItem } from "@ts/blocks/list-item";
+import { ListItem } from "@lindaui/blocks/list-item";
 
 const meta: Meta<typeof ListItem> = {
   title: "Blocks/ListItem",

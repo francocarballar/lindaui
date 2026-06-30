@@ -1,9 +1,9 @@
 "use client";
 import React, { type ReactNode } from "react";
 import { AlertCircle, FileText, RotateCcw, Search } from "lucide-react";
-import { Button } from "@ts/ui/button";
-import { Input } from "@ts/ui/input";
-import { Skeleton } from "@ts/ui/skeleton";
+import { Button } from "@lindaui/ui/button";
+import { Input } from "@lindaui/ui/input";
+import { Skeleton } from "@lindaui/ui/skeleton";
 
 export interface ListPaneFilter {
   key: string;

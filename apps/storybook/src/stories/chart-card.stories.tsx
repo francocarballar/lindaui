@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TrendingUp } from "lucide-react";
-import { ChartCard } from "@ts/blocks/chart-card";
-import { AreaChart } from "@ts/blocks/area-chart";
-import { Button } from "@ts/ui/button";
-import type { ChartConfig } from "@ts/ui/chart";
+import { ChartCard } from "@lindaui/blocks/chart-card";
+import { AreaChart } from "@lindaui/blocks/area-chart";
+import { Button } from "@lindaui/ui/button";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof ChartCard> = { title: "Charts/ChartCard", component: ChartCard };
 export default meta;

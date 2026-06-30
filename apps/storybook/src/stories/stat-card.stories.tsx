@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity, UserCheck, Users, Award, MessageSquare, TrendingUp, Phone } from "lucide-react";
-import { StatCard } from "@ts/blocks/stat-card";
-import { StatsGrid } from "@ts/blocks/stats-grid";
+import { StatCard } from "@lindaui/blocks/stat-card";
+import { StatsGrid } from "@lindaui/blocks/stats-grid";
 
 const meta: Meta<typeof StatCard> = { title: "Charts/StatCard", component: StatCard };
 export default meta;

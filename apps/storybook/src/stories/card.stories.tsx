@@ -6,16 +6,16 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@ts/ui/card";
-import { Button } from "@ts/ui/button";
-import { Input } from "@ts/ui/input";
-import { Link } from "@ts/ui/link";
-import { CloseButton } from "@ts/ui/close-button";
+} from "@lindaui/ui/card";
+import { Button } from "@lindaui/ui/button";
+import { Input } from "@lindaui/ui/input";
+import { Link } from "@lindaui/ui/link";
+import { CloseButton } from "@lindaui/ui/close-button";
 import { CircleDollarSign, ArrowUpRight } from "lucide-react";
 
 // Réplica de las stories de HeroUI v3 (packages/react/src/components/card),
-// adaptadas a la API de @ts/ui: Card.Header→CardHeader, Icon(@iconify)→lucide,
-// Avatar.Image/Fallback→<img>, Form/TextField/Label/Input→@ts/ui/input,
+// adaptadas a la API de @lindaui/ui: Card.Header→CardHeader, Icon(@iconify)→lucide,
+// Avatar.Image/Fallback→<img>, Form/TextField/Label/Input→@lindaui/ui/input,
 // Link.Icon→lucide, variant="tertiary"→className.
 const meta: Meta<typeof Card> = {
   title: "Surfaces/Card",

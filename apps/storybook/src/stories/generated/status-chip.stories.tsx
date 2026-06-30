@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { StatusChip } from "@ts/ui/status-chip";
+import { StatusChip } from "@lindaui/ui/status-chip";
 
 const meta: Meta<typeof StatusChip> = {
   title: "Components/StatusChip",

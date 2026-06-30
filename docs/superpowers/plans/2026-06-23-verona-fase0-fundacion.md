@@ -2,17 +2,17 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Levantar `apps/verona` (Next.js 16.2.9) dentro del monorepo con el layout shell de Verona portado a @ts/ui — topbar, sidebar con menú jerárquico, breadcrumb, footer y AppConfig mínimo (light/dark + menu-mode static) — navegable y con `pnpm build` pasando.
+**Goal:** Levantar `apps/verona` (Next.js 16.2.9) dentro del monorepo con el layout shell de Verona portado a @lindaui/ui — topbar, sidebar con menú jerárquico, breadcrumb, footer y AppConfig mínimo (light/dark + menu-mode static) — navegable y con `pnpm build` pasando.
 
-**Architecture:** App Next.js app-router como nuevo workspace. Consume `@ts/ui` (componentes) y `@ts/tokens` (CSS) vía `workspace:*`. El layout de Verona se porta componente a componente, reemplazando PrimeReact por @ts/ui y `pi pi-*` por un adaptador a `lucide-react`. El CSS de layout de Verona (SCSS) se copia y se conecta a los tokens OKLCH mediante un único archivo puente de variables; solo se porta lo necesario para menu-mode `static`.
+**Architecture:** App Next.js app-router como nuevo workspace. Consume `@lindaui/ui` (componentes) y `@lindaui/tokens` (CSS) vía `workspace:*`. El layout de Verona se porta componente a componente, reemplazando PrimeReact por @lindaui/ui y `pi pi-*` por un adaptador a `lucide-react`. El CSS de layout de Verona (SCSS) se copia y se conecta a los tokens OKLCH mediante un único archivo puente de variables; solo se porta lo necesario para menu-mode `static`.
 
-**Tech Stack:** Next.js 16.2.9, React 19, TypeScript, @ts/ui (HeroUI v3), @ts/tokens (Tailwind v4 + OKLCH), lucide-react, sass, vitest + @testing-library/react (tests de unidades lógicas).
+**Tech Stack:** Next.js 16.2.9, React 19, TypeScript, @lindaui/ui (HeroUI v3), @lindaui/tokens (Tailwind v4 + OKLCH), lucide-react, sass, vitest + @testing-library/react (tests de unidades lógicas).
 
 ## Global Constraints
 
 - Node ≥20, **pnpm@11.7.0** (sin npm/yarn). Todo `"type": "module"` / ESM.
 - React **19**, Next.js **16.2.9** exacto.
-- `@ts/ui` y `@ts/tokens` se consumen como **`workspace:*`** (no publicados).
+- `@lindaui/ui` y `@lindaui/tokens` se consumen como **`workspace:*`** (no publicados).
 - Componentes interactivos: **`"use client";` como primera línea**.
 - Iconos: nunca `pi pi-*` literal en JSX nuevo fuera del adaptador; usar `<Icon name="..." />`.
 - **Sin primeflex, sin ripple, sin input-style (outlined/filled), sin PrimeReact.**
@@ -20,7 +20,7 @@
 - AppConfig Fase 0: **solo light/dark**.
 - Tests: solo queries semánticas (`getByRole`/`getByLabelText`), prohibido `getByTestId`.
 - El workspace `apps/verona` entra a `pnpm-workspace.yaml` (ya cubre `apps/*`) y a turbo (hereda tasks `dev`/`build`).
-- `dist/` de `@ts/ui` debe existir antes de `dev`: correr `pnpm build` una vez tras instalar.
+- `dist/` de `@lindaui/ui` debe existir antes de `dev`: correr `pnpm build` una vez tras instalar.
 
 ---
 
@@ -53,7 +53,7 @@ apps/verona/
   layout/app-config.test.tsx
   layout/app-layout.tsx        # ensambla todo
   styles/
-    globals.css                # @import tailwindcss + @ts/tokens/css + layout scss compilado
+    globals.css                # @import tailwindcss + @lindaui/tokens/css + layout scss compilado
     layout/                    # SCSS copiado de Verona (subset static) + _bridge.scss
   public/fonts/                # Lato woff2 (copiados de Verona)
   app/layout.tsx               # root: html/body, fuente, providers, importa globals.css
@@ -94,8 +94,8 @@ apps/verona/
     "test": "vitest run"
   },
   "dependencies": {
-    "@ts/tokens": "workspace:*",
-    "@ts/ui": "workspace:*",
+    "@lindaui/tokens": "workspace:*",
+    "@lindaui/ui": "workspace:*",
     "lucide-react": "^0.460.0",
     "next": "16.2.9",
     "react": "^19.0.0",
@@ -166,10 +166,10 @@ export default {
 
 ```css
 @import 'tailwindcss';
-@import '@ts/tokens/css';
+@import '@lindaui/tokens/css';
 ```
 
-> Nota conocida: `@ts/tokens/css` ya trae preflight de Tailwind compilado; el `@import "tailwindcss"` de la app agrega utilities con scope de la app. Puede haber preflight duplicado (idempotente por cascada). Optimización a Fase 4.
+> Nota conocida: `@lindaui/tokens/css` ya trae preflight de Tailwind compilado; el `@import "tailwindcss"` de la app agrega utilities con scope de la app. Puede haber preflight duplicado (idempotente por cascada). Optimización a Fase 4.
 
 - [ ] **Step 6: Crear `apps/verona/app/layout.tsx`** (root mínimo, sin providers todavía)
 
@@ -178,8 +178,8 @@ import type { ReactNode } from 'react';
 import '../styles/globals.css';
 
 export const metadata = {
-  title: 'Verona — @ts/ui',
-  description: 'Verona template sobre @ts/ui'
+  title: 'Verona — @lindaui/ui',
+  description: 'Verona template sobre @lindaui/ui'
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -202,12 +202,12 @@ export default function Home() {
 - [ ] **Step 8: Instalar y verificar build de la lib**
 
 Run: `pnpm install && pnpm build`
-Expected: instala el nuevo workspace `verona`; turbo buildea `@ts/tokens` y `@ts/ui` (genera `dist/`). Sin errores.
+Expected: instala el nuevo workspace `verona`; turbo buildea `@lindaui/tokens` y `@lindaui/ui` (genera `dist/`). Sin errores.
 
 - [ ] **Step 9: Verificar que la app arranca**
 
 Run: `pnpm --filter verona dev` (luego Ctrl-C)
-Expected: Next levanta en `:3000`; `http://localhost:3000` muestra "verona scaffold ok". Sin errores de resolución de `@ts/tokens/css` ni `@ts/ui`.
+Expected: Next levanta en `:3000`; `http://localhost:3000` muestra "verona scaffold ok". Sin errores de resolución de `@lindaui/tokens/css` ni `@lindaui/ui`.
 
 - [ ] **Step 10: Commit**
 
@@ -239,10 +239,10 @@ NO copiar: `_sidebar_slim.scss`, `_sidebar_slim_plus.scss`, `theme/_themes.scss`
 
 Copiar fuentes Lato de `verona-react-10.0.0/styles/layout/fonts/*.woff2` a `apps/verona/public/fonts/`.
 
-- [ ] **Step 2: Crear `apps/verona/styles/layout/_bridge.scss`** — define las vars que el SCSS espera, en términos de @ts/tokens
+- [ ] **Step 2: Crear `apps/verona/styles/layout/_bridge.scss`** — define las vars que el SCSS espera, en términos de @lindaui/tokens
 
 ```scss
-/* Puente: vars PrimeReact/Verona -> tokens @ts/tokens (light por defecto en :root) */
+/* Puente: vars PrimeReact/Verona -> tokens @lindaui/tokens (light por defecto en :root) */
 :root {
   --primary-color: var(--accent);
   --primary-color-text: var(--accent-foreground);
@@ -277,7 +277,7 @@ Copiar fuentes Lato de `verona-react-10.0.0/styles/layout/fonts/*.woff2` a `apps
 }
 ```
 
-> `--text-color`/`--border-radius` ya existen en tokens; redefinirlos con su propio valor es no-op intencional (documenta el contrato). El `.dark` de @ts/tokens ya re-define `--surface`/`--text-color`/etc, así que el bridge hereda dark automáticamente.
+> `--text-color`/`--border-radius` ya existen en tokens; redefinirlos con su propio valor es no-op intencional (documenta el contrato). El `.dark` de @lindaui/tokens ya re-define `--surface`/`--text-color`/etc, así que el bridge hereda dark automáticamente.
 
 - [ ] **Step 3: Crear `apps/verona/styles/layout/layout.scss`** (entry recortado)
 
@@ -303,7 +303,7 @@ $breakpoint: 992px !default;
 
 ```css
 @import 'tailwindcss';
-@import '@ts/tokens/css';
+@import '@lindaui/tokens/css';
 @import './layout/layout.scss';
 ```
 
@@ -325,8 +325,8 @@ const lato = localFont({
 });
 
 export const metadata = {
-  title: 'Verona — @ts/ui',
-  description: 'Verona template sobre @ts/ui'
+  title: 'Verona — @lindaui/ui',
+  description: 'Verona template sobre @lindaui/ui'
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -1059,7 +1059,7 @@ Expected: PASS (3 tests).
 
 ```bash
 git add apps/verona/layout/app-menu.tsx apps/verona/layout/app-menuitem.tsx apps/verona/layout/app-submenu.tsx apps/verona/layout/app-sidebar.tsx apps/verona/layout/app-menuitem.test.tsx
-git commit -m "feat(verona): menú jerárquico (AppMenu/Menuitem/SubMenu/Sidebar) sobre @ts/ui"
+git commit -m "feat(verona): menú jerárquico (AppMenu/Menuitem/SubMenu/Sidebar) sobre @lindaui/ui"
 ```
 
 ---
@@ -1072,13 +1072,13 @@ git commit -m "feat(verona): menú jerárquico (AppMenu/Menuitem/SubMenu/Sidebar
 - Create: `apps/verona/layout/app-footer.tsx`
 
 **Interfaces:**
-- Consumes: `useLayout` (Task 3); `Icon` (Task 4); `@ts/ui/search-field`, `@ts/ui/avatar`, `@ts/ui/menu`.
+- Consumes: `useLayout` (Task 3); `Icon` (Task 4); `@lindaui/ui/search-field`, `@lindaui/ui/avatar`, `@lindaui/ui/menu`.
 - Produces:
   - `AppTopbar` (default export): logo + botón de menú (llama `onMenuToggle`) + `SearchField` + menú de perfil con avatar.
   - `AppBreadcrumb` (default export): `{ className?: string }`; lee `breadcrumbs` del contexto, casa contra `pathname`, renderiza `<nav className="layout-breadcrumb">`.
   - `AppFooter` (default export): footer estático.
 
-> Verificar la API real de cada wrapper antes de escribir props (regla del CLAUDE.md): `@ts/ui/search-field`, `@ts/ui/avatar`, `@ts/ui/menu`. Si la firma difiere de lo escrito acá, adaptar. El menú de perfil usa el wrapper ergonómico de `menu` (`trigger` = contenido del botón, NO un `<button>`).
+> Verificar la API real de cada wrapper antes de escribir props (regla del CLAUDE.md): `@lindaui/ui/search-field`, `@lindaui/ui/avatar`, `@lindaui/ui/menu`. Si la firma difiere de lo escrito acá, adaptar. El menú de perfil usa el wrapper ergonómico de `menu` (`trigger` = contenido del botón, NO un `<button>`).
 
 - [ ] **Step 1: Crear `apps/verona/layout/app-breadcrumb.tsx`**
 
@@ -1153,9 +1153,9 @@ export default function AppFooter() {
 import Link from 'next/link';
 import { useLayout } from './context/layout-context';
 import { Icon } from '@/lib/icon';
-import { SearchField } from '@ts/ui/search-field';
-import { Avatar } from '@ts/ui/avatar';
-import { Menu, MenuItem } from '@ts/ui/menu';
+import { SearchField } from '@lindaui/ui/search-field';
+import { Avatar } from '@lindaui/ui/avatar';
+import { Menu, MenuItem } from '@lindaui/ui/menu';
 
 export default function AppTopbar() {
   const { onMenuToggle } = useLayout();
@@ -1197,7 +1197,7 @@ export default function AppTopbar() {
 }
 ```
 
-> Si los named exports reales de `@ts/ui/menu`/`search-field`/`avatar` difieren (revisar sus `.d.ts` en `packages/ui/dist`), ajustar imports y props. El objetivo es: search funcional + menú de perfil accesible (`role="menu"`).
+> Si los named exports reales de `@lindaui/ui/menu`/`search-field`/`avatar` difieren (revisar sus `.d.ts` en `packages/ui/dist`), ajustar imports y props. El objetivo es: search funcional + menú de perfil accesible (`role="menu"`).
 
 - [ ] **Step 4: Verificar tipos/compilación**
 
@@ -1220,7 +1220,7 @@ git commit -m "feat(verona): topbar (search + perfil), breadcrumb y footer"
 - Test: `apps/verona/layout/app-config.test.tsx`
 
 **Interfaces:**
-- Consumes: `useLayout` (Task 3); `@ts/ui/drawer`, `@ts/ui/radio-group`, `@ts/ui/button`.
+- Consumes: `useLayout` (Task 3); `@lindaui/ui/drawer`, `@lindaui/ui/radio-group`, `@lindaui/ui/button`.
 - Produces: `AppConfig` (default export): botón flotante (engranaje) que abre un drawer derecho con un radio-group Light/Dark. Al elegir dark, agrega la clase `dark` a `document.documentElement` y setea `layoutConfig.colorScheme`; light la quita.
 
 - [ ] **Step 1: Escribir el test que falla — `app-config.test.tsx`**
@@ -1269,8 +1269,8 @@ Expected: FAIL — `Cannot find module './app-config'`.
 import { useEffect } from 'react';
 import { useLayout } from './context/layout-context';
 import { Icon } from '@/lib/icon';
-import { Drawer } from '@ts/ui/drawer';
-import { RadioGroup, Radio } from '@ts/ui/radio-group';
+import { Drawer } from '@lindaui/ui/drawer';
+import { RadioGroup, Radio } from '@lindaui/ui/radio-group';
 import type { ColorScheme } from '@/types/layout';
 
 export default function AppConfig() {
@@ -1304,7 +1304,7 @@ export default function AppConfig() {
 }
 ```
 
-> Adaptar a la API real de `@ts/ui/drawer` (`isOpen`/`onOpenChange`/`placement`/`title`) y `@ts/ui/radio-group` (`value`/`onChange(value)`, `Radio`) leyendo sus `.d.ts`. El handler de los controls es `onChange`, no `onValueChange` (CLAUDE.md). Si el drawer no auto-renderiza un nombre accesible, pasar `aria-label`.
+> Adaptar a la API real de `@lindaui/ui/drawer` (`isOpen`/`onOpenChange`/`placement`/`title`) y `@lindaui/ui/radio-group` (`value`/`onChange(value)`, `Radio`) leyendo sus `.d.ts`. El handler de los controls es `onChange`, no `onValueChange` (CLAUDE.md). Si el drawer no auto-renderiza un nombre accesible, pasar `aria-label`.
 
 - [ ] **Step 4: Correr el test para verificar que pasa**
 
@@ -1406,19 +1406,19 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 - [ ] **Step 4: Crear `apps/verona/app/(main)/page.tsx`** (placeholder dashboard)
 
 ```tsx
-import { Card } from '@ts/ui/card';
+import { Card } from '@lindaui/ui/card';
 
 export default function Dashboard() {
   return (
     <Card>
       <h1>SaaS Dashboard</h1>
-      <p>Shell de Verona sobre @ts/ui — Fase 0 lista. Las páginas llegan en fases siguientes.</p>
+      <p>Shell de Verona sobre @lindaui/ui — Fase 0 lista. Las páginas llegan en fases siguientes.</p>
     </Card>
   );
 }
 ```
 
-> Verificar export real de `@ts/ui/card`. Si `Card` requiere subcomponentes (`CardBody`...), adaptar según su `.d.ts`.
+> Verificar export real de `@lindaui/ui/card`. Si `Card` requiere subcomponentes (`CardBody`...), adaptar según su `.d.ts`.
 
 - [ ] **Step 5: Crear `apps/verona/app/(full-page)/layout.tsx`** (passthrough para auth futuro)
 
@@ -1443,7 +1443,7 @@ Expected: `http://localhost:3000` muestra topbar + sidebar con menú jerárquico
 - [ ] **Step 8: Verificar build de producción + tipos**
 
 Run: `pnpm build`
-Expected: turbo buildea `@ts/tokens`, `@ts/ui` y `verona`. `next build` compila sin errores de tipos ni de import. (Es el gate de tipos de la app.)
+Expected: turbo buildea `@lindaui/tokens`, `@lindaui/ui` y `verona`. `next build` compila sin errores de tipos ni de import. (Es el gate de tipos de la app.)
 
 - [ ] **Step 9: Correr la suite de tests de la app**
 
@@ -1464,7 +1464,7 @@ git commit -m "feat(verona): ensamblar shell (AppLayout + route groups) y verifi
 
 **1. Spec coverage:**
 - Scaffold `apps/verona` Next 16.2.9 + workspace → Task 1. ✓
-- Bridge de estilos (`@ts/tokens/css` + Tailwind + SCSS port + primeflex out + Lato) → Task 2. ✓
+- Bridge de estilos (`@lindaui/tokens/css` + Tailwind + SCSS port + primeflex out + Lato) → Task 2. ✓
 - Layout shell (Context, Menu, Topbar, Sidebar, Breadcrumb, Footer, Config) → Tasks 3,5,6,7,8. ✓
 - Iconos lucide → Task 4. ✓
 - AppConfig mínimo (light/dark + static) → Task 7 + LayoutConfig recortado Task 3. ✓
@@ -1476,7 +1476,7 @@ git commit -m "feat(verona): ensamblar shell (AppLayout + route groups) y verifi
 **3. Type consistency:** `useLayout`/`useMenu` nombres consistentes Tasks 3→5,6,7,8. `LayoutContextProps` (con `isSlim/isSlimPlus/isHorizontal` stubs) usado en menuitem. `MenuModel` compartido menu/submenu/menuitem. `Icon({name,className})` firma única Tasks 4→5,6,7. `Breadcrumb {labels,to}` consistente submenu/breadcrumb. `ColorScheme` Task 3→7.
 
 ## Riesgos conocidos
-- **APIs reales de @ts/ui** (`search-field`, `avatar`, `menu`, `drawer`, `radio-group`, `card`): el plan asume firmas razonables; cada tarea instruye verificar el `.d.ts` y adaptar. Es el punto de fricción más probable.
+- **APIs reales de @lindaui/ui** (`search-field`, `avatar`, `menu`, `drawer`, `radio-group`, `card`): el plan asume firmas razonables; cada tarea instruye verificar el `.d.ts` y adaptar. Es el punto de fricción más probable.
 - **Nombres de iconos lucide**: algunos del import pueden no existir con ese identificador exacto; Task 4 incluye verificación.
 - **SCSS port + bridge**: riesgo visual (no cubierto por tests unit). Verificación manual en Task 2 Step 6 y Task 8 Step 7.
 - **Doble preflight de Tailwind**: aceptado en Fase 0, optimización a Fase 4.

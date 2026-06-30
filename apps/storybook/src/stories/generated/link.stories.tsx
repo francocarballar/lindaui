@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Link } from "@ts/ui/link";
+import { Link } from "@lindaui/ui/link";
 
 const meta: Meta<typeof Link> = {
   title: "Components/Link",

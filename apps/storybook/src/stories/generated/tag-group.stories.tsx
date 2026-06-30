@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@ts/ui/tag-group";
+import * as Mod from "@lindaui/ui/tag-group";
 
 // Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
 const exportNames = Object.keys(Mod);

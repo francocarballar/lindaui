@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as M from "@ts/ui/listbox";
+import * as M from "@lindaui/ui/listbox";
 
 const meta: Meta = { title: "Components/Listbox" };
 export default meta;

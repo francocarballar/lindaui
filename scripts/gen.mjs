@@ -32,7 +32,7 @@ function deriveExports(pkgRel, check = false) {
 function componentTemplate(Name, kind) {
   const note =
     kind === "block"
-      ? "// Block: sección compuesta. Importá primitivos de @ts/ui y armá la composición."
+      ? "// Block: sección compuesta. Importá primitivos de @lindaui/ui y armá la composición."
       : "// Componente: envolvé el primitivo de HeroUI o componé su API ergonómica.";
   return `"use client";
 import type { ReactNode } from "react";

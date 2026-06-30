@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import { Dialog } from "@ts/ui/dialog";
-import { Button } from "@ts/ui/button";
+import { Dialog } from "@lindaui/ui/dialog";
+import { Button } from "@lindaui/ui/button";
 
 function DialogDemo() {
   const [open, setOpen] = useState(false);

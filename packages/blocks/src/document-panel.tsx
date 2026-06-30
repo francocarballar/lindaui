@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-// @ts/ui primitives
+// @lindaui/ui primitives
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import { Divider } from "@ts/ui/divider";
-import { Skeleton } from "@ts/ui/skeleton";
+import { Divider } from "@lindaui/ui/divider";
+import { Skeleton } from "@lindaui/ui/skeleton";
 
 export interface DocumentPanelProps {
   title: string;

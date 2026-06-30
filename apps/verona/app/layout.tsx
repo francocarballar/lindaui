@@ -15,8 +15,8 @@ const lato = localFont({
 });
 
 export const metadata = {
-  title: 'Verona — @ts/ui',
-  description: 'Verona template sobre @ts/ui'
+  title: 'Verona — @lindaui/ui',
+  description: 'Verona template sobre @lindaui/ui'
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

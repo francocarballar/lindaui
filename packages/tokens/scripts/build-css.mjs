@@ -16,7 +16,7 @@ await mkdir(path.join(root, "dist"), { recursive: true });
 // genere las utilities que usan (flex, gap, max-w, etc.). Sin esto, index.css
 // trae HeroUI + tokens pero CERO utilities → los blocks/bespoke se ven sin
 // estilo. Paths relativos a _entry.css (packages/tokens/). Así un solo
-// `@ts/tokens/css` rinde la lib completa en cualquier consumidor.
+// `@lindaui/tokens/css` rinde la lib completa en cualquier consumidor.
 const entry = `@import "tailwindcss";
 @source "../ui/src";
 @source "../blocks/src";
@@ -47,7 +47,7 @@ const child = spawn("npx", args, {
 
 child.on("exit", (code) => {
   if (code === 0 && !watch) {
-    console.log("✓ @ts/tokens built → dist/index.css");
+    console.log("✓ @lindaui/tokens built → dist/index.css");
   }
   process.exit(code ?? 0);
 });

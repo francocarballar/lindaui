@@ -2,9 +2,9 @@
 import { type ReactNode } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { Plus, X } from "lucide-react";
-import { Button } from "@ts/ui/button";
-import { Input } from "@ts/ui/input";
-import { Select } from "@ts/ui/select";
+import { Button } from "@lindaui/ui/button";
+import { Input } from "@lindaui/ui/input";
+import { Select } from "@lindaui/ui/select";
 
 export interface FieldArrayFormValues {
   category: string;

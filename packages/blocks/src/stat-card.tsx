@@ -1,9 +1,9 @@
 "use client";
 import type { ReactNode } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@ts/ui/card";
-import { Badge } from "@ts/ui/badge";
-import { ChartContainer, type ChartConfig } from "@ts/ui/chart";
+import { Card, CardHeader, CardTitle, CardContent } from "@lindaui/ui/card";
+import { Badge } from "@lindaui/ui/badge";
+import { ChartContainer, type ChartConfig } from "@lindaui/ui/chart";
 import { LineChart, Line } from "recharts";
 
 export interface StatCardDelta {

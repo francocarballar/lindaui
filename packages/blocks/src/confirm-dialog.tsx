@@ -1,7 +1,7 @@
 "use client";
 import type { ReactNode } from "react";
-import { Dialog } from "@ts/ui/dialog";
-import { Button } from "@ts/ui/button";
+import { Dialog } from "@lindaui/ui/dialog";
+import { Button } from "@lindaui/ui/button";
 
 export interface ConfirmDialogProps {
   open: boolean;

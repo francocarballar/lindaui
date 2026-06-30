@@ -1,4 +1,4 @@
-# Verona Fase 1 — Gap wrappers en @ts/ui — Diseño
+# Verona Fase 1 — Gap wrappers en @lindaui/ui — Diseño
 
 > Fecha: 2026-06-24
 > Estado: aprobado (diseño) — pendiente review de spec
@@ -6,7 +6,7 @@
 
 ## Objetivo
 
-Construir en `@ts/ui` los 6 componentes que el template Verona usa y que HeroUI v3
+Construir en `@lindaui/ui` los 6 componentes que el template Verona usa y que HeroUI v3
 no provee, cada uno como wrapper sobre una lib externa elegida (o bespoke), con API
 pública propia, TDD y entry en el `exports` map. Esta fase entrega **solo los wrappers
 + sus tests + entries**; las páginas que los consumen son Fase 2/3.
@@ -15,7 +15,7 @@ Fuente de referencia de uso: `C:\Users\ccarb\Downloads\verona-react-10.0.0` (Pri
 
 ## Por qué son gaps reales
 
-HeroUI v3 (= react-aria-components) no expone ninguno de los 6. `@ts/ui/calendar` y
+HeroUI v3 (= react-aria-components) no expone ninguno de los 6. `@lindaui/ui/calendar` y
 `range-calendar` son date-pickers RAC (selección de fecha), **no** calendarios de eventos.
 Verona los cubría con PrimeReact (`Chart`, `Tree`, `Editor`, `FullCalendar`, `Timeline`,
 `FileUpload`).
@@ -42,7 +42,7 @@ Verona los cubría con PrimeReact (`Chart`, `Tree`, `Editor`, `FullCalendar`, `T
   Regla: la API pública es **propia**, no se filtran types de la lib externa (igual criterio
   que con HeroUI donde hay wrapper ergonómico). Al cerrar la fase, agregar esta categoría a
   la sección "estilos de wrapper" de CLAUDE.md.
-- Deps nuevas reales de `@ts/ui` (van a `dependencies`, como `@heroui/react`):
+- Deps nuevas reales de `@lindaui/ui` (van a `dependencies`, como `@heroui/react`):
   - `recharts`
   - `@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/pm`
   - `@fullcalendar/react`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`, `@fullcalendar/interaction`
@@ -113,13 +113,13 @@ interface RichTextProps {
 ```
 
 - TipTap `useEditor` con `StarterKit`. `content` inicial = `value`; `onUpdate` → `onChange(editor.getHTML())`.
-- Toolbar propia (botones `@ts/ui/button` toggle) sobre el `EditorContent`.
+- Toolbar propia (botones `@lindaui/ui/button` toggle) sobre el `EditorContent`.
 - Esconde la instancia de editor; no se expone el objeto TipTap.
 
 ### event-calendar
 
 Esconde el wiring de plugins FC (bundle interno de dayGrid/timeGrid/interaction). Ship de una
-hoja de override CSS que mapea las vars de FullCalendar a tokens de `@ts/tokens`.
+hoja de override CSS que mapea las vars de FullCalendar a tokens de `@lindaui/tokens`.
 
 ```tsx
 interface CalendarEvent { id?: string; title: string; start: string | Date; end?: string | Date; allDay?: boolean; backgroundColor?: string; borderColor?: string; textColor?: string; }
@@ -139,7 +139,7 @@ interface EventCalendarProps {
 
 - Internamente arma `plugins=[dayGridPlugin, timeGridPlugin, interactionPlugin]`,
   `selectMirror`, `dayMaxEvents` defaults on. `eventClick`/`select` se simplifican al callback propio.
-- CSS override co-located (import en el wrapper o en `@ts/tokens`; resolver en el plan).
+- CSS override co-located (import en el wrapper o en `@lindaui/tokens`; resolver en el plan).
 
 ### timeline
 
@@ -180,7 +180,7 @@ interface FileUploadProps {
 <FileUpload mode="advanced" multiple accept="image/*" maxSize={1_000_000} onSelect={...} />
 ```
 
-- `mode="basic"` = `FileTrigger` + botón (`@ts/ui/button`). `mode="advanced"` = `DropZone`
+- `mode="basic"` = `FileTrigger` + botón (`@lindaui/ui/button`). `mode="advanced"` = `DropZone`
   con `FileTrigger` interno + lista de previews (item-template default o custom).
 - `maxSize`/`accept` filtran antes de emitir `onSelect`. `onUpload` opcional (no hay backend en
   el template — queda como hook para el consumidor; sin auto-upload por default).
@@ -230,5 +230,5 @@ entry en exports map → build (`bunchee --no-dts && tsc`) → commit.
 ## Criterio de hecho
 
 `pnpm build` pasa (bunchee + gate `tsc`) con las 6 entries nuevas; `pnpm test` verde
-(suite vitest de `@ts/ui` incluye los 6 `.test.tsx`); cada wrapper exporta desde su entry
+(suite vitest de `@lindaui/ui` incluye los 6 `.test.tsx`); cada wrapper exporta desde su entry
 del map; CLAUDE.md actualizado con la 4ª categoría de wrapper y cualquier trampa nueva.

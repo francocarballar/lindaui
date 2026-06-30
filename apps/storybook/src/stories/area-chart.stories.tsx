@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AreaChart } from "@ts/blocks/area-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { AreaChart } from "@lindaui/blocks/area-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof AreaChart> = { title: "Charts/AreaChart", component: AreaChart };
 export default meta;

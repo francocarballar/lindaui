@@ -27,9 +27,9 @@
     "recharts": "^3.9.0"
   },
   "dependencies": {
-    "@ts/tokens": "workspace:*",
-    "@ts/ui": "workspace:*",
-    "@ts/blocks": "workspace:*"
+    "@lindaui/tokens": "workspace:*",
+    "@lindaui/ui": "workspace:*",
+    "@lindaui/blocks": "workspace:*"
   }
 }
 

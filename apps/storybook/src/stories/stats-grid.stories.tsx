@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { StatsGrid } from "@ts/blocks/stats-grid";
-import { StatCard } from "@ts/blocks/stat-card";
+import { StatsGrid } from "@lindaui/blocks/stats-grid";
+import { StatCard } from "@lindaui/blocks/stat-card";
 
 const meta: Meta<typeof StatsGrid> = { title: "Charts/StatsGrid", component: StatsGrid };
 export default meta;

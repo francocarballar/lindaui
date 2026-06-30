@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ToggleButton } from "@ts/ui/toggle-button";
+import { ToggleButton } from "@lindaui/ui/toggle-button";
 
 const meta: Meta<typeof ToggleButton> = {
   title: "Components/ToggleButton",

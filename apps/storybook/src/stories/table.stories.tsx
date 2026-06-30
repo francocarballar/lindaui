@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Table } from "@ts/ui/table";
+import { Table } from "@lindaui/ui/table";
 
 const columns = [
   { key: "paciente", label: "Paciente" },

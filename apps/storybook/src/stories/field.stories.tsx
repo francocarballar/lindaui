@@ -2,9 +2,9 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Field } from "@ts/ui/field";
-import { Input } from "@ts/ui/input";
-import { Button } from "@ts/ui/button";
+import { Field } from "@lindaui/ui/field";
+import { Input } from "@lindaui/ui/input";
+import { Button } from "@lindaui/ui/button";
 
 const schema = z.object({ email: z.string().email("Email inválido") });
 

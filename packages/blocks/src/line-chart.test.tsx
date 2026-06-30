@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { LineChart } from "./line-chart";
 import { describe, test, expect, beforeAll } from "vitest";
-import type { ChartConfig } from "@ts/ui/chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 beforeAll(() => {
   globalThis.ResizeObserver ||= class {

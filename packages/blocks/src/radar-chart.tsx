@@ -14,7 +14,7 @@ import {
   ChartLegend,
   ChartLegendContent,
   type ChartConfig,
-} from "@ts/ui/chart";
+} from "@lindaui/ui/chart";
 
 export interface RadarChartProps {
   data: Array<Record<string, string | number>>;

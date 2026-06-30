@@ -6,13 +6,13 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "@ts/ui/card";
-import { Input } from "@ts/ui/input";
-import { Button } from "@ts/ui/button";
-import { Field } from "@ts/ui/field";
-import { Text } from "@ts/ui/text";
+} from "@lindaui/ui/card";
+import { Input } from "@lindaui/ui/input";
+import { Button } from "@lindaui/ui/button";
+import { Field } from "@lindaui/ui/field";
+import { Text } from "@lindaui/ui/text";
 
-// Block: login compuesto de primitivos @ts/ui (field + input + button). Maneja
+// Block: login compuesto de primitivos @lindaui/ui (field + input + button). Maneja
 // el form con react-hook-form internamente; el consumidor solo recibe los
 // valores en onSubmit. API propia, no filtra tipos de HeroUI.
 //

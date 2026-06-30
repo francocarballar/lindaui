@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Meter } from "@ts/ui/meter";
+import { Meter } from "@lindaui/ui/meter";
 
 const meta: Meta<typeof Meter> = {
   title: "Components/Meter",

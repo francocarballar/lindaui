@@ -11,7 +11,7 @@
   que no existe, y legalmente la licencia MIT exige distribuir el texto + el
   copyright.
 - No hay README en la raíz ni en ningún paquete. Una librería de 71 entries
-  (`@ts/ui`) + 22 (`@ts/blocks`) + el bundle CSS (`@ts/tokens`) se publicaría
+  (`@lindaui/ui`) + 22 (`@lindaui/blocks`) + el bundle CSS (`@lindaui/tokens`) se publicaría
   sin una sola línea de install/uso/setup de peers. El consumidor no sabría
   qué instalar ni cómo importar el CSS.
 
@@ -33,16 +33,16 @@ cada paquete con el mismo texto MIT (3 copias idénticas). Es lo que hacen los
 monorepos npm estándar; el texto MIT no cambia.
 
 `files` resultante:
-- `@ts/ui`: `["dist", "LICENSE", "README.md"]`
-- `@ts/blocks`: `["dist", "LICENSE", "README.md"]`
-- `@ts/tokens`: `["dist", "LICENSE", "README.md"]`
+- `@lindaui/ui`: `["dist", "LICENSE", "README.md"]`
+- `@lindaui/blocks`: `["dist", "LICENSE", "README.md"]`
+- `@lindaui/tokens`: `["dist", "LICENSE", "README.md"]`
 
 ### R3 — README raíz
 
 `README.md` en la raíz, contenido mínimo:
 
-- Título + una línea: monorepo del design system (`@ts/tokens` + `@ts/ui` +
-  `@ts/blocks`) sobre HeroUI v3.
+- Título + una línea: monorepo del design system (`@lindaui/tokens` + `@lindaui/ui` +
+  `@lindaui/blocks`) sobre HeroUI v3.
 - Diagrama de arquitectura (reusar el ASCII de `CLAUDE.md`).
 - Tabla de paquetes (nombre → qué es → path).
 - Quickstart de consumidor: instalar los 3, importar el CSS una vez, importar
@@ -51,51 +51,51 @@ monorepos npm estándar; el texto MIT no cambia.
   `CLAUDE.md` como contrato de contribución.
 - Licencia: MIT.
 
-### R4 — README de `@ts/ui`
+### R4 — README de `@lindaui/ui`
 
 `packages/ui/README.md`:
 
 - Qué es: wrappers React 19 sobre HeroUI v3 (RAC) detrás de entry points estables.
-- Install: `pnpm add @ts/ui @ts/tokens` + peers (`react`, `react-dom`,
-  `react-hook-form`). Indicar que `@ts/tokens` es peer y hay que importar su CSS.
-- Setup CSS: `import "@ts/tokens/css";` una vez en el root del app.
+- Install: `pnpm add @lindaui/ui @lindaui/tokens` + peers (`react`, `react-dom`,
+  `react-hook-form`). Indicar que `@lindaui/tokens` es peer y hay que importar su CSS.
+- Setup CSS: `import "@lindaui/tokens/css";` una vez en el root del app.
 - Uso: ejemplo de import por entry —
   ```tsx
-  import { Button } from "@ts/ui/button";
-  import { Select } from "@ts/ui/select";
+  import { Button } from "@lindaui/ui/button";
+  import { Select } from "@lindaui/ui/select";
   ```
-- Nota de API: HeroUI v3 es RAC; la API pública de `@ts/ui` es propia donde hay
+- Nota de API: HeroUI v3 es RAC; la API pública de `@lindaui/ui` es propia donde hay
   wrapper ergonómico (no re-exporta tipos de HeroUI ahí). Link a `CLAUDE.md`.
-- Una línea sobre las entries no-componente: `@ts/ui/cn`, `@ts/ui/search`,
-  `@ts/ui/use-disclosure`, `@ts/ui/use-media-query`.
+- Una línea sobre las entries no-componente: `@lindaui/ui/cn`, `@lindaui/ui/search`,
+  `@lindaui/ui/use-disclosure`, `@lindaui/ui/use-media-query`.
 
-### R5 — README de `@ts/blocks`
+### R5 — README de `@lindaui/blocks`
 
 `packages/blocks/README.md`:
 
-- Qué es: secciones compuestas sobre `@ts/ui` (auth, listas, master-detail,
+- Qué es: secciones compuestas sobre `@lindaui/ui` (auth, listas, master-detail,
   charts). Paquete npm importable, NO copy-paste registry.
-- Install: `pnpm add @ts/blocks @ts/ui @ts/tokens` + peers (`react`, `react-dom`,
+- Install: `pnpm add @lindaui/blocks @lindaui/ui @lindaui/tokens` + peers (`react`, `react-dom`,
   `react-hook-form`, `recharts` para charts).
 - Uso: ejemplo —
   ```tsx
-  import "@ts/tokens/css";
-  import { LoginForm } from "@ts/blocks/login-form";
-  import { BarChart } from "@ts/blocks/bar-chart";
+  import "@lindaui/tokens/css";
+  import { LoginForm } from "@lindaui/blocks/login-form";
+  import { BarChart } from "@lindaui/blocks/bar-chart";
   ```
 - Nota: los blocks controlados reciben estado + handlers (cero data-fetching).
 - Catálogo: lista breve de las 22 entries por categoría (UI sections / charts).
 
-### R6 — README de `@ts/tokens`
+### R6 — README de `@lindaui/tokens`
 
 `packages/tokens/README.md`:
 
 - Qué es: tokens de marca (OKLCH light/dark) + HeroUI v3 + Tailwind v4
   compilados en un solo CSS.
-- Uso: `import "@ts/tokens/css";` una vez. Explicar que ese único import rinde
+- Uso: `import "@lindaui/tokens/css";` una vez. Explicar que ese único import rinde
   HeroUI + tokens + las utilities Tailwind que la lib usa.
 - Dark mode: togglear la clase `.dark` en un ancestro.
-- Build local: `pnpm --filter @ts/tokens build` regenera `dist/index.css`.
+- Build local: `pnpm --filter @lindaui/tokens build` regenera `dist/index.css`.
 
 ## Fuera de scope
 
@@ -109,7 +109,7 @@ monorepos npm estándar; el texto MIT no cambia.
    `2026 Franco Carballar`.
 2. `README.md` existe en raíz + en los 3 packages, con los snippets de R3-R6.
 3. Cada package tiene `LICENSE` y `README.md` en su array `files`.
-4. `pnpm --filter @ts/ui publish --dry-run --no-git-checks` lista `LICENSE` y
+4. `pnpm --filter @lindaui/ui publish --dry-run --no-git-checks` lista `LICENSE` y
    `README.md` en el tarball (sección "Tarball Contents").
 5. Los snippets de import en los READMEs usan entries que existen en el
    `exports` map real (verificable contra `package.json`).

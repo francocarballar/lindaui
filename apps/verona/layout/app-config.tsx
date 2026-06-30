@@ -2,9 +2,9 @@
 import { useEffect } from 'react';
 import { useLayout } from './context/layout-context';
 import { Icon } from '@/lib/icon';
-import { Drawer } from '@ts/ui/drawer';
-import { RadioGroup } from '@ts/ui/radio-group';
-import { Radio } from '@ts/ui/radio';
+import { Drawer } from '@lindaui/ui/drawer';
+import { RadioGroup } from '@lindaui/ui/radio-group';
+import { Radio } from '@lindaui/ui/radio';
 import type { ColorScheme } from '@/types/layout';
 
 export default function AppConfig() {

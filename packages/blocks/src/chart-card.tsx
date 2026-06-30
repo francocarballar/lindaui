@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardContent,
   CardFooter,
-} from "@ts/ui/card";
+} from "@lindaui/ui/card";
 
 export interface ChartCardProps {
   title: ReactNode;

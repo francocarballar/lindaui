@@ -14,7 +14,7 @@ const variantStyles: Record<NonNullable<BadgeProps["variant"]>, string> = {
   info: "bg-[var(--accent)]/10 text-[var(--accent)]",
 };
 
-/** Bespoke badge using @ts/tokens semantic colors (not a HeroUI component). */
+/** Bespoke badge using @lindaui/tokens semantic colors (not a HeroUI component). */
 export function Badge({ children, variant = "default", className = "" }: BadgeProps) {
   return (
     <span

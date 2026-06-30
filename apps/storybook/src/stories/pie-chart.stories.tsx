@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PieChart } from "@ts/blocks/pie-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { PieChart } from "@lindaui/blocks/pie-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof PieChart> = { title: "Charts/PieChart", component: PieChart };
 export default meta;

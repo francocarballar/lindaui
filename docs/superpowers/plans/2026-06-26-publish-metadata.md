@@ -4,7 +4,7 @@
 
 **Goal:** Dotar a los 3 paquetes publicables de metadata de publicación completa (license, description, repository, publishConfig, sideEffects, author) y verificar la disponibilidad del scope npm.
 
-**Architecture:** Edición directa de los 3 `package.json` (`@ts/ui`, `@ts/blocks`, `@ts/tokens`). Sin código nuevo. Verificación vía `pnpm build`, `pnpm test` y `publish --dry-run`. Una tarea condicional de rename de scope que solo corre si el scope `@ts` está tomado.
+**Architecture:** Edición directa de los 3 `package.json` (`@lindaui/ui`, `@lindaui/blocks`, `@lindaui/tokens`). Sin código nuevo. Verificación vía `pnpm build`, `pnpm test` y `publish --dry-run`. Una tarea condicional de rename de scope que solo corre si el scope `@ts` está tomado.
 
 **Tech Stack:** pnpm 11.7.0 workspaces, Turborepo, Changesets, npm registry.
 
@@ -19,7 +19,7 @@
 
 ---
 
-### Task 1: Metadata en `@ts/ui`
+### Task 1: Metadata en `@lindaui/ui`
 
 **Files:**
 - Modify: `packages/ui/package.json`
@@ -59,7 +59,7 @@ git commit -m "chore(ui): add publish metadata (license/description/repository/p
 
 ---
 
-### Task 2: Metadata en `@ts/blocks`
+### Task 2: Metadata en `@lindaui/blocks`
 
 **Files:**
 - Modify: `packages/blocks/package.json`
@@ -73,7 +73,7 @@ git commit -m "chore(ui): add publish metadata (license/description/repository/p
 Insertar entre `"version": "0.0.1",` y `"type": "module",`:
 
 ```json
-  "description": "Composed UI sections (auth, lists, master-detail, charts) built on @ts/ui — importable npm package, not a copy-paste registry.",
+  "description": "Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -99,7 +99,7 @@ git commit -m "chore(blocks): add publish metadata (license/description/reposito
 
 ---
 
-### Task 3: Metadata en `@ts/tokens`
+### Task 3: Metadata en `@lindaui/tokens`
 
 **Files:**
 - Modify: `packages/tokens/package.json`
@@ -150,16 +150,16 @@ git commit -m "chore(tokens): add publish metadata (license/description/reposito
 - [ ] **Step 1: Build completo**
 
 Run: `pnpm build`
-Expected: turbo completa `@ts/tokens` → `@ts/ui` → `@ts/blocks` sin error de tipos.
+Expected: turbo completa `@lindaui/tokens` → `@lindaui/ui` → `@lindaui/blocks` sin error de tipos.
 
 - [ ] **Step 2: Tests completos**
 
 Run: `pnpm test`
-Expected: suites de `@ts/ui` y `@ts/blocks` pasan (sin regresión).
+Expected: suites de `@lindaui/ui` y `@lindaui/blocks` pasan (sin regresión).
 
 - [ ] **Step 3: Smoke de import por dist (efectos del tree-shaking)**
 
-Run: `node --input-type=module -e "import('@ts/ui/button').then(m=>{if(!m.Button)throw new Error('Button export missing');console.log('ok button')})"` desde la raíz tras el build.
+Run: `node --input-type=module -e "import('@lindaui/ui/button').then(m=>{if(!m.Button)throw new Error('Button export missing');console.log('ok button')})"` desde la raíz tras el build.
 Expected: `ok button` (el export sobrevive con `sideEffects:false`).
 
 - [ ] **Step 4: Commit (si hubo algún fix; si no, saltar)**
@@ -177,15 +177,15 @@ Solo si algún paso anterior requirió un ajuste. Si todo pasó limpio, no hay c
 - Consumes: Tasks 1-4.
 - Produces: evidencia de que la metadata permite publish (sin publicar de verdad).
 
-- [ ] **Step 1: Dry-run `@ts/ui`**
+- [ ] **Step 1: Dry-run `@lindaui/ui`**
 
-Run: `pnpm --filter @ts/ui publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/ui publish --dry-run --no-git-checks`
 Expected: reporta `access: public`, lista el tarball, NO falla por metadata. (Puede advertir que falta `LICENSE`/`README.md` — eso lo cubre workstream B; aceptable acá.)
 
-- [ ] **Step 2: Dry-run `@ts/blocks` y `@ts/tokens`**
+- [ ] **Step 2: Dry-run `@lindaui/blocks` y `@lindaui/tokens`**
 
-Run: `pnpm --filter @ts/blocks publish --dry-run --no-git-checks`
-Run: `pnpm --filter @ts/tokens publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/blocks publish --dry-run --no-git-checks`
+Run: `pnpm --filter @lindaui/tokens publish --dry-run --no-git-checks`
 Expected: ambos `access: public`, sin fallo de metadata.
 
 - [ ] **Step 3: Registrar resultado**
@@ -207,7 +207,7 @@ No commit (no hay cambios de archivo). Anotar en el reporte de ejecución que lo
 
 - [ ] **Step 1: Verificar disponibilidad**
 
-Run: `npm view @ts/ui version`
+Run: `npm view @lindaui/ui version`
 - `404` / `npm error code E404` → scope LIBRE. **Detener esta task acá**, registrar "scope @ts libre". No hacer nada más.
 - Imprime una versión → scope TOMADO. Continuar al Step 2.
 
@@ -215,16 +215,16 @@ Run: `npm view @ts/ui version`
 
 Pausar y preguntar al owner el scope destino (default propuesto: `@francocarballar`, su usuario npm). NO hardcodear sin confirmación — es una decisión de naming pública e irreversible una vez publicada. Verificar que el destino esté libre: `npm view @<nuevo>/ui version` debe dar 404.
 
-- [ ] **Step 3: (solo si tomado) Sustituir `@ts/` → `@<nuevo>/` en el workspace**
+- [ ] **Step 3: (solo si tomado) Sustituir `@lindaui/` → `@<nuevo>/` en el workspace**
 
-Reemplazar en: los 3 `name` de package.json; `peerDependencies`/`dependencies` internos (`@ts/ui`, `@ts/tokens` en blocks y storybook); imports `@ts/ui/*` y `@ts/tokens/css` en `packages/blocks/src` y `apps/storybook`; referencias en `CLAUDE.md`. Los `exports` (rutas relativas) NO cambian.
+Reemplazar en: los 3 `name` de package.json; `peerDependencies`/`dependencies` internos (`@lindaui/ui`, `@lindaui/tokens` en blocks y storybook); imports `@lindaui/ui/*` y `@lindaui/tokens/css` en `packages/blocks/src` y `apps/storybook`; referencias en `CLAUDE.md`. Los `exports` (rutas relativas) NO cambian.
 
 Comando guía (ajustar `<nuevo>`):
 ```bash
-grep -rl '@ts/' --include='*.json' --include='*.ts' --include='*.tsx' --include='*.md' packages apps CLAUDE.md \
-  | xargs sed -i 's#@ts/#@<nuevo>/#g'
+grep -rl '@lindaui/' --include='*.json' --include='*.ts' --include='*.tsx' --include='*.md' packages apps CLAUDE.md \
+  | xargs sed -i 's#@lindaui/#@<nuevo>/#g'
 ```
-Revisar el diff a mano: no debe tocar `@ts/tokens` dentro de strings que no sean package names si hubiera colisión accidental (no la hay hoy, pero verificar el diff).
+Revisar el diff a mano: no debe tocar `@lindaui/tokens` dentro de strings que no sean package names si hubiera colisión accidental (no la hay hoy, pero verificar el diff).
 
 - [ ] **Step 4: (solo si tomado) Reinstalar, buildear, testear**
 

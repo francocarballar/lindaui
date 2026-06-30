@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { LineChart } from "@ts/blocks/line-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { LineChart } from "@lindaui/blocks/line-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof LineChart> = { title: "Charts/LineChart", component: LineChart };
 export default meta;

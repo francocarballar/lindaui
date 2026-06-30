@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import { ArrowLeft, Mic } from "lucide-react";
-import { SplitWorkspace } from "@ts/blocks/split-workspace";
-import { ImageViewer } from "@ts/blocks/image-viewer";
-import { DocumentPanel } from "@ts/blocks/document-panel";
-import { RecordingOverlay } from "@ts/blocks/recording-overlay";
-import { Button } from "@ts/ui/button";
-import { Badge } from "@ts/ui/badge";
+import { SplitWorkspace } from "@lindaui/blocks/split-workspace";
+import { ImageViewer } from "@lindaui/blocks/image-viewer";
+import { DocumentPanel } from "@lindaui/blocks/document-panel";
+import { RecordingOverlay } from "@lindaui/blocks/recording-overlay";
+import { Button } from "@lindaui/ui/button";
+import { Badge } from "@lindaui/ui/badge";
 
 const meta: Meta<typeof SplitWorkspace> = {
   title: "Blocks/SplitWorkspace",

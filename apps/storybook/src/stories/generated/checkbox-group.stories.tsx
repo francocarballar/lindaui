@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as M from "@ts/ui/checkbox-group";
-import { Checkbox } from "@ts/ui/checkbox";
+import * as M from "@lindaui/ui/checkbox-group";
+import { Checkbox } from "@lindaui/ui/checkbox";
 
 const meta: Meta = { title: "Components/CheckboxGroup" };
 export default meta;

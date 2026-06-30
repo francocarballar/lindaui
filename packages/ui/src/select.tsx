@@ -16,7 +16,7 @@ export interface SelectOption {
 }
 
 /**
- * Stable Select API for @ts/ui: `items[]` + `onChange(value)`. Internally
+ * Stable Select API for @lindaui/ui: `items[]` + `onChange(value)`. Internally
  * composes HeroUI v3's RAC Select (selectedKey/onSelectionChange) so the
  * react-aria composition never leaks into the public surface.
  */

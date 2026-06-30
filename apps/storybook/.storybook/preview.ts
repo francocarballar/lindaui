@@ -1,4 +1,4 @@
-import "@ts/tokens/css";
+import "@lindaui/tokens/css";
 import type { Preview } from "@storybook/react-vite";
 
 const preview: Preview = {
@@ -7,7 +7,7 @@ const preview: Preview = {
   tags: ["autodocs"],
 
   // Toggle real de tema en la toolbar: agrega/quita la clase `.dark` en <html>,
-  // que es lo que consume @ts/tokens. Sin esto, el "dark" solo oscurecía el
+  // que es lo que consume @lindaui/tokens. Sin esto, el "dark" solo oscurecía el
   // fondo pero los tokens seguían en light → texto sin contraste.
   globalTypes: {
     theme: {

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { AuthProvider, useAuth } from "@ts/blocks/auth-provider";
+import { AuthProvider, useAuth } from "@lindaui/blocks/auth-provider";
 
 const meta: Meta = {
   title: "Blocks/AuthProvider",

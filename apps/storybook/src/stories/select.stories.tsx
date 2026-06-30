@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Select } from "@ts/ui/select";
+import { Select } from "@lindaui/ui/select";
 
 const items = [
   { value: "rmn", label: "RMN Rodilla" },

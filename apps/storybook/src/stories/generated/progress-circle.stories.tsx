@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ProgressCircle } from "@ts/ui/progress-circle";
+import { ProgressCircle } from "@lindaui/ui/progress-circle";
 
 const meta: Meta<typeof ProgressCircle> = {
   title: "Components/ProgressCircle",

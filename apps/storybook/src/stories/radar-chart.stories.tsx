@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { RadarChart } from "@ts/blocks/radar-chart";
-import type { ChartConfig } from "@ts/ui/chart";
+import { RadarChart } from "@lindaui/blocks/radar-chart";
+import type { ChartConfig } from "@lindaui/ui/chart";
 
 const meta: Meta<typeof RadarChart> = { title: "Charts/RadarChart", component: RadarChart };
 export default meta;
