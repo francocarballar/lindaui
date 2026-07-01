@@ -26,7 +26,7 @@ export interface RecordingOverlayProps {
 function variantTokens(variant: "overlay" | "inline") {
   if (variant === "inline") {
     return {
-      root: "flex h-full flex-col items-center justify-center gap-5 p-6 sm:gap-7",
+      root: "ti-fade flex h-full flex-col items-center justify-center gap-5 p-6 sm:gap-7",
       text: "text-foreground",
       muted: "text-muted-foreground",
       // solid action button on an adaptive panel
@@ -34,7 +34,7 @@ function variantTokens(variant: "overlay" | "inline") {
     };
   }
   return {
-    root: "absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 bg-viewer-bg p-8 text-viewer-foreground sm:gap-7",
+    root: "ti-fade absolute inset-0 z-[60] flex flex-col items-center justify-center gap-5 bg-viewer-bg p-8 text-viewer-foreground sm:gap-7",
     text: "text-viewer-foreground",
     muted: "text-viewer-foreground/70",
     solid: "bg-white text-[oklch(0.16_0.02_240)]",

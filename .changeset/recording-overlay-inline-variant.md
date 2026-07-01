@@ -13,3 +13,8 @@
   legible on a light or dark panel. Content is identical across variants.
 - `@lindaui/tokens` CSS regenerated for the variant's `viewer-*` / foreground
   utilities.
+- Fixes the recording animation: the `ti-rec-pulse` / `ti-rec-blink` / `ti-wf` /
+  `ti-fade` keyframes the overlay references by name were never shipped in
+  `@lindaui/tokens`, so the overlay rendered static. They are now bundled in the
+  tokens CSS (ported verbatim from the source design), so the pulse rings,
+  blinking dot and waveform animate.

@@ -198,3 +198,17 @@
     font-size: 18px;
   }
 }
+
+/* ════════ Animaciones de recording-overlay (idénticas al source poc_generator) ════════
+   El block @lindaui/blocks/recording-overlay consume estas animaciones POR NOMBRE:
+   ti-rec-pulse / ti-rec-blink como clases, ti-wf inline en el waveform (usa --wfmax),
+   ti-fade en el root. Sin estos @keyframes el overlay se renderiza estático (las
+   clases existen pero no hay animación). Van unlayered para no depender del escaneo
+   Tailwind (son CSS literal, no utilities). */
+@keyframes ti-rec-pulse { 0% { transform: scale(0.62); opacity: 0.7; } 100% { transform: scale(1.25); opacity: 0; } }
+@keyframes ti-rec-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+@keyframes ti-wf { 0%, 100% { height: 4px; } 50% { height: var(--wfmax); } }
+@keyframes ti-fade { from { opacity: 0; } }
+.ti-rec-pulse { animation: ti-rec-pulse 1.8s ease-out infinite; }
+.ti-rec-blink { animation: ti-rec-blink 1.2s ease-in-out infinite; }
+.ti-fade { animation: ti-fade 0.25s ease both; }
