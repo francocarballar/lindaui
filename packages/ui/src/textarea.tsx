@@ -7,7 +7,13 @@ import {
 } from "@heroui/react";
 import type { ReactNode } from "react";
 
-export interface TextareaProps extends Omit<TextFieldProps, "children"> {
+/**
+ * Token-driven like {@link Input}: style the field via the `--field-*` custom
+ * properties. `className` is rejected so a class meant for the `<textarea>`
+ * cannot silently land on the outer `TextField`.
+ */
+export interface TextareaProps
+  extends Omit<TextFieldProps, "children" | "className"> {
   label?: ReactNode;
   placeholder?: string;
 }

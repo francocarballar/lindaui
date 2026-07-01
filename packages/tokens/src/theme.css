@@ -84,6 +84,21 @@
   --separator: var(--border);
   --focus: var(--ring);
 
+  /* Campos de formulario (input/textarea/number/search/select/date...) — HeroUI
+     los LEE de estos --field-*. Son el ÚNICO punto de override de la superficie
+     de un field: los wrappers ergonómicos rechazan `className` a propósito
+     (caería en el wrapper RAC, no en el <input> → miss silencioso). Refs a los
+     canónicos → siguen la marca y el dark sale gratis. Un consumidor re-skina
+     todos los fields pisando estas vars (o los canónicos que referencian). */
+  --field-background: var(--background);
+  --field-foreground: var(--foreground);
+  --field-placeholder: var(--muted-foreground);
+  --field-border: var(--input);
+  --field-border-hover: var(--input);
+  --field-border-focus: var(--ring);
+  --field-focus: var(--ring);
+  --field-radius: var(--radius);
+
   /* Variantes soft on-brand (HeroUI *-soft, ej. Button danger-soft) */
   --accent-soft: color-mix(in oklch, var(--primary) 14%, var(--surface));
   --accent-soft-foreground: var(--primary);
