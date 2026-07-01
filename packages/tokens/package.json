@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/tokens",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Brand design tokens (OKLCH light/dark) + HeroUI v3 + Tailwind v4 compiled into a single CSS bundle.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
