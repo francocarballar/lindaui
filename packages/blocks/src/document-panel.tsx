@@ -8,6 +8,12 @@ export interface DocumentPanelProps {
   title: string;
   subtitle?: ReactNode;
   meta?: ReactNode;
+  /**
+   * `block` (default) stacks subtitle and meta on their own lines. `inline`
+   * flows them on one wrapping row (subtitle · meta) so a date sits next to the
+   * subtitle instead of forcing a new line.
+   */
+  metaPlacement?: "block" | "inline";
   statusBadge?: ReactNode;
   state: "empty" | "loading" | "ready";
   emptyContent?: ReactNode;
@@ -21,6 +27,7 @@ export function DocumentPanel({
   title,
   subtitle,
   meta,
+  metaPlacement = "block",
   statusBadge,
   state,
   emptyContent,
@@ -37,14 +44,32 @@ export function DocumentPanel({
           <h2 className="truncate text-lg font-bold leading-tight tracking-tight sm:text-xl">
             {title}
           </h2>
-          {subtitle && (
-            <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
-          )}
-          {meta && (
-            <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
-              {meta}
-            </p>
-          )}
+          {metaPlacement === "inline"
+            ? (subtitle || meta) && (
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
+                  {subtitle && <span>{subtitle}</span>}
+                  {meta && (
+                    <span className="text-xs tabular-nums">
+                      {subtitle ? "· " : ""}
+                      {meta}
+                    </span>
+                  )}
+                </div>
+              )
+            : (
+                <>
+                  {subtitle && (
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      {subtitle}
+                    </p>
+                  )}
+                  {meta && (
+                    <p className="mt-0.5 text-xs text-muted-foreground tabular-nums">
+                      {meta}
+                    </p>
+                  )}
+                </>
+              )}
         </div>
         {statusBadge && <div className="flex-none">{statusBadge}</div>}
       </div>

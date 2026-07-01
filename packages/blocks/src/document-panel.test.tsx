@@ -58,4 +58,20 @@ describe("DocumentPanel", () => {
     render(<DocumentPanel title="Doc" state="ready"><p>body</p></DocumentPanel>);
     expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
   });
+
+  test("metaPlacement=inline flows subtitle and meta together", () => {
+    render(
+      <DocumentPanel
+        title="Doc"
+        state="ready"
+        subtitle="Autor"
+        meta="2026-07-01"
+        metaPlacement="inline"
+      >
+        <p>body</p>
+      </DocumentPanel>
+    );
+    expect(screen.getByText("Autor")).toBeInTheDocument();
+    expect(screen.getByText(/2026-07-01/)).toBeInTheDocument();
+  });
 });

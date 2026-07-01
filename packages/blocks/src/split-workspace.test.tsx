@@ -45,4 +45,31 @@ describe("SplitWorkspace", () => {
     );
     expect(screen.queryByText("Overlay content")).toBeNull();
   });
+
+  test("renders a default legible back button from backHref/backLabel", () => {
+    render(
+      <SplitWorkspace
+        media={<div>Media</div>}
+        panel={<div>Panel</div>}
+        backHref="/docs"
+        backLabel="Volver a docs"
+      />
+    );
+    expect(
+      screen.getByRole("link", { name: /Volver a docs/ })
+    ).toHaveAttribute("href", "/docs");
+  });
+
+  test("custom back wins over backHref", () => {
+    render(
+      <SplitWorkspace
+        media={<div>Media</div>}
+        panel={<div>Panel</div>}
+        back={<a href="/custom">Custom back</a>}
+        backHref="/docs"
+      />
+    );
+    expect(screen.getByRole("link", { name: "Custom back" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Volver/ })).toBeNull();
+  });
 });
