@@ -59,4 +59,24 @@ describe("RecordingOverlay", () => {
     await userEvent.setup().click(screen.getByRole("button", { name: "Volver" }));
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
+
+  test("variant=inline renders the same content without absolute positioning", () => {
+    const { container } = render(
+      <RecordingOverlay
+        label="Recording"
+        elapsed={65}
+        onStop={vi.fn()}
+        onCancel={vi.fn()}
+        stopLabel="Detener"
+        variant="inline"
+      />
+    );
+    // content intact
+    expect(screen.getByText("01:05")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Detener" })).toBeInTheDocument();
+    // inline root drops the overlay's absolute/z positioning
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).not.toMatch(/absolute/);
+    expect(root.className).toMatch(/h-full/);
+  });
 });

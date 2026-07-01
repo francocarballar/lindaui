@@ -81,7 +81,11 @@ box; `identity` → actor chip under the description.
 Full-bleed media viewer with zoom (uses `viewer-*` tokens).
 
 ### @lindaui/blocks/recording-overlay
-Voice-recording overlay: timer / waveform / stop.
+Voice-recording UI: mic / timer / waveform / stop / cancel / error. Props include
+`variant?: "overlay" | "inline"` (default `overlay`). `overlay` covers its container
+on a fixed dark `viewer-*` surface (for use over media); `inline` drops the absolute
+positioning + forced dark bg, fills its container and inherits the panel surface with
+token-driven (legible) text. Content is identical across variants.
 
 ## Documents
 
