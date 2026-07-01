@@ -60,7 +60,15 @@ Master-detail right side: empty state + header + meta card + CTA. Controlled.
 
 ### @lindaui/blocks/split-workspace
 Responsive split `media | panel` (controlled). Props: `media`, `panel`, `overlay?`,
-`back?`. Two-column on desktop, stacked on mobile (uses `useIsDesktop`).
+`backHref?`, `backLabel?` (default `"Volver"`), `back?`. Two-column on desktop,
+stacked on mobile (uses `useIsDesktop`). Pass `backHref`/`backLabel` to get a
+legible default back pill over any media (readability scrim + safe-area, styled
+with `WorkspaceBackButton`); `back` is an escape hatch that wins over the pair.
+
+### @lindaui/blocks/workspace-back-button
+`<WorkspaceBackButton href label icon? />` — legible back pill (`<a>`, token-driven
+`bg-secondary`/`border-border`) that reads over dark or bright media. Used by
+`split-workspace`'s default; usable standalone. `icon` defaults to a chevron.
 
 ## Dialogs & overlays
 
@@ -78,7 +86,10 @@ Voice-recording overlay: timer / waveform / stop.
 ## Documents
 
 ### @lindaui/blocks/document-panel
-Header + per-state body + footer. Controlled.
+Header + per-state body + footer. Controlled. Props: `title`, `subtitle?`, `meta?`,
+`metaPlacement?: "block"|"inline"` (default `block`), `statusBadge?`, `state`,
+`emptyContent?`, `loadingLabel?`, `notices?`, `footer?`. `metaPlacement="inline"`
+flows subtitle + meta on one wrapping row (`subtitle · meta`) instead of stacking.
 
 ### @lindaui/blocks/document-reader
 Sectioned text reader.

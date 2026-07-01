@@ -2,12 +2,20 @@
 
 import type { ReactNode } from "react";
 import { useIsDesktop } from "@lindaui/ui/use-media-query";
+import { WorkspaceBackButton } from "./workspace-back-button";
 
 export interface SplitWorkspaceProps {
   media: ReactNode;
   panel: ReactNode;
   overlay?: ReactNode;
+  /**
+   * Custom back control (escape hatch). Wins over `backHref`/`backLabel`.
+   * Prefer `backHref`/`backLabel` — the default renders a legible pill over
+   * any media without the consumer having to guarantee contrast.
+   */
   back?: ReactNode;
+  backHref?: string;
+  backLabel?: ReactNode;
 }
 
 export function SplitWorkspace({
@@ -15,8 +23,15 @@ export function SplitWorkspace({
   panel,
   overlay,
   back,
+  backHref,
+  backLabel = "Volver",
 }: SplitWorkspaceProps) {
   const isDesktop = useIsDesktop();
+  const backNode =
+    back ??
+    (backHref != null ? (
+      <WorkspaceBackButton href={backHref} label={backLabel} />
+    ) : null);
 
   return (
     <div className="relative flex-1 min-h-0 overflow-hidden">
@@ -43,9 +58,11 @@ export function SplitWorkspace({
         </div>
       )}
 
-      {/* back slot — absolute top-left */}
-      {back && (
-        <div className="absolute left-3.5 top-3 z-40">{back}</div>
+      {/* back slot — legibility scrim + safe-area, top-left over the media */}
+      {backNode && (
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 bg-linear-to-b from-black/25 to-transparent p-3 pt-[max(0.75rem,env(safe-area-inset-top))] pl-[max(0.875rem,env(safe-area-inset-left))]">
+          <div className="pointer-events-auto inline-block">{backNode}</div>
+        </div>
       )}
 
       {/* overlay */}
