@@ -50,6 +50,14 @@ import { Select } from "@lindaui/ui/select";
   `gridcell`, header cells `columnheader`/`rowheader`).
 - **`button`**: has `variant`, NOT `color`. Variants:
   `primary | secondary | ghost | danger | link` (`link` maps to HeroUI `tertiary`).
+- **Field surfaces are token-driven, `className` is rejected.** `input` /
+  `textarea` / `number-input` / `search-field` do NOT accept `className` (it is a
+  TS error on purpose — spread onto the RAC wrapper it would never reach the
+  `<input>`, a silent miss). Style every field by overriding the `--field-*`
+  custom properties: `--field-background`, `--field-foreground`,
+  `--field-placeholder`, `--field-border`, `--field-border-hover`,
+  `--field-border-focus`, `--field-focus`, `--field-radius`. One override
+  re-skins all fields at once (and dark mode follows for free).
 - Interactive components are client components (`"use client"`); they work in RSC
   apps as leaf client components.
 
@@ -64,8 +72,9 @@ Use `onPress` (RAC), `isDisabled`, `isPending`.
 
 ### @lindaui/ui/input
 `<Input label="Email" placeholder="..." value onChange={(v)=>...} />` — composes RAC
-`TextField`+`Label`; extends `TextFieldProps` (omit children) + flat `label`/`placeholder`.
-`onChange(value: string)`, `isInvalid`, `isRequired`, `name`, `type`.
+`TextField`+`Label`; extends `TextFieldProps` (omit `children` + `className`) + flat
+`label`/`placeholder`. `onChange(value: string)`, `isInvalid`, `isRequired`, `name`,
+`type`. No `className` — style via the `--field-*` tokens (see conventions above).
 
 ### @lindaui/ui/textarea
 Same flat API as `input` over `TextField` with a multiline textarea. `label`, `placeholder`.
@@ -75,8 +84,10 @@ Same flat API as `input` over `TextField` with a multiline textarea. `label`, `p
 `onChange(value: number)`, `minValue`, `maxValue`, `step`, `formatOptions`.
 
 ### @lindaui/ui/search-field
-`<SearchField label="Search" value onChange={(v)=>...} />` — emits the string only.
-Do the matching yourself with `@lindaui/ui/search` (accent/case-insensitive).
+`<SearchField label="Search" value onChange={(v)=>...} />` — ships the magnifier
+icon + clear button by default (clear appears once there's a value). Emits the
+string only; do the matching yourself with `@lindaui/ui/search`
+(accent/case-insensitive). No `className` — style via the `--field-*` tokens.
 
 ### @lindaui/ui/input-group
 Layout wrapper to group an input with addons/buttons.
