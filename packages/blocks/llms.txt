@@ -55,6 +55,17 @@ Filterable/searchable list shell with loading/empty/error states. Controlled:
 `onSearchChange`, `loading`, `error`, `onRetry`, `isEmpty`, empty/error slots. Items go
 in via `children`. Does NOT filter for you — filter your data (use `@lindaui/ui/search`).
 
+### @lindaui/blocks/table-pane
+Tabular sibling of `list-pane`: same controlled chrome (filter tabs + search +
+loading/error/empty) around `@lindaui/ui/table`. Props: `columns: {key,label}[]`,
+`rows: Record<string,ReactNode>[]` (each cell a ReactNode → domain chips/avatars live
+in your app), `ariaLabel?`, the same `filters`/`activeFilter`/`onFilterChange` +
+`searchValue`/`onSearchChange`/`searchLabel` + `loading`/`error`/`onRetry`/`isEmpty` +
+empty slots as list-pane, plus `toolbarExtra?` (extra filter controls right of the
+search, e.g. a `<Select>`), `footer?` (escape hatch) and `footerCount?: {shown,total,
+label?}` (default "Mostrando X de Y"). Does NOT filter/fetch — pass already-filtered
+`rows` and own the state.
+
 ### @lindaui/blocks/detail-panel
 Master-detail right side: empty state + header + meta card + CTA. Controlled.
 
