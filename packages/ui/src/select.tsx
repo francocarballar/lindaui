@@ -30,6 +30,13 @@ export interface SelectProps {
   isDisabled?: boolean;
   isInvalid?: boolean;
   name?: string;
+  /**
+   * Accessible name for a Select with no visible `label` (compact toolbars,
+   * inline filters). `placeholder` does NOT count as a name in react-aria, so
+   * without a `label` you must pass one of these to avoid an unnamed control.
+   */
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 export function Select({
@@ -42,6 +49,8 @@ export function Select({
   isDisabled,
   isInvalid,
   name,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
 }: SelectProps) {
   // Only pass selectedKey when controlled, to avoid the RAC
   // controlled/uncontrolled warning when callers omit `value`.
@@ -58,6 +67,8 @@ export function Select({
       isDisabled={isDisabled}
       isInvalid={isInvalid}
       name={name}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
     >
       {label != null && <Label>{label}</Label>}
       <SelectTrigger>

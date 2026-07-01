@@ -25,6 +25,9 @@ export interface ComboBoxProps {
   label?: ReactNode;
   placeholder?: string;
   isDisabled?: boolean;
+  /** Accessible name when there is no visible `label` (see {@link SelectProps}). */
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 export function ComboBox({
@@ -36,6 +39,8 @@ export function ComboBox({
   label,
   placeholder,
   isDisabled,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledby,
 }: ComboBoxProps) {
   const controlled = value !== undefined ? { selectedKey: value } : {};
 
@@ -48,6 +53,8 @@ export function ComboBox({
       }}
       onInputChange={onInputChange}
       isDisabled={isDisabled}
+      aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledby}
     >
       {label != null && <Label>{label}</Label>}
       <ComboBoxInputGroup>

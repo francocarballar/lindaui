@@ -9,4 +9,11 @@ describe("ComboBox", () => {
     render(<ComboBox label="Buscar" items={items} />);
     expect(screen.getByText("Buscar")).toBeInTheDocument();
   });
+
+  test("aria-label names the combobox without a visible label", () => {
+    render(<ComboBox aria-label="Modalidad" items={items} />);
+    expect(
+      screen.getByRole("combobox", { name: /Modalidad/ })
+    ).toBeInTheDocument();
+  });
 });
