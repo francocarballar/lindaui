@@ -26,4 +26,13 @@ describe("Select", () => {
     render(<Select label="Tipo" items={items} isDisabled />);
     expect(screen.getByRole("button")).toBeDisabled();
   });
+
+  test("aria-label names the trigger without a visible label", () => {
+    render(<Select aria-label="Modalidad" items={items} />);
+    // Without a visible label the control now carries an accessible name
+    // (react-aria folds the aria-label into the trigger's name).
+    expect(
+      screen.getByRole("button", { name: /Modalidad/ })
+    ).toBeInTheDocument();
+  });
 });

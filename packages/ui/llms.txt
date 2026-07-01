@@ -99,11 +99,14 @@ Layout wrapper to group an input with addons/buttons.
 ### @lindaui/ui/select
 `<Select items={[{value,label}]} value onChange={(v)=>...} label placeholder />`
 Props: `items: {value,label}[]`, `value?`, `defaultValue?`, `onChange(value)`,
-`label?`, `placeholder?`, `isDisabled?`, `isInvalid?`, `name?`. Pass `value` only when
-controlled (uncontrolled otherwise — avoids the controlled/uncontrolled warning).
+`label?`, `placeholder?`, `isDisabled?`, `isInvalid?`, `name?`, `aria-label?`,
+`aria-labelledby?`. Pass `value` only when controlled (uncontrolled otherwise — avoids
+the controlled/uncontrolled warning). No visible `label` (compact toolbars/filters)?
+Pass `aria-label` — `placeholder` does NOT count as an accessible name in react-aria.
 
 ### @lindaui/ui/combobox
-Like `select` plus typeahead. Adds `onInputChange(value)`.
+Like `select` plus typeahead. Adds `onInputChange(value)`; also takes
+`aria-label`/`aria-labelledby` for label-less use.
 
 ### @lindaui/ui/field
 RHF adapter. `<Field control={control} name="email" label hint>{({field,invalid})=>
