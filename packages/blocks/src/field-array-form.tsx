@@ -107,30 +107,34 @@ export function FieldArrayForm({
                 control={control}
                 name={`entries.${index}.key`}
                 render={({ field: f }) => (
-                  <Input
-                    placeholder={keyPlaceholder}
-                    aria-label={`${keyPlaceholder} ${index + 1}`}
-                    value={f.value}
-                    onChange={f.onChange}
-                    onBlur={f.onBlur}
-                    name={f.name}
-                    className="min-w-0 w-full"
-                  />
+                  <div className="min-w-0 w-full">
+                    <Input
+                      placeholder={keyPlaceholder}
+                      aria-label={`${keyPlaceholder} ${index + 1}`}
+                      value={f.value}
+                      onChange={f.onChange}
+                      onBlur={f.onBlur}
+                      name={f.name}
+                      fullWidth
+                    />
+                  </div>
                 )}
               />
               <Controller
                 control={control}
                 name={`entries.${index}.value`}
                 render={({ field: f }) => (
-                  <Input
-                    placeholder={valuePlaceholder}
-                    aria-label={`${valuePlaceholder} ${index + 1}`}
-                    value={f.value}
-                    onChange={f.onChange}
-                    onBlur={f.onBlur}
-                    name={f.name}
-                    className="min-w-0 w-full"
-                  />
+                  <div className="min-w-0 w-full">
+                    <Input
+                      placeholder={valuePlaceholder}
+                      aria-label={`${valuePlaceholder} ${index + 1}`}
+                      value={f.value}
+                      onChange={f.onChange}
+                      onBlur={f.onBlur}
+                      name={f.name}
+                      fullWidth
+                    />
+                  </div>
                 )}
               />
               <Button

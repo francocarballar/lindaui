@@ -1,8 +1,8 @@
 "use client";
 import React, { type ReactNode } from "react";
-import { AlertCircle, FileText, RotateCcw, Search } from "lucide-react";
+import { AlertCircle, FileText, RotateCcw } from "lucide-react";
 import { Button } from "@lindaui/ui/button";
-import { Input } from "@lindaui/ui/input";
+import { SearchField } from "@lindaui/ui/search-field";
 import { Skeleton } from "@lindaui/ui/skeleton";
 
 export interface ListPaneFilter {
@@ -82,17 +82,12 @@ export function ListPane({
           </div>
         )}
 
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground z-10" />
-          <Input
-            type="search"
-            value={searchValue}
-            onChange={onSearchChange ?? (() => {})}
-            placeholder={searchPlaceholder}
-            aria-label={searchLabel}
-            className="h-9 pl-8"
-          />
-        </div>
+        <SearchField
+          value={searchValue}
+          onChange={onSearchChange ?? (() => {})}
+          placeholder={searchPlaceholder}
+          aria-label={searchLabel}
+        />
       </div>
 
       {/* Scroll area */}
