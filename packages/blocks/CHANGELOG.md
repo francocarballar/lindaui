@@ -1,5 +1,39 @@
 # @lindaui/blocks
 
+## 0.1.0
+
+### Minor Changes
+
+- c04fa9d: `recording-overlay` gains a `variant` prop.
+
+  - `variant?: "overlay" | "inline"` (default `"overlay"`, backwards-compatible).
+  - `overlay` keeps the fixed dark surface for use over media, now on the `viewer-*`
+    tokens instead of a hardcoded color.
+  - `inline` drops the absolute positioning and forced dark background, fills its
+    container, inherits the panel surface, and uses token-driven text so it stays
+    legible on a light or dark panel. Content is identical across variants.
+  - `@lindaui/tokens` CSS regenerated for the variant's `viewer-*` / foreground
+    utilities.
+  - Fixes the recording animation: the `ti-rec-pulse` / `ti-rec-blink` / `ti-wf` /
+    `ti-fade` keyframes the overlay references by name were never shipped in
+    `@lindaui/tokens`, so the overlay rendered static. They are now bundled in the
+    tokens CSS (ported verbatim from the source design), so the pulse rings,
+    blinking dot and waveform animate.
+
+- 71f9e1c: Legible back control for media overlays + inline document meta.
+
+  - New block `@lindaui/blocks/workspace-back-button`: a token-driven back pill
+    (`bg-secondary`/`border-border`) that stays readable over dark or bright media.
+  - `split-workspace` gains `backHref`/`backLabel` and renders that pill by default
+    behind a readability scrim with safe-area insets, so consumers no longer have to
+    hand-build a legible control over the media. `back?` remains an escape hatch and
+    wins over the pair.
+  - `document-panel` gains `metaPlacement?: "block" | "inline"` (default `block`);
+    `inline` flows subtitle and meta on one wrapping row instead of stacking meta on
+    its own line.
+  - `@lindaui/tokens` CSS is regenerated to include the new scrim/gradient utilities
+    the block uses (`bg-linear-to-b`, `from-black/25`, safe-area insets).
+
 ## 0.0.3
 
 ### Patch Changes
