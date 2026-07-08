@@ -9,9 +9,11 @@
 //               composición/estado pesado, o API aún no mapeada). Nunca crashea.
 //
 // Idempotente: re-correr sobrescribe generated/. NO toca stories a mano.
-// Uso: node scripts/gen-stories.mjs
+// Uso: node scripts/gen-stories.mjs [--check]
+//   --check: no escribe; exit 1 si generated/ difiere de lo que se generaría
+//            (para CI, igual que gen:exports --check).
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -92,6 +94,11 @@ const RENDER = {
   },
 };
 
+// Entries que no son componentes: no tiene sentido una story.
+// "package.json" es el export estándar de tooling; use-* son hooks; cn es util.
+const NON_COMPONENT = new Set(["package.json", "cn"]);
+const isComponentEntry = (entry) => !NON_COMPONENT.has(entry) && !entry.startsWith("use-");
+
 const pascal = (s) =>
   s.split("-").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
 
@@ -156,32 +163,89 @@ export const Default: Story = {};
 `;
 }
 
-rmSync(outDir, { recursive: true, force: true });
-mkdirSync(outDir, { recursive: true });
+// Valida que los exports nombrados que la story va a importar EXISTAN en el
+// source del entry. Sin esto, un entry en ARGS cuyo export real no es
+// pascal(entry) (y no está en NAME_OVERRIDE) emite un import roto que
+// revienta el build de Storybook.
+function validateNamedExports(entry, pkgDir, names) {
+  const srcPath = resolve(repoRoot, pkgDir, "src", `${entry}.tsx`);
+  const alt = resolve(repoRoot, pkgDir, "src", `${entry}.ts`);
+  const src = readFileSync(existsSync(srcPath) ? srcPath : alt, "utf8");
+  return names.filter((n) => {
+    const direct = new RegExp(`export\\s+(?:function|const|class|interface|type)\\s+${n}\\b`);
+    const braced = new RegExp(`export\\s*\\{[^}]*\\b${n}\\b[^}]*\\}`, "s");
+    return !direct.test(src) && !braced.test(src);
+  });
+}
+
+const check = process.argv.includes("--check");
+const planned = new Map(); // filename -> content
 
 let nArgs = 0, nRender = 0, nScaffold = 0, nSkipped = 0;
+const invalid = [];
 
 for (const { pkg, importBase, group } of PACKAGES) {
   const pkgPath = resolve(repoRoot, pkg);
   if (!existsSync(pkgPath)) continue;
+  const pkgDir = dirname(pkg);
   const json = JSON.parse(readFileSync(pkgPath, "utf8"));
   const entries = Object.keys(json.exports ?? {})
     .map((k) => k.replace(/^\.\//, ""))
-    .filter((k) => k !== ".");
+    .filter((k) => k !== "." && isComponentEntry(k));
 
   for (const entry of entries) {
     if (HANDWRITTEN.has(entry)) { nSkipped++; continue; }
     const isUi = importBase === "@lindaui/ui";
     let content, kind;
-    if (isUi && entry in ARGS) { content = argsStory(entry, importBase); kind = "args"; }
-    else if (isUi && entry in RENDER) { content = renderStory(entry, importBase); kind = "render"; }
-    else { content = scaffoldStory(entry, importBase, group); kind = "scaffold"; }
-    writeFileSync(resolve(outDir, `${entry}.stories.tsx`), content, "utf8");
+    if (isUi && entry in ARGS) {
+      const missing = validateNamedExports(entry, pkgDir, [compName(entry)]);
+      if (missing.length) invalid.push(`${entry}: export "${missing[0]}" no existe (¿falta NAME_OVERRIDE?)`);
+      content = argsStory(entry, importBase); kind = "args";
+    } else if (isUi && entry in RENDER) {
+      const used = [...new Set([...(RENDER[entry].jsx.matchAll(/M\.([A-Za-z0-9]+)/g))].map((m) => m[1]))];
+      const missing = validateNamedExports(entry, pkgDir, used);
+      if (missing.length) invalid.push(`${entry}: exports [${missing.join(", ")}] no existen en el source`);
+      content = renderStory(entry, importBase); kind = "render";
+    } else {
+      content = scaffoldStory(entry, importBase, group); kind = "scaffold";
+    }
+    planned.set(`${entry}.stories.tsx`, content);
     if (kind === "args") nArgs++;
     else if (kind === "render") nRender++;
     else nScaffold++;
   }
 }
+
+if (invalid.length) {
+  console.error("✗ gen-stories: imports que no resolverían:");
+  for (const msg of invalid) console.error(`  ${msg}`);
+  process.exit(1);
+}
+
+if (check) {
+  const onDisk = existsSync(outDir)
+    ? readdirSync(outDir).filter((f) => f.endsWith(".stories.tsx"))
+    : [];
+  const missing = [...planned.keys()].filter((f) => !onDisk.includes(f));
+  const extra = onDisk.filter((f) => !planned.has(f));
+  const stale = [...planned.keys()].filter(
+    (f) => onDisk.includes(f) && readFileSync(resolve(outDir, f), "utf8") !== planned.get(f),
+  );
+  if (missing.length || extra.length || stale.length) {
+    console.error("✗ stories generadas desincronizadas:");
+    if (missing.length) console.error(`  faltan: ${missing.join(", ")}`);
+    if (extra.length) console.error(`  huérfanas: ${extra.join(", ")}`);
+    if (stale.length) console.error(`  desactualizadas: ${stale.join(", ")}`);
+    console.error("  Corré: pnpm --filter @lindaui/storybook gen:stories");
+    process.exit(1);
+  }
+  console.log(`✓ stories generadas en sync (${planned.size} archivos)`);
+  process.exit(0);
+}
+
+rmSync(outDir, { recursive: true, force: true });
+mkdirSync(outDir, { recursive: true });
+for (const [file, content] of planned) writeFileSync(resolve(outDir, file), content, "utf8");
 
 console.log(
   `Generadas ${nArgs + nRender + nScaffold} stories ` +

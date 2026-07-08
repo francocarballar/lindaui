@@ -50,10 +50,6 @@ export const Variants: Story = {
   ),
 };
 
-export const WithImage: Story = {
-  args: {
-    src: "https://i.pravatar.cc/100?img=12",
-    alt: "Foto de perfil",
-    children: undefined,
-  },
-};
+// NOTA: no hay story de imagen a propósito. El wrapper de @lindaui/ui/avatar
+// expone solo el Root; Avatar.Image/Avatar.Fallback no son alcanzables (ver
+// CLAUDE.md "SwitchGroup / avatar"). Si se expone la composición, agregarla.

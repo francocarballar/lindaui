@@ -103,7 +103,7 @@ export const WithNotices: Story = {
         state="ready"
         statusBadge={<Badge variant="info">ENVIADO</Badge>}
         notices={
-          <Alert variant="warning" title="Revisión pendiente">
+          <Alert status="warning" title="Revisión pendiente">
             Este informe fue modificado y requiere nueva firma del radiólogo.
           </Alert>
         }
