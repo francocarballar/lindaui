@@ -9,6 +9,7 @@ concurrency: ${{ github.workflow }}-${{ github.ref }}
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write # changesets empuja el commit/tag de version
       pull-requests: write # changesets abre/actualiza el "Version Packages" PR
@@ -21,20 +22,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: pnpm/action-setup@v4
+      - uses: ./.github/common-actions/install
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-
-      # OIDC Trusted Publishing necesita npm >= 11.5 (el runner trae 10.x)
-      - run: npm install -g npm@latest
-
-      - run: pnpm install --frozen-lockfile
+      # OIDC Trusted Publishing necesita npm >= 11.5 (el runner trae 10.x).
+      # Pinneado a major: un npm@latest sorpresivo ya rompió el publish una vez
+      # (changesets + npm 11, ver anti-regresión #13).
+      - run: npm install -g npm@11
 
       - run: pnpm turbo build
+
+      # Gate: nunca publicar sin la suite verde (un push directo a main
+      # saltea el CI de PRs).
+      - run: pnpm turbo test
 
       - uses: changesets/action@v1
         with:

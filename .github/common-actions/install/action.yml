@@ -1,0 +1,22 @@
+name: Install
+description: Setup pnpm + Node (desde .nvmrc) e instala dependencias con lockfile congelado
+
+runs:
+  using: composite
+  steps:
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+        # registry-url setea NPM_CONFIG_USERCONFIG -> .npmrc con
+        # _authToken=${NODE_AUTH_TOKEN}. El publish depende de esto
+        # (ver anti-regresión #13 en CLAUDE.md). Inofensivo en CI.
+        registry-url: https://registry.npmjs.org
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile

@@ -1,24 +1,42 @@
 name: CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancela runs viejos solo en PRs; los pushes a main corren completos.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
+      - uses: ./.github/common-actions/install
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
+      # Guards de codegen: el exports map y las stories generadas son DERIVADOS.
+      - run: pnpm gen:exports --check
+      - run: pnpm --filter @lindaui/storybook gen:stories --check
 
-      - run: pnpm install --frozen-lockfile
+      # Tests del tooling de la raíz (derive-exports) con el runner nativo.
+      - run: node --test "scripts/derive-exports.test.mjs"
 
       - run: pnpm turbo build
 
       - run: pnpm turbo test
+
+      - run: pnpm turbo typecheck
+
+      # Valida que el catálogo de Storybook compile (stories generadas + a mano).
+      - run: pnpm turbo storybook:build
+
+      # Valida empaquetado npm: exports map, resolución de tipos, ESM.
+      # (storybook es @lindaui/* pero privado — se excluye)
+      - run: pnpm -r --filter "@lindaui/*" --filter "!@lindaui/storybook" exec publint
+      - run: pnpm -r --filter "@lindaui/ui" --filter "@lindaui/blocks" exec attw --pack --profile esm-only

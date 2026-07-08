@@ -1,0 +1,19 @@
+version: 2
+updates:
+  # Mantiene los actions de los workflows al día (equivale a pin+update).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [dependencies]
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels: [dependencies]
+    groups:
+      # Un PR por semana con todos los minors/patches; majors van solos.
+      minor-and-patch:
+        update-types: [minor, patch]

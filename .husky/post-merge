@@ -1,0 +1,7 @@
+# Si el merge/pull trajo cambios de lockfile, reinstala solo (robado de HeroUI).
+changed_files="$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD)"
+
+if echo "$changed_files" | grep --quiet "pnpm-lock.yaml"; then
+  echo "[husky] pnpm-lock.yaml cambió -> pnpm install"
+  pnpm install
+fi
