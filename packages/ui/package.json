@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "React 19 design-system components wrapping HeroUI v3 (react-aria-components) behind stable per-component entry points.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
@@ -28,84 +28,318 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "./field": { "types": "./dist/field.d.ts", "import": "./dist/field.js" },
-    "./button": { "types": "./dist/button.d.ts", "import": "./dist/button.js" },
-    "./close-button": { "types": "./dist/close-button.d.ts", "import": "./dist/close-button.js" },
-    "./toggle-button": { "types": "./dist/toggle-button.d.ts", "import": "./dist/toggle-button.js" },
-    "./toggle-button-group": { "types": "./dist/toggle-button-group.d.ts", "import": "./dist/toggle-button-group.js" },
-    "./input": { "types": "./dist/input.d.ts", "import": "./dist/input.js" },
-    "./number-input": { "types": "./dist/number-input.d.ts", "import": "./dist/number-input.js" },
-    "./textarea": { "types": "./dist/textarea.d.ts", "import": "./dist/textarea.js" },
-    "./otp-input": { "types": "./dist/otp-input.d.ts", "import": "./dist/otp-input.js" },
-    "./input-group": { "types": "./dist/input-group.d.ts", "import": "./dist/input-group.js" },
-    "./search-field": { "types": "./dist/search-field.d.ts", "import": "./dist/search-field.js" },
-    "./select": { "types": "./dist/select.d.ts", "import": "./dist/select.js" },
-    "./combobox": { "types": "./dist/combobox.d.ts", "import": "./dist/combobox.js" },
-    "./checkbox": { "types": "./dist/checkbox.d.ts", "import": "./dist/checkbox.js" },
-    "./checkbox-group": { "types": "./dist/checkbox-group.d.ts", "import": "./dist/checkbox-group.js" },
-    "./radio": { "types": "./dist/radio.d.ts", "import": "./dist/radio.js" },
-    "./radio-group": { "types": "./dist/radio-group.d.ts", "import": "./dist/radio-group.js" },
-    "./switch": { "types": "./dist/switch.d.ts", "import": "./dist/switch.js" },
-    "./switch-group": { "types": "./dist/switch-group.d.ts", "import": "./dist/switch-group.js" },
-    "./slider": { "types": "./dist/slider.d.ts", "import": "./dist/slider.js" },
-    "./date-input": { "types": "./dist/date-input.d.ts", "import": "./dist/date-input.js" },
-    "./date-picker": { "types": "./dist/date-picker.d.ts", "import": "./dist/date-picker.js" },
-    "./date-range-picker": { "types": "./dist/date-range-picker.d.ts", "import": "./dist/date-range-picker.js" },
-    "./time-input": { "types": "./dist/time-input.d.ts", "import": "./dist/time-input.js" },
-    "./calendar": { "types": "./dist/calendar.d.ts", "import": "./dist/calendar.js" },
-    "./range-calendar": { "types": "./dist/range-calendar.d.ts", "import": "./dist/range-calendar.js" },
-    "./color-picker": { "types": "./dist/color-picker.d.ts", "import": "./dist/color-picker.js" },
-    "./color-area": { "types": "./dist/color-area.d.ts", "import": "./dist/color-area.js" },
-    "./color-slider": { "types": "./dist/color-slider.d.ts", "import": "./dist/color-slider.js" },
-    "./color-field": { "types": "./dist/color-field.d.ts", "import": "./dist/color-field.js" },
-    "./color-swatch": { "types": "./dist/color-swatch.d.ts", "import": "./dist/color-swatch.js" },
-    "./color-swatch-picker": { "types": "./dist/color-swatch-picker.d.ts", "import": "./dist/color-swatch-picker.js" },
-    "./dialog": { "types": "./dist/dialog.d.ts", "import": "./dist/dialog.js" },
-    "./alert-dialog": { "types": "./dist/alert-dialog.d.ts", "import": "./dist/alert-dialog.js" },
-    "./drawer": { "types": "./dist/drawer.d.ts", "import": "./dist/drawer.js" },
-    "./popover": { "types": "./dist/popover.d.ts", "import": "./dist/popover.js" },
-    "./tooltip": { "types": "./dist/tooltip.d.ts", "import": "./dist/tooltip.js" },
-    "./menu": { "types": "./dist/menu.d.ts", "import": "./dist/menu.js" },
-    "./breadcrumbs": { "types": "./dist/breadcrumbs.d.ts", "import": "./dist/breadcrumbs.js" },
-    "./link": { "types": "./dist/link.d.ts", "import": "./dist/link.js" },
-    "./pagination": { "types": "./dist/pagination.d.ts", "import": "./dist/pagination.js" },
-    "./table": { "types": "./dist/table.d.ts", "import": "./dist/table.js" },
-    "./avatar": { "types": "./dist/avatar.d.ts", "import": "./dist/avatar.js" },
-    "./badge": { "types": "./dist/badge.d.ts", "import": "./dist/badge.js" },
-    "./status-chip": { "types": "./dist/status-chip.d.ts", "import": "./dist/status-chip.js" },
-    "./chip": { "types": "./dist/chip.d.ts", "import": "./dist/chip.js" },
-    "./tag": { "types": "./dist/tag.d.ts", "import": "./dist/tag.js" },
-    "./tag-group": { "types": "./dist/tag-group.d.ts", "import": "./dist/tag-group.js" },
-    "./listbox": { "types": "./dist/listbox.d.ts", "import": "./dist/listbox.js" },
-    "./accordion": { "types": "./dist/accordion.d.ts", "import": "./dist/accordion.js" },
-    "./tabs": { "types": "./dist/tabs.d.ts", "import": "./dist/tabs.js" },
-    "./disclosure": { "types": "./dist/disclosure.d.ts", "import": "./dist/disclosure.js" },
-    "./disclosure-group": { "types": "./dist/disclosure-group.d.ts", "import": "./dist/disclosure-group.js" },
-    "./alert": { "types": "./dist/alert.d.ts", "import": "./dist/alert.js" },
-    "./toast": { "types": "./dist/toast.d.ts", "import": "./dist/toast.js" },
-    "./spinner": { "types": "./dist/spinner.d.ts", "import": "./dist/spinner.js" },
-    "./progress": { "types": "./dist/progress.d.ts", "import": "./dist/progress.js" },
-    "./progress-circle": { "types": "./dist/progress-circle.d.ts", "import": "./dist/progress-circle.js" },
-    "./meter": { "types": "./dist/meter.d.ts", "import": "./dist/meter.js" },
-    "./skeleton": { "types": "./dist/skeleton.d.ts", "import": "./dist/skeleton.js" },
-    "./card": { "types": "./dist/card.d.ts", "import": "./dist/card.js" },
-    "./surface": { "types": "./dist/surface.d.ts", "import": "./dist/surface.js" },
-    "./divider": { "types": "./dist/divider.d.ts", "import": "./dist/divider.js" },
-    "./text": { "types": "./dist/text.d.ts", "import": "./dist/text.js" },
-    "./scroll-shadow": { "types": "./dist/scroll-shadow.d.ts", "import": "./dist/scroll-shadow.js" },
-    "./kbd": { "types": "./dist/kbd.d.ts", "import": "./dist/kbd.js" },
-    "./search": { "types": "./dist/search.d.ts", "import": "./dist/search.js" },
-    "./chart": { "types": "./dist/chart.d.ts", "import": "./dist/chart.js" },
-    "./cn": { "types": "./dist/cn.d.ts", "import": "./dist/cn.js" },
-    "./use-disclosure": { "types": "./dist/use-disclosure.d.ts", "import": "./dist/use-disclosure.js" },
-    "./use-media-query": { "types": "./dist/use-media-query.d.ts", "import": "./dist/use-media-query.js" },
-    "./icon-button": { "types": "./dist/icon-button.d.ts", "import": "./dist/icon-button.js" },
-    "./use-debounce": { "types": "./dist/use-debounce.d.ts", "import": "./dist/use-debounce.js" },
-    "./use-previous": { "types": "./dist/use-previous.d.ts", "import": "./dist/use-previous.js" },
-    "./use-theme": { "types": "./dist/use-theme.d.ts", "import": "./dist/use-theme.js" },
-    "./date": { "types": "./dist/date.d.ts", "import": "./dist/date.js" },
-    "./format": { "types": "./dist/format.d.ts", "import": "./dist/format.js" },
-    "./time-grouping": { "types": "./dist/time-grouping.d.ts", "import": "./dist/time-grouping.js" }
+    "./field": {
+      "types": "./dist/field.d.ts",
+      "import": "./dist/field.js"
+    },
+    "./button": {
+      "types": "./dist/button.d.ts",
+      "import": "./dist/button.js"
+    },
+    "./close-button": {
+      "types": "./dist/close-button.d.ts",
+      "import": "./dist/close-button.js"
+    },
+    "./toggle-button": {
+      "types": "./dist/toggle-button.d.ts",
+      "import": "./dist/toggle-button.js"
+    },
+    "./toggle-button-group": {
+      "types": "./dist/toggle-button-group.d.ts",
+      "import": "./dist/toggle-button-group.js"
+    },
+    "./input": {
+      "types": "./dist/input.d.ts",
+      "import": "./dist/input.js"
+    },
+    "./number-input": {
+      "types": "./dist/number-input.d.ts",
+      "import": "./dist/number-input.js"
+    },
+    "./textarea": {
+      "types": "./dist/textarea.d.ts",
+      "import": "./dist/textarea.js"
+    },
+    "./otp-input": {
+      "types": "./dist/otp-input.d.ts",
+      "import": "./dist/otp-input.js"
+    },
+    "./input-group": {
+      "types": "./dist/input-group.d.ts",
+      "import": "./dist/input-group.js"
+    },
+    "./search-field": {
+      "types": "./dist/search-field.d.ts",
+      "import": "./dist/search-field.js"
+    },
+    "./select": {
+      "types": "./dist/select.d.ts",
+      "import": "./dist/select.js"
+    },
+    "./combobox": {
+      "types": "./dist/combobox.d.ts",
+      "import": "./dist/combobox.js"
+    },
+    "./checkbox": {
+      "types": "./dist/checkbox.d.ts",
+      "import": "./dist/checkbox.js"
+    },
+    "./checkbox-group": {
+      "types": "./dist/checkbox-group.d.ts",
+      "import": "./dist/checkbox-group.js"
+    },
+    "./radio": {
+      "types": "./dist/radio.d.ts",
+      "import": "./dist/radio.js"
+    },
+    "./radio-group": {
+      "types": "./dist/radio-group.d.ts",
+      "import": "./dist/radio-group.js"
+    },
+    "./switch": {
+      "types": "./dist/switch.d.ts",
+      "import": "./dist/switch.js"
+    },
+    "./switch-group": {
+      "types": "./dist/switch-group.d.ts",
+      "import": "./dist/switch-group.js"
+    },
+    "./slider": {
+      "types": "./dist/slider.d.ts",
+      "import": "./dist/slider.js"
+    },
+    "./date-input": {
+      "types": "./dist/date-input.d.ts",
+      "import": "./dist/date-input.js"
+    },
+    "./date-picker": {
+      "types": "./dist/date-picker.d.ts",
+      "import": "./dist/date-picker.js"
+    },
+    "./date-range-picker": {
+      "types": "./dist/date-range-picker.d.ts",
+      "import": "./dist/date-range-picker.js"
+    },
+    "./time-input": {
+      "types": "./dist/time-input.d.ts",
+      "import": "./dist/time-input.js"
+    },
+    "./calendar": {
+      "types": "./dist/calendar.d.ts",
+      "import": "./dist/calendar.js"
+    },
+    "./range-calendar": {
+      "types": "./dist/range-calendar.d.ts",
+      "import": "./dist/range-calendar.js"
+    },
+    "./color-picker": {
+      "types": "./dist/color-picker.d.ts",
+      "import": "./dist/color-picker.js"
+    },
+    "./color-area": {
+      "types": "./dist/color-area.d.ts",
+      "import": "./dist/color-area.js"
+    },
+    "./color-slider": {
+      "types": "./dist/color-slider.d.ts",
+      "import": "./dist/color-slider.js"
+    },
+    "./color-field": {
+      "types": "./dist/color-field.d.ts",
+      "import": "./dist/color-field.js"
+    },
+    "./color-swatch": {
+      "types": "./dist/color-swatch.d.ts",
+      "import": "./dist/color-swatch.js"
+    },
+    "./color-swatch-picker": {
+      "types": "./dist/color-swatch-picker.d.ts",
+      "import": "./dist/color-swatch-picker.js"
+    },
+    "./dialog": {
+      "types": "./dist/dialog.d.ts",
+      "import": "./dist/dialog.js"
+    },
+    "./alert-dialog": {
+      "types": "./dist/alert-dialog.d.ts",
+      "import": "./dist/alert-dialog.js"
+    },
+    "./drawer": {
+      "types": "./dist/drawer.d.ts",
+      "import": "./dist/drawer.js"
+    },
+    "./popover": {
+      "types": "./dist/popover.d.ts",
+      "import": "./dist/popover.js"
+    },
+    "./tooltip": {
+      "types": "./dist/tooltip.d.ts",
+      "import": "./dist/tooltip.js"
+    },
+    "./menu": {
+      "types": "./dist/menu.d.ts",
+      "import": "./dist/menu.js"
+    },
+    "./breadcrumbs": {
+      "types": "./dist/breadcrumbs.d.ts",
+      "import": "./dist/breadcrumbs.js"
+    },
+    "./link": {
+      "types": "./dist/link.d.ts",
+      "import": "./dist/link.js"
+    },
+    "./pagination": {
+      "types": "./dist/pagination.d.ts",
+      "import": "./dist/pagination.js"
+    },
+    "./table": {
+      "types": "./dist/table.d.ts",
+      "import": "./dist/table.js"
+    },
+    "./avatar": {
+      "types": "./dist/avatar.d.ts",
+      "import": "./dist/avatar.js"
+    },
+    "./badge": {
+      "types": "./dist/badge.d.ts",
+      "import": "./dist/badge.js"
+    },
+    "./status-chip": {
+      "types": "./dist/status-chip.d.ts",
+      "import": "./dist/status-chip.js"
+    },
+    "./chip": {
+      "types": "./dist/chip.d.ts",
+      "import": "./dist/chip.js"
+    },
+    "./tag": {
+      "types": "./dist/tag.d.ts",
+      "import": "./dist/tag.js"
+    },
+    "./tag-group": {
+      "types": "./dist/tag-group.d.ts",
+      "import": "./dist/tag-group.js"
+    },
+    "./listbox": {
+      "types": "./dist/listbox.d.ts",
+      "import": "./dist/listbox.js"
+    },
+    "./accordion": {
+      "types": "./dist/accordion.d.ts",
+      "import": "./dist/accordion.js"
+    },
+    "./tabs": {
+      "types": "./dist/tabs.d.ts",
+      "import": "./dist/tabs.js"
+    },
+    "./disclosure": {
+      "types": "./dist/disclosure.d.ts",
+      "import": "./dist/disclosure.js"
+    },
+    "./disclosure-group": {
+      "types": "./dist/disclosure-group.d.ts",
+      "import": "./dist/disclosure-group.js"
+    },
+    "./alert": {
+      "types": "./dist/alert.d.ts",
+      "import": "./dist/alert.js"
+    },
+    "./toast": {
+      "types": "./dist/toast.d.ts",
+      "import": "./dist/toast.js"
+    },
+    "./spinner": {
+      "types": "./dist/spinner.d.ts",
+      "import": "./dist/spinner.js"
+    },
+    "./progress": {
+      "types": "./dist/progress.d.ts",
+      "import": "./dist/progress.js"
+    },
+    "./progress-circle": {
+      "types": "./dist/progress-circle.d.ts",
+      "import": "./dist/progress-circle.js"
+    },
+    "./meter": {
+      "types": "./dist/meter.d.ts",
+      "import": "./dist/meter.js"
+    },
+    "./skeleton": {
+      "types": "./dist/skeleton.d.ts",
+      "import": "./dist/skeleton.js"
+    },
+    "./card": {
+      "types": "./dist/card.d.ts",
+      "import": "./dist/card.js"
+    },
+    "./surface": {
+      "types": "./dist/surface.d.ts",
+      "import": "./dist/surface.js"
+    },
+    "./divider": {
+      "types": "./dist/divider.d.ts",
+      "import": "./dist/divider.js"
+    },
+    "./text": {
+      "types": "./dist/text.d.ts",
+      "import": "./dist/text.js"
+    },
+    "./scroll-shadow": {
+      "types": "./dist/scroll-shadow.d.ts",
+      "import": "./dist/scroll-shadow.js"
+    },
+    "./kbd": {
+      "types": "./dist/kbd.d.ts",
+      "import": "./dist/kbd.js"
+    },
+    "./search": {
+      "types": "./dist/search.d.ts",
+      "import": "./dist/search.js"
+    },
+    "./chart": {
+      "types": "./dist/chart.d.ts",
+      "import": "./dist/chart.js"
+    },
+    "./cn": {
+      "types": "./dist/cn.d.ts",
+      "import": "./dist/cn.js"
+    },
+    "./use-disclosure": {
+      "types": "./dist/use-disclosure.d.ts",
+      "import": "./dist/use-disclosure.js"
+    },
+    "./use-media-query": {
+      "types": "./dist/use-media-query.d.ts",
+      "import": "./dist/use-media-query.js"
+    },
+    "./icon-button": {
+      "types": "./dist/icon-button.d.ts",
+      "import": "./dist/icon-button.js"
+    },
+    "./use-debounce": {
+      "types": "./dist/use-debounce.d.ts",
+      "import": "./dist/use-debounce.js"
+    },
+    "./use-previous": {
+      "types": "./dist/use-previous.d.ts",
+      "import": "./dist/use-previous.js"
+    },
+    "./use-theme": {
+      "types": "./dist/use-theme.d.ts",
+      "import": "./dist/use-theme.js"
+    },
+    "./date": {
+      "types": "./dist/date.d.ts",
+      "import": "./dist/date.js"
+    },
+    "./format": {
+      "types": "./dist/format.d.ts",
+      "import": "./dist/format.js"
+    },
+    "./time-grouping": {
+      "types": "./dist/time-grouping.d.ts",
+      "import": "./dist/time-grouping.js"
+    }
   },
   "files": [
     "dist",
