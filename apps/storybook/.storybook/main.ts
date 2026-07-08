@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
+import tailwindcss from "@tailwindcss/vite";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)"],
@@ -8,6 +9,12 @@ const config: StorybookConfig = {
   framework: {
     name: getAbsolutePath("@storybook/react-vite"),
     options: {},
+  },
+  // Tailwind local: procesa .storybook/preview.css (utilities story-only).
+  // El CSS de la lib NO se genera acá — viene prebuildeado de @lindaui/tokens.
+  viteFinal: (viteConfig) => {
+    viteConfig.plugins = [...(viteConfig.plugins ?? []), tailwindcss()];
+    return viteConfig;
   },
 };
 

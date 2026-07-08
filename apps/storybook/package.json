@@ -6,14 +6,18 @@
   "scripts": {
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "gen:stories": "node scripts/gen-stories.mjs"
+    "gen:stories": "node scripts/gen-stories.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "typescript": "^6.0.3",
     "@storybook/react": "^10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@storybook/addon-a11y": "^10.4.6",
     "storybook": "^10.4.6",
     "vite": "^6.4.3",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0",
     "@vitejs/plugin-react": "^4.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -1,0 +1,11 @@
+/* Utilities SOLO de las stories.
+   La lib llega prebuildeada vía @lindaui/tokens/css (importado en preview.ts,
+   mismo artefacto que consume cualquier proyecto real). Este pass de Tailwind
+   escanea únicamente el source de storybook y genera las clases que las
+   stories usan y la lib no. Sin preflight (ya viene en tokens/css).
+   theme.css aporta el @theme inline para que utilities custom (bg-viewer,
+   escala de radius, etc.) resuelvan también acá. */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+@source "../src";
+@import "@lindaui/tokens/theme.css";

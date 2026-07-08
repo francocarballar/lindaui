@@ -79,6 +79,9 @@ Toggle with `document.documentElement.dataset.theme = "ocean"` + the `.dark` cla
 ## Exports & notes for agents
 
 - `@lindaui/tokens/css` → the compiled stylesheet (the only thing you import for runtime).
+- `@lindaui/tokens/theme.css` → the raw theme source (tokens + `@theme inline`). Only for
+  apps that run their own Tailwind pass and need the custom utilities to resolve there too;
+  normal consumers never import this.
 - `@lindaui/tokens/theme-template.css` → commented theme template to copy (not imported).
 - No JS entry point. `@lindaui/ui` and `@lindaui/blocks` declare this as a peer.
 - If a layout looks unstyled ("just text"), the consumer usually forgot the `/css` import.
