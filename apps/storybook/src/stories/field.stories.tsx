@@ -6,7 +6,8 @@ import { Field } from "@lindaui/ui/field";
 import { Input } from "@lindaui/ui/input";
 import { Button } from "@lindaui/ui/button";
 
-const schema = z.object({ email: z.string().email("Email inválido") });
+// zod 4: z.email() top-level (z.string().email() quedó deprecado)
+const schema = z.object({ email: z.email("Email inválido") });
 
 function FieldDemo() {
   const { control, handleSubmit } = useForm({

@@ -352,8 +352,8 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "react-hook-form": "^7.81.0",
-    "zod": "^3.23.0",
-    "@hookform/resolvers": "^3.9.0",
+    "zod": "^4.4.3",
+    "@hookform/resolvers": "^5.4.0",
     "typescript": "^6.0.3",
     "@lindaui/tokens": "workspace:*"
   }
