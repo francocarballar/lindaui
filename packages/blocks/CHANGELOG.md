@@ -1,5 +1,12 @@
 # @lindaui/blocks
 
+## 0.4.0
+
+### Minor Changes
+
+- 02263bc: Fase B del reemplazo de `@bienflow/ui-kit`: familia de blocks de chat genérica y agnóstica de dominio — `chat-layout`, `chat-header`, `chat-avatar`, `conversation-list`, `conversation-list-item`, `conversation-thread`, `message-bubble`, `message-composer`, `audio-player`, `chat-date-divider`, `chat-time-divider`, `empty-chat-view`, más los tipos compartidos `chat-types`. Sin `framer-motion` (animaciones vía CSS de `theme.css`).
+- 02263bc: Fase C del reemplazo de `@bienflow/ui-kit`: nuevos blocks `time-range-picker` (presets + rango custom, sin `@internationalized/date`), `entity-health-card` (lista de salud genérica) y `fetching-indicator`; `stat-card` gana `loading` (skeletons de value/delta/description).
+
 ## 0.3.0
 
 ### Minor Changes
