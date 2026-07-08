@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
-import { useMediaQuery, useIsDesktop, useIsMobile } from "./use-media-query";
+import { useMediaQuery, useIsDesktop, useIsMobile, useIsTablet } from "./use-media-query";
 
 type Listener = (e: { matches: boolean }) => void;
 
@@ -82,6 +82,25 @@ describe("useIsDesktop / useIsMobile", () => {
 
   test("useIsMobile es el complemento de desktop", () => {
     const { result } = renderHook(() => useIsMobile());
+    expect(result.current).toBe(false);
+  });
+});
+
+describe("useIsTablet", () => {
+  afterEach(() => {
+    // @ts-expect-error reset
+    delete window.matchMedia;
+  });
+
+  test("true dentro del rango tablet [768px, 1024px)", () => {
+    installMatchMedia(new Set(["(min-width: 768px) and (max-width: 1023px)"]));
+    const { result } = renderHook(() => useIsTablet());
+    expect(result.current).toBe(true);
+  });
+
+  test("false fuera del rango tablet", () => {
+    installMatchMedia(new Set());
+    const { result } = renderHook(() => useIsTablet());
     expect(result.current).toBe(false);
   });
 });

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 /** Breakpoint md de la lib (mobile-first): desktop = >= 768px. */
 const DESKTOP_QUERY = "(min-width: 768px)";
+/** Breakpoint lg de la lib: tablet = [768px, 1024px). */
+const TABLET_QUERY = "(min-width: 768px) and (max-width: 1023px)";
 
 function getMatch(query: string): boolean {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -42,4 +44,9 @@ export function useIsDesktop(): boolean {
 /** Complemento de {@link useIsDesktop}: `true` en viewports < 768px. */
 export function useIsMobile(): boolean {
   return !useMediaQuery(DESKTOP_QUERY);
+}
+
+/** `true` cuando el viewport cae en el rango tablet [768px, 1024px). */
+export function useIsTablet(): boolean {
+  return useMediaQuery(TABLET_QUERY);
 }

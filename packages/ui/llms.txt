@@ -75,6 +75,10 @@ Use `onPress` (RAC), `isDisabled`, `isPending`.
 `TextField`+`Label`; extends `TextFieldProps` (omit `children` + `className`) + flat
 `label`/`placeholder`. `onChange(value: string)`, `isInvalid`, `isRequired`, `name`,
 `type`. No `className` — style via the `--field-*` tokens (see conventions above).
+Also: `description` (renders below via RAC `Description`), `errorMessage` (RAC
+`FieldError` — only visible while `isInvalid` is set), `startContent`/`endContent`
+(addons rendered inside an `InputGroup.Prefix`/`.Suffix` row; omit both to keep the
+plain `Input` primitive with no extra wrapper).
 
 ### @lindaui/ui/textarea
 Same flat API as `input` over `TextField` with a multiline textarea. `label`, `placeholder`.
@@ -141,6 +145,10 @@ Layout-only grouping for switches (no `value`/`onChange` of its own).
 
 ### @lindaui/ui/close-button
 Icon close button (`onPress`).
+
+### @lindaui/ui/icon-button
+`<IconButton aria-label="Cerrar"><XIcon/></IconButton>` — thin wrap over `button`
+with `isIconOnly` forced on. `aria-label` is required (icon-only has no text content).
 
 ## Overlays
 
@@ -235,4 +243,32 @@ for controlled overlays; callbacks are stable.
 
 ### @lindaui/ui/use-media-query
 `useMediaQuery(query)` (SSR-safe) + `useIsDesktop()` / `useIsMobile()` anchored to the
-`md` breakpoint (768px).
+`md` breakpoint (768px), and `useIsTablet()` for the `[768px, 1024px)` range.
+
+### @lindaui/ui/use-debounce
+`const debounced = useDebounce(value, delayMs)` — delays reflecting `value` until
+`delayMs` passes without a change (timer resets on every update).
+
+### @lindaui/ui/use-previous
+`const prev = usePrevious(value)` — the value from the previous render;
+`undefined` on the first one.
+
+### @lindaui/ui/use-theme
+`const { theme, setTheme, toggleTheme } = useTheme()` — light/dark state, persisted
+to `localStorage`, defaulting to `prefers-color-scheme` when nothing is stored.
+Toggles the `.dark` class on `<html>` that `theme.css` already reads. SSR-safe.
+
+### @lindaui/ui/date
+`isToday(date)`, `isYesterday(date)`, `formatShortTime(date, locale?)` (`HH:mm`),
+`formatRelativeTime(date)` ("Hoy"/"Ayer"/`DD/MM`/`DD/MM/AAAA`). All accept
+`Date | number | string`. No `dayjs` dependency — plain `Date` math + `Intl`.
+
+### @lindaui/ui/format
+`formatCurrency(value, { currency?, locale? })`, `formatDate(date, options?, locale?)`
+(`Intl.DateTimeFormat`), `formatPhone(phone)` (generic digit grouping in chunks of 3,
+preserves a leading `+` — not a per-country E.164 formatter).
+
+### @lindaui/ui/time-grouping
+`groupByDay(items, getDate)` — pure grouping by calendar day for timelines (e.g. a
+chat thread); each group carries a `label` from `formatRelativeTime`. Assumes `items`
+are already chronologically sorted.

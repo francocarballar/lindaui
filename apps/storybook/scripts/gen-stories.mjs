@@ -47,6 +47,7 @@ const ARGS = {
   kbd: '{ children: "Ctrl" }',
   "toggle-button": '{ children: "Toggle" }',
   "close-button": '{ "aria-label": "Cerrar" }',
+  "icon-button": '{ "aria-label": "Cerrar", children: "×" }',
   surface: '{ className: "p-4", children: "Contenido en una surface" }',
   text: '{ children: "Texto de ejemplo" }',
   link: '{ href: "#", children: "Un enlace" }',
@@ -95,8 +96,11 @@ const RENDER = {
 };
 
 // Entries que no son componentes: no tiene sentido una story.
-// "package.json" es el export estándar de tooling; use-* son hooks; cn es util.
-const NON_COMPONENT = new Set(["package.json", "cn"]);
+// "package.json" es el export estándar de tooling; use-* son hooks;
+// cn/date/format/time-grouping son utils puras (sin JSX).
+const NON_COMPONENT = new Set([
+  "package.json", "cn", "date", "format", "time-grouping", "chat-types",
+]);
 const isComponentEntry = (entry) => !NON_COMPONENT.has(entry) && !entry.startsWith("use-");
 
 const pascal = (s) =>
