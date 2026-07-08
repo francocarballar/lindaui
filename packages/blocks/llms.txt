@@ -98,6 +98,57 @@ on a fixed dark `viewer-*` surface (for use over media); `inline` drops the abso
 positioning + forced dark bg, fills its container and inherits the panel surface with
 token-driven (legible) text. Content is identical across variants.
 
+## Chat (generic — data-agnostic, WhatsApp-style presentation)
+
+Types live in `@lindaui/blocks/chat-types` (no runtime exports, just shapes):
+`GenericMessage` (`id`, `side: "incoming"|"outgoing"`, `text?`, `media?:
+{kind:"image"|"audio"|"pdf",...}`, `sentAt`, `status?`), `ConversationSummary`
+(`id`, `title`, `subtitle?`, `avatarUrl?`, `lastMessageAt?`, `unreadCount?`). Map your
+domain (WhatsApp threads, tickets, whatever) into these before passing them down.
+
+### @lindaui/blocks/chat-layout
+Responsive 3-column shell (`sidebar`/`main`/`detail?`); mobile shows one panel at a
+time via `activePanel?: "sidebar"|"main"|"detail"` (default `"sidebar"`).
+
+### @lindaui/blocks/chat-header
+Row: `avatar?`, `title`, `subtitle?`, `actions?`.
+
+### @lindaui/blocks/chat-avatar
+`<ChatAvatar name src? size? onError? />` — initials fallback (bespoke, does NOT
+compose `@lindaui/ui/avatar`: that wrapper only exposes the HeroUI Root, no
+`.Image`/`.Fallback`, so it can't do a real fallback-on-error).
+
+### @lindaui/blocks/conversation-list · conversation-list-item
+`<ConversationList conversations={ConversationSummary[]} selectedId onSelect
+searchValue onSearchChange loading emptyContent filters />` — search field + scrollable
+rows; does NOT filter for you. `ConversationListItem` is the single row, usable
+standalone.
+
+### @lindaui/blocks/conversation-thread
+`<ConversationThread messages={GenericMessage[]} loading onImageClick emptyTitle
+emptyDescription />` — auto-scrolls to the last message; groups by calendar day via
+`@lindaui/ui/time-grouping` + `chat-date-divider`.
+
+### @lindaui/blocks/message-bubble
+Renders one `GenericMessage`: text, image (click → `onImageClick(url)`), audio (via
+`audio-player`), or pdf (link). Side-aligned; outgoing messages show a status icon.
+
+### @lindaui/blocks/message-composer
+`<MessageComposer value onValueChange onSend placeholder isSending isDisabled
+sendLabel />` — Enter sends, Shift+Enter inserts a newline.
+
+### @lindaui/blocks/audio-player
+`<AudioPlayer src durationSeconds? playLabel? pauseLabel? />` — voice-note player:
+play/pause + a static (non-analyzed) waveform + duration.
+
+### @lindaui/blocks/chat-date-divider · chat-time-divider
+Centered day pill ("Hoy"/"Ayer"/short date, via `@lindaui/ui/date`) and a smaller
+sticky time-group header, respectively.
+
+### @lindaui/blocks/empty-chat-view
+Centered empty state (icon + title + description) — also the `conversation-thread`
+empty state.
+
 ## Documents
 
 ### @lindaui/blocks/document-panel
@@ -129,6 +180,16 @@ const config = { sales: { label: "Sales", color: "var(--chart-1)" } };
 - `@lindaui/blocks/pie-chart`
 - `@lindaui/blocks/radar-chart`
 - `@lindaui/blocks/radial-chart`
-- `@lindaui/blocks/stat-card` — KPI card: label/value/delta/sparkline
+- `@lindaui/blocks/stat-card` — KPI card: label/value/delta/sparkline. `loading?`
+  swaps value/delta/description for skeletons (label/icon stay visible).
 - `@lindaui/blocks/chart-card` — Card shell wrapping a chart
 - `@lindaui/blocks/stats-grid` — responsive grid of KPI stat-cards
+- `@lindaui/blocks/entity-health-card` — generic health list on the `chart-card`
+  shell: `items: {id,label,value,status?,statusLabel?}[]` (status → a `Badge`).
+- `@lindaui/blocks/time-range-picker` — presets (`{key,label}[]`, default
+  today/7d/30d/custom) + a custom range revealed when `activePreset === customKey`
+  (default `"custom"`), using native `<input type="date">` (no
+  `@internationalized/date`). Controlled: `activePreset`, `onPresetChange`, `range:
+  {start,end}` (ISO date strings), `onRangeChange`.
+- `@lindaui/blocks/fetching-indicator` — small "Actualizando…" pill with a spinner,
+  for overlaying on already-loaded content (distinct from a full loading state).

@@ -54,6 +54,28 @@ describe("StatCard", () => {
     expect(screen.getByText("42")).toBeInTheDocument();
   });
 
+  test("loading hides value/delta/description behind skeletons", () => {
+    render(
+      <StatCard
+        label="Revenue"
+        value="$12,345"
+        delta={{ value: "+5%", trend: "up" }}
+        description="Last 30 days"
+        loading
+      />,
+    );
+    expect(screen.getByText("Revenue")).toBeInTheDocument();
+    expect(screen.queryByText("$12,345")).not.toBeInTheDocument();
+    expect(screen.queryByText("+5%")).not.toBeInTheDocument();
+    expect(screen.queryByText("Last 30 days")).not.toBeInTheDocument();
+  });
+
+  test("loading also applies to the featured variant", () => {
+    render(<StatCard variant="featured" label="Seekers activos" value="5" loading />);
+    expect(screen.getByText("Seekers activos")).toBeInTheDocument();
+    expect(screen.queryByText("5")).not.toBeInTheDocument();
+  });
+
   test("featured variant renders icon, value, label and delta", () => {
     render(
       <StatCard

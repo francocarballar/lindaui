@@ -28,102 +28,46 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "./login-form": {
-      "types": "./dist/login-form.d.ts",
-      "import": "./dist/login-form.js"
-    },
-    "./list-item": {
-      "types": "./dist/list-item.d.ts",
-      "import": "./dist/list-item.js"
-    },
-    "./list-pane": {
-      "types": "./dist/list-pane.d.ts",
-      "import": "./dist/list-pane.js"
-    },
-    "./detail-panel": {
-      "types": "./dist/detail-panel.d.ts",
-      "import": "./dist/detail-panel.js"
-    },
-    "./confirm-dialog": {
-      "types": "./dist/confirm-dialog.d.ts",
-      "import": "./dist/confirm-dialog.js"
-    },
-    "./image-viewer": {
-      "types": "./dist/image-viewer.d.ts",
-      "import": "./dist/image-viewer.js"
-    },
-    "./split-workspace": {
-      "types": "./dist/split-workspace.d.ts",
-      "import": "./dist/split-workspace.js"
-    },
-    "./document-panel": {
-      "types": "./dist/document-panel.d.ts",
-      "import": "./dist/document-panel.js"
-    },
-    "./document-reader": {
-      "types": "./dist/document-reader.d.ts",
-      "import": "./dist/document-reader.js"
-    },
-    "./recording-overlay": {
-      "types": "./dist/recording-overlay.d.ts",
-      "import": "./dist/recording-overlay.js"
-    },
-    "./field-array-form": {
-      "types": "./dist/field-array-form.d.ts",
-      "import": "./dist/field-array-form.js"
-    },
-    "./auth-provider": {
-      "types": "./dist/auth-provider.d.ts",
-      "import": "./dist/auth-provider.js"
-    },
-    "./auth-layout": {
-      "types": "./dist/auth-layout.d.ts",
-      "import": "./dist/auth-layout.js"
-    },
-    "./area-chart": {
-      "types": "./dist/area-chart.d.ts",
-      "import": "./dist/area-chart.js"
-    },
-    "./bar-chart": {
-      "types": "./dist/bar-chart.d.ts",
-      "import": "./dist/bar-chart.js"
-    },
-    "./line-chart": {
-      "types": "./dist/line-chart.d.ts",
-      "import": "./dist/line-chart.js"
-    },
-    "./pie-chart": {
-      "types": "./dist/pie-chart.d.ts",
-      "import": "./dist/pie-chart.js"
-    },
-    "./radar-chart": {
-      "types": "./dist/radar-chart.d.ts",
-      "import": "./dist/radar-chart.js"
-    },
-    "./radial-chart": {
-      "types": "./dist/radial-chart.d.ts",
-      "import": "./dist/radial-chart.js"
-    },
-    "./stat-card": {
-      "types": "./dist/stat-card.d.ts",
-      "import": "./dist/stat-card.js"
-    },
-    "./chart-card": {
-      "types": "./dist/chart-card.d.ts",
-      "import": "./dist/chart-card.js"
-    },
-    "./stats-grid": {
-      "types": "./dist/stats-grid.d.ts",
-      "import": "./dist/stats-grid.js"
-    },
-    "./workspace-back-button": {
-      "types": "./dist/workspace-back-button.d.ts",
-      "import": "./dist/workspace-back-button.js"
-    },
-    "./table-pane": {
-      "types": "./dist/table-pane.d.ts",
-      "import": "./dist/table-pane.js"
-    }
+    "./login-form": { "types": "./dist/login-form.d.ts", "import": "./dist/login-form.js" },
+    "./list-item": { "types": "./dist/list-item.d.ts", "import": "./dist/list-item.js" },
+    "./list-pane": { "types": "./dist/list-pane.d.ts", "import": "./dist/list-pane.js" },
+    "./detail-panel": { "types": "./dist/detail-panel.d.ts", "import": "./dist/detail-panel.js" },
+    "./confirm-dialog": { "types": "./dist/confirm-dialog.d.ts", "import": "./dist/confirm-dialog.js" },
+    "./image-viewer": { "types": "./dist/image-viewer.d.ts", "import": "./dist/image-viewer.js" },
+    "./split-workspace": { "types": "./dist/split-workspace.d.ts", "import": "./dist/split-workspace.js" },
+    "./document-panel": { "types": "./dist/document-panel.d.ts", "import": "./dist/document-panel.js" },
+    "./document-reader": { "types": "./dist/document-reader.d.ts", "import": "./dist/document-reader.js" },
+    "./recording-overlay": { "types": "./dist/recording-overlay.d.ts", "import": "./dist/recording-overlay.js" },
+    "./field-array-form": { "types": "./dist/field-array-form.d.ts", "import": "./dist/field-array-form.js" },
+    "./auth-provider": { "types": "./dist/auth-provider.d.ts", "import": "./dist/auth-provider.js" },
+    "./auth-layout": { "types": "./dist/auth-layout.d.ts", "import": "./dist/auth-layout.js" },
+    "./area-chart": { "types": "./dist/area-chart.d.ts", "import": "./dist/area-chart.js" },
+    "./bar-chart": { "types": "./dist/bar-chart.d.ts", "import": "./dist/bar-chart.js" },
+    "./line-chart": { "types": "./dist/line-chart.d.ts", "import": "./dist/line-chart.js" },
+    "./pie-chart": { "types": "./dist/pie-chart.d.ts", "import": "./dist/pie-chart.js" },
+    "./radar-chart": { "types": "./dist/radar-chart.d.ts", "import": "./dist/radar-chart.js" },
+    "./radial-chart": { "types": "./dist/radial-chart.d.ts", "import": "./dist/radial-chart.js" },
+    "./stat-card": { "types": "./dist/stat-card.d.ts", "import": "./dist/stat-card.js" },
+    "./chart-card": { "types": "./dist/chart-card.d.ts", "import": "./dist/chart-card.js" },
+    "./stats-grid": { "types": "./dist/stats-grid.d.ts", "import": "./dist/stats-grid.js" },
+    "./workspace-back-button": { "types": "./dist/workspace-back-button.d.ts", "import": "./dist/workspace-back-button.js" },
+    "./table-pane": { "types": "./dist/table-pane.d.ts", "import": "./dist/table-pane.js" },
+    "./audio-player": { "types": "./dist/audio-player.d.ts", "import": "./dist/audio-player.js" },
+    "./chat-avatar": { "types": "./dist/chat-avatar.d.ts", "import": "./dist/chat-avatar.js" },
+    "./chat-date-divider": { "types": "./dist/chat-date-divider.d.ts", "import": "./dist/chat-date-divider.js" },
+    "./chat-header": { "types": "./dist/chat-header.d.ts", "import": "./dist/chat-header.js" },
+    "./chat-layout": { "types": "./dist/chat-layout.d.ts", "import": "./dist/chat-layout.js" },
+    "./chat-time-divider": { "types": "./dist/chat-time-divider.d.ts", "import": "./dist/chat-time-divider.js" },
+    "./chat-types": { "types": "./dist/chat-types.d.ts", "import": "./dist/chat-types.js" },
+    "./conversation-list": { "types": "./dist/conversation-list.d.ts", "import": "./dist/conversation-list.js" },
+    "./conversation-list-item": { "types": "./dist/conversation-list-item.d.ts", "import": "./dist/conversation-list-item.js" },
+    "./conversation-thread": { "types": "./dist/conversation-thread.d.ts", "import": "./dist/conversation-thread.js" },
+    "./empty-chat-view": { "types": "./dist/empty-chat-view.d.ts", "import": "./dist/empty-chat-view.js" },
+    "./message-bubble": { "types": "./dist/message-bubble.d.ts", "import": "./dist/message-bubble.js" },
+    "./message-composer": { "types": "./dist/message-composer.d.ts", "import": "./dist/message-composer.js" },
+    "./time-range-picker": { "types": "./dist/time-range-picker.d.ts", "import": "./dist/time-range-picker.js" },
+    "./entity-health-card": { "types": "./dist/entity-health-card.d.ts", "import": "./dist/entity-health-card.js" },
+    "./fetching-indicator": { "types": "./dist/fetching-indicator.d.ts", "import": "./dist/fetching-indicator.js" }
   },
   "files": [
     "dist",

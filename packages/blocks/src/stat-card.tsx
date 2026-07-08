@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@lindaui/ui/card";
 import { Badge } from "@lindaui/ui/badge";
+import { Skeleton } from "@lindaui/ui/skeleton";
 import { ChartContainer, type ChartConfig } from "@lindaui/ui/chart";
 import { LineChart, Line } from "recharts";
 
@@ -32,6 +33,8 @@ export interface StatCardProps {
   /** Tinte del icon box (y del valor en featured). Solo aplica a featured. */
   tone?: StatCardTone;
   className?: string;
+  /** Reemplaza value/delta/description por skeletons; label e icon quedan visibles. */
+  loading?: boolean;
 }
 
 const trendIcon = {
@@ -96,6 +99,7 @@ export function StatCard({
   variant = "default",
   tone = "neutral",
   className = "",
+  loading = false,
 }: StatCardProps) {
   if (variant === "featured") {
     const t = toneStyles[tone];
@@ -108,12 +112,18 @@ export function StatCard({
                 {icon}
               </div>
             )}
-            {delta && <DeltaBadge delta={delta} />}
+            {loading ? <Skeleton className="h-5 w-14 rounded-full" /> : delta && <DeltaBadge delta={delta} />}
           </div>
-          <div className={`mt-4 text-3xl font-semibold tabular-nums ${t.value}`}>{value}</div>
+          {loading ? (
+            <Skeleton className="mt-4 h-8 w-20" />
+          ) : (
+            <div className={`mt-4 text-3xl font-semibold tabular-nums ${t.value}`}>{value}</div>
+          )}
           <div className="mt-1 text-sm text-muted-foreground">{label}</div>
-          {description && (
-            <p className="mt-1.5 text-xs text-muted-foreground">{description}</p>
+          {loading ? (
+            <Skeleton className="mt-1.5 h-3 w-24" />
+          ) : (
+            description && <p className="mt-1.5 text-xs text-muted-foreground">{description}</p>
           )}
           {sparkline && <Sparkline sparkline={sparkline} />}
         </CardContent>
@@ -130,13 +140,25 @@ export function StatCard({
         </div>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="text-2xl font-semibold tabular-nums sm:text-3xl">{value}</div>
-        {delta && (
-          <div className="mt-1 flex items-center gap-1">
-            <DeltaBadge delta={delta} />
-          </div>
+        {loading ? (
+          <Skeleton className="h-7 w-24" />
+        ) : (
+          <div className="text-2xl font-semibold tabular-nums sm:text-3xl">{value}</div>
         )}
-        {description && <p className="mt-1.5 text-xs text-muted-foreground">{description}</p>}
+        {loading ? (
+          <Skeleton className="mt-1.5 h-4 w-14 rounded-full" />
+        ) : (
+          delta && (
+            <div className="mt-1 flex items-center gap-1">
+              <DeltaBadge delta={delta} />
+            </div>
+          )
+        )}
+        {loading ? (
+          <Skeleton className="mt-1.5 h-3 w-28" />
+        ) : (
+          description && <p className="mt-1.5 text-xs text-muted-foreground">{description}</p>
+        )}
         {sparkline && <Sparkline sparkline={sparkline} />}
       </CardContent>
     </Card>
