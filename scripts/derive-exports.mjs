@@ -23,6 +23,11 @@ const repoRoot = resolve(__dirname, "..");
 // Archivos en src/ que NO son entries (helpers internos, setup de tests).
 const IGNORE = new Set(["test-setup"]);
 
+// Entries del map que NO derivan de src/ y se preservan verbatim (no son
+// huérfanas). "./package.json" es estándar npm: tooling (bundlers, publint,
+// syncpack) lo resuelve vía exports.
+const PRESERVE = new Set(["package.json"]);
+
 /** Nombres de componente derivados de los archivos fuente de un paquete. */
 export function deriveNames(srcDir) {
   return readdirSync(srcDir)
@@ -47,12 +52,14 @@ export function reconcileExports(existing, derivedNames) {
   const existingKeys = Object.keys(existing).map((k) => k.replace(/^\.\//, ""));
   const existingSet = new Set(existingKeys);
 
-  const kept = existingKeys.filter((n) => derivedSet.has(n));
+  const kept = existingKeys.filter((n) => derivedSet.has(n) || PRESERVE.has(n));
   const added = derivedNames.filter((n) => !existingSet.has(n));
-  const dropped = existingKeys.filter((n) => !derivedSet.has(n));
+  const dropped = existingKeys.filter((n) => !derivedSet.has(n) && !PRESERVE.has(n));
 
   const exports = {};
-  for (const name of [...kept, ...added]) exports[`./${name}`] = entryFor(name);
+  for (const name of [...kept, ...added]) {
+    exports[`./${name}`] = PRESERVE.has(name) ? existing[`./${name}`] : entryFor(name);
+  }
   return { exports, added, dropped };
 }
 
@@ -76,7 +83,9 @@ function spliceExportsBlock(raw, exports) {
   const entryLines = keys.map((k, i) => {
     const v = exports[k];
     const comma = i < keys.length - 1 ? "," : "";
-    return `    "${k}": { "types": "${v.types}", "import": "${v.import}" }${comma}`;
+    const value =
+      typeof v === "string" ? `"${v}"` : `{ "types": "${v.types}", "import": "${v.import}" }`;
+    return `    "${k}": ${value}${comma}`;
   });
 
   return [

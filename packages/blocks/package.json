@@ -4,6 +4,11 @@
   "description": "Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
+  "homepage": "https://github.com/francocarballar/lindaui#readme",
+  "bugs": {
+    "url": "https://github.com/francocarballar/lindaui/issues"
+  },
+  "keywords": ["react","react-components","design-system","blocks","sections","charts","heroui"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/francocarballar/lindaui.git",
@@ -121,6 +126,7 @@
   "scripts": {
     "build": "bunchee --no-dts && tsc -p tsconfig.build.json",
     "dev": "bunchee --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -130,12 +136,12 @@
     "react-hook-form": ">=7",
     "lucide-react": ">=0.4",
     "recharts": ">=3",
-    "@lindaui/ui": "*",
-    "@lindaui/tokens": "*"
+    "@lindaui/ui": ">=0.2.0",
+    "@lindaui/tokens": ">=0.2.0"
   },
   "devDependencies": {
     "bunchee": "^6.0.0",
-    "vitest": "^2.0.0",
+    "vitest": "^3.2.6",
     "vite": "^6.4.3",
     "@vitejs/plugin-react": "^4.3.0",
     "@testing-library/react": "^16.0.0",
