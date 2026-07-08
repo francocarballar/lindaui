@@ -18,7 +18,7 @@ jobs:
       # el token-exchange da 404 y, con provenance activa, el publish con token
       # termina en E404. Hasta configurar OIDC, publicamos con token puro.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
