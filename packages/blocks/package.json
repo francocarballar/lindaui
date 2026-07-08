@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/blocks",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
@@ -8,7 +8,15 @@
   "bugs": {
     "url": "https://github.com/francocarballar/lindaui/issues"
   },
-  "keywords": ["react","react-components","design-system","blocks","sections","charts","heroui"],
+  "keywords": [
+    "react",
+    "react-components",
+    "design-system",
+    "blocks",
+    "sections",
+    "charts",
+    "heroui"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/francocarballar/lindaui.git",
