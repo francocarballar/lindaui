@@ -15,13 +15,13 @@
     "@lindaui/tokens": "workspace:*",
     "@lindaui/ui": "workspace:*",
     "lucide-react": "^0.460.0",
-    "next": "16.2.9",
+    "next": "16.2.10",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.0",
-    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.3.2",
+    "tailwindcss": "^4.3.2",
     "sass": "^1.80.0",
     "typescript": "^6.0.3",
     "@types/node": "^20.0.0",

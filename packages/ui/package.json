@@ -333,10 +333,10 @@
     "@lindaui/tokens": ">=0.2.0"
   },
   "dependencies": {
-    "@heroui/react": "^3.2.1",
+    "@heroui/react": "^3.2.2",
     "tailwind-variants": "^3.0.0",
-    "tailwind-merge": "^3.0.0",
-    "recharts": "^3.9.0"
+    "tailwind-merge": "^3.6.0",
+    "recharts": "^3.9.2"
   },
   "devDependencies": {
     "bunchee": "^6.0.0",
@@ -351,7 +351,7 @@
     "react-dom": "^19.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "react-hook-form": "^7.53.0",
+    "react-hook-form": "^7.81.0",
     "zod": "^3.23.0",
     "@hookform/resolvers": "^3.9.0",
     "typescript": "^6.0.3",
