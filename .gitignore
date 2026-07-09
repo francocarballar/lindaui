@@ -6,4 +6,7 @@ coverage/
 *.tsbuildinfo
 .env
 _entry.css
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/release-flow/

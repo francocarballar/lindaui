@@ -11,7 +11,8 @@
     "gen:component": "node scripts/gen.mjs component",
     "gen:block": "node scripts/gen.mjs block",
     "gen:exports": "node scripts/gen.mjs exports",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "release:flow": "node scripts/release-flow.mjs"
   },
   "devDependencies": {
     "turbo": "^2.10.4",
