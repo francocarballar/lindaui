@@ -212,7 +212,7 @@
     "@lindaui/tokens": ">=0.2.0"
   },
   "devDependencies": {
-    "bunchee": "^6.0.0",
+    "bunchee": "^6.12.0",
     "vitest": "^4.1.10",
     "vite": "^6.4.3",
     "@vitejs/plugin-react": "^4.3.0",
@@ -225,7 +225,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "react-hook-form": "^7.81.0",
-    "lucide-react": "^1.23.0",
+    "lucide-react": "^1.24.0",
     "recharts": "^3.9.2",
     "zod": "^4.4.3",
     "@hookform/resolvers": "^5.4.0",
