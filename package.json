@@ -17,7 +17,7 @@
   "devDependencies": {
     "turbo": "^2.10.4",
     "@changesets/cli": "^2.27.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "publint": "^0.3.0",
     "@arethetypeswrong/cli": "^0.18.0",
     "husky": "^9.1.7",

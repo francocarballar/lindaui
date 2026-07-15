@@ -229,7 +229,7 @@
     "recharts": "^3.9.2",
     "zod": "^4.4.3",
     "@hookform/resolvers": "^5.4.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "@lindaui/ui": "workspace:*",
     "@lindaui/tokens": "workspace:*"
   }

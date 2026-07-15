@@ -10,7 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "@storybook/react": "^10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@storybook/addon-a11y": "^10.4.6",
