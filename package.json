@@ -15,11 +15,11 @@
     "release:flow": "node scripts/release-flow.mjs"
   },
   "devDependencies": {
-    "turbo": "^2.10.4",
-    "@changesets/cli": "^2.27.0",
+    "turbo": "^2.10.5",
+    "@changesets/cli": "^2.31.1",
     "typescript": "^6.0.3",
     "publint": "^0.3.0",
-    "@arethetypeswrong/cli": "^0.18.0",
+    "@arethetypeswrong/cli": "^0.18.5",
     "husky": "^9.1.7",
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0"
