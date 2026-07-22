@@ -364,10 +364,10 @@
     "@heroui/react": "^3.2.2",
     "tailwind-variants": "^3.0.0",
     "tailwind-merge": "^3.6.0",
-    "recharts": "^3.9.2"
+    "recharts": "^3.10.0"
   },
   "devDependencies": {
-    "bunchee": "^6.0.0",
+    "bunchee": "^6.12.0",
     "vitest": "^4.1.10",
     "vite": "^6.4.3",
     "@vitejs/plugin-react": "^4.3.0",
@@ -375,11 +375,11 @@
     "@testing-library/user-event": "^14.5.0",
     "@testing-library/jest-dom": "^6.4.0",
     "jsdom": "^24.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "react-hook-form": "^7.81.0",
+    "react-hook-form": "^7.82.0",
     "zod": "^4.4.3",
     "@hookform/resolvers": "^5.4.0",
     "typescript": "^6.0.3",
