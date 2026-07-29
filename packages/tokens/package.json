@@ -46,8 +46,8 @@
     "dev": "node scripts/build-css.mjs --watch"
   },
   "devDependencies": {
-    "tailwindcss": "^4.3.2",
-    "@tailwindcss/cli": "^4.3.2",
+    "tailwindcss": "^4.3.3",
+    "@tailwindcss/cli": "^4.3.3",
     "@heroui/react": "^3.2.2"
   }
 }
