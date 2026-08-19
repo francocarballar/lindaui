@@ -361,10 +361,10 @@
     "@lindaui/tokens": ">=0.2.0"
   },
   "dependencies": {
-    "@heroui/react": "^3.2.2",
-    "tailwind-variants": "^3.0.0",
+    "@heroui/react": "^3.2.4",
+    "tailwind-variants": "^3.3.1",
     "tailwind-merge": "^3.6.0",
-    "recharts": "^3.9.2"
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "bunchee": "^6.0.0",
@@ -372,16 +372,16 @@
     "vite": "^6.4.3",
     "@vitejs/plugin-react": "^4.3.0",
     "@testing-library/react": "^16.0.0",
-    "@testing-library/user-event": "^14.5.0",
+    "@testing-library/user-event": "^14.6.4",
     "@testing-library/jest-dom": "^6.4.0",
     "jsdom": "^24.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "react-hook-form": "^7.81.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "react-hook-form": "^7.85.0",
     "zod": "^4.4.3",
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^5.9.0",
     "typescript": "^6.0.3",
     "@lindaui/tokens": "workspace:*"
   }
