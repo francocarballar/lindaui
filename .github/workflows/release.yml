@@ -35,7 +35,7 @@ jobs:
       # saltea el CI de PRs).
       - run: pnpm turbo test
 
-      - uses: changesets/action@v1
+      - uses: changesets/action@v2
         with:
           # NO usar `changeset publish`: changesets@2.31 + npm 11 crashea en
           # isAlreadyPublishedError (TypeError ...reading 'includes') al parsear
