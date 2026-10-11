@@ -1,5 +1,11 @@
 # @lindaui/blocks
 
+## 0.4.2
+
+### Patch Changes
+
+- 5bc98c2: Update lucide-react to 1.55.0 and validate the blocks against the latest icon library.
+
 ## 0.4.1
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@lindaui/blocks",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Composed UI sections (auth, lists, master-detail, charts) built on @lindaui/ui — importable npm package, not a copy-paste registry.",
   "author": "Franco Carballar <francocarballar@gmail.com>",
   "license": "MIT",
