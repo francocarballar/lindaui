@@ -1,5 +1,11 @@
 # @lindaui/blocks
 
+## 0.4.1
+
+### Patch Changes
+
+- a7bdfb7: Update dependencies and development tooling to their latest stable versions, including HeroUI, Tailwind CSS, React, Recharts, TypeScript, and the build and test toolchain.
+
 ## 0.4.0
 
 ### Minor Changes
