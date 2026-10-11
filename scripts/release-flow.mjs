@@ -42,7 +42,7 @@ function sleep(ms) {
 }
 
 function run(cmd, args, { inherit = false, shell = false } = {}) {
-  return execFileSync(cmd, args, {
+  return (execFileSync(cmd, args, {
     cwd: repoRoot,
     encoding: "utf8",
     stdio: inherit ? "inherit" : ["ignore", "pipe", "pipe"],
@@ -50,7 +50,7 @@ function run(cmd, args, { inherit = false, shell = false } = {}) {
     // shell — hace falta shell:true ahí. git/gh son binarios directos, no
     // lo necesitan.
     shell,
-  }).trim();
+  }) ?? "").trim();
 }
 
 function runJson(cmd, args) {
