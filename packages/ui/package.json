@@ -355,34 +355,35 @@
     "test:watch": "vitest"
   },
   "peerDependencies": {
+    "@lindaui/tokens": ">=0.2.0",
     "react": ">=19",
     "react-dom": ">=19",
-    "react-hook-form": ">=7",
-    "@lindaui/tokens": ">=0.2.0"
+    "react-hook-form": ">=7"
   },
   "dependencies": {
-    "@heroui/react": "^3.2.2",
-    "tailwind-variants": "^3.0.0",
-    "tailwind-merge": "^3.6.0",
-    "recharts": "^3.9.2"
+    "@heroui/react": "^3.2.6",
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.7.0",
+    "tailwind-variants": "^3.3.1"
   },
   "devDependencies": {
-    "bunchee": "^6.0.0",
-    "vitest": "^4.1.10",
-    "vite": "^6.4.3",
-    "@vitejs/plugin-react": "^4.3.0",
-    "@testing-library/react": "^16.0.0",
-    "@testing-library/user-event": "^14.5.0",
-    "@testing-library/jest-dom": "^6.4.0",
-    "jsdom": "^24.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "react-hook-form": "^7.81.0",
-    "zod": "^4.4.3",
-    "@hookform/resolvers": "^5.4.0",
-    "typescript": "^6.0.3",
-    "@lindaui/tokens": "workspace:*"
+    "@hookform/resolvers": "^5.9.1",
+    "@lindaui/tokens": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@typescript/typescript6": "^6.0.2",
+    "@vitejs/plugin-react": "^6.1.2",
+    "bunchee": "^7.0.1",
+    "jsdom": "^30.1.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-hook-form": "^7.89.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3",
+    "zod": "^4.6.5"
   }
 }
