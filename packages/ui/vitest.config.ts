@@ -7,5 +7,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
     globals: true,
+    // Turbo runs multiple suites/builds together; bound jsdom workers, not test timeouts.
+    maxWorkers: 2,
   },
 });

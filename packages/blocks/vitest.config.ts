@@ -7,5 +7,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
     globals: true,
+    // Keep parallel workspace gates within the same worker budget as the UI suite.
+    maxWorkers: 2,
   },
 });

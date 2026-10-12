@@ -1,6 +1,8 @@
 // Deriva el `exports` map de un paquete desde sus archivos fuente.
 // Cada `src/<name>.{ts,tsx}` (excepto *.test.* y los IGNORE) es una entry
-// `./<name>` con el shape dual { types, import } -> dist.
+// `./<name>` con { types, import, default } -> dist. import/default apuntan
+// al MISMO JS ESM: default permite el resolver require.resolveWeak de Next,
+// no declara un build CommonJS ni cambia el runtime.
 //
 // Preserva el ORDEN curado existente (no re-ordena: las entries del map se
 // agrupan a mano por dominio). Solo AGREGA al final las que faltan y DROPEA
@@ -8,7 +10,7 @@
 //
 // Modos:
 //   node scripts/derive-exports.mjs [pkgDir]            -> reescribe package.json
-//   node scripts/derive-exports.mjs [pkgDir] --check    -> exit 1 si hay drift (set, no orden)
+//   node scripts/derive-exports.mjs [pkgDir] --check    -> exit 1 si hay drift de entries/condiciones
 //
 // pkgDir por defecto: packages/ui. Reusable para packages/blocks.
 // Idempotente: correr sobre un map ya sincronizado no cambia nada.
@@ -31,7 +33,7 @@ const PRESERVE = new Set(["package.json"]);
 /** Nombres de componente derivados de los archivos fuente de un paquete. */
 export function deriveNames(srcDir) {
   return readdirSync(srcDir)
-    .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\.(ts|tsx)$/.test(f))
+    .filter((f) => /\.(ts|tsx)$/.test(f) && !/\.(test|stories)\.(ts|tsx)$/.test(f))
     .map((f) => f.replace(/\.(ts|tsx)$/, ""))
     .filter((name) => !IGNORE.has(name))
     .sort();
@@ -41,11 +43,12 @@ export function deriveNames(srcDir) {
 const entryFor = (name) => ({
   types: `./dist/${name}.d.ts`,
   import: `./dist/${name}.js`,
+  default: `./dist/${name}.js`,
 });
 
 /**
  * Reordena exports: mantiene las existentes en su orden, agrega las nuevas
- * (sorted) al final, y dropea huérfanas. Devuelve { exports, added, dropped }.
+ * (sorted) al final, y dropea huérfanas. Devuelve { exports, added, dropped, changed }.
  */
 export function reconcileExports(existing, derivedNames) {
   const derivedSet = new Set(derivedNames);
@@ -60,7 +63,9 @@ export function reconcileExports(existing, derivedNames) {
   for (const name of [...kept, ...added]) {
     exports[`./${name}`] = PRESERVE.has(name) ? existing[`./${name}`] : entryFor(name);
   }
-  return { exports, added, dropped };
+  const changed = kept.filter((name) => !PRESERVE.has(name)
+    && JSON.stringify(existing[`./${name}`]) !== JSON.stringify(exports[`./${name}`]));
+  return { exports, added, dropped, changed };
 }
 
 /**
@@ -84,7 +89,7 @@ function spliceExportsBlock(raw, exports) {
     const v = exports[k];
     const comma = i < keys.length - 1 ? "," : "";
     const value =
-      typeof v === "string" ? `"${v}"` : `{ "types": "${v.types}", "import": "${v.import}" }`;
+      typeof v === "string" ? `"${v}"` : `{ "types": "${v.types}", "import": "${v.import}", "default": "${v.default}" }`;
     return `    "${k}": ${value}${comma}`;
   });
 
@@ -106,13 +111,14 @@ function main() {
   const raw = readFileSync(pkgPath, "utf8");
   const pkg = JSON.parse(raw);
   const derived = deriveNames(srcDir);
-  const { exports, added, dropped } = reconcileExports(pkg.exports ?? {}, derived);
+  const { exports, added, dropped, changed } = reconcileExports(pkg.exports ?? {}, derived);
 
   if (check) {
-    if (added.length || dropped.length) {
+    if (added.length || dropped.length || changed.length) {
       console.error(`✗ exports drift en ${pkgArg ?? "packages/ui"}:`);
       if (added.length) console.error(`  faltan (en src, no en exports): ${added.join(", ")}`);
       if (dropped.length) console.error(`  huérfanas (en exports, no en src): ${dropped.join(", ")}`);
+      if (changed.length) console.error(`  condiciones/targets desincronizados: ${changed.join(", ")}`);
       console.error(`  Corré: pnpm gen:exports`);
       process.exit(1);
     }

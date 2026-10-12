@@ -4,11 +4,31 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { reconcileExports } from "./derive-exports.mjs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { join } from "node:path";
+import { deriveNames, reconcileExports } from "./derive-exports.mjs";
 
 const entry = (name) => ({
   types: `./dist/${name}.d.ts`,
   import: `./dist/${name}.js`,
+  default: `./dist/${name}.js`,
+});
+
+test("deriva sólo entradas públicas, sin tests ni stories anidadas", () => {
+  const dir = mkdtempSync("/tmp/opencode/derive-exports-");
+  try {
+    for (const name of ["button.tsx", "compound.ts", "button.test.tsx", "format.test.ts", "chat.stories.tsx", "analytics.stories.ts", "test-setup.ts"]) {
+      writeFileSync(join(dir, name), "");
+    }
+    mkdirSync(join(dir, "compat-chat"));
+    writeFileSync(join(dir, "compat-chat", "chat.stories.tsx"), "");
+    assert.deepEqual(deriveNames(dir), ["button", "compound"]);
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
 });
 
 test("agrega entries nuevas al final (recibe la lista ya ordenada de deriveNames)", () => {
@@ -52,4 +72,55 @@ test("idempotente: map sincronizado no cambia", () => {
   assert.deepEqual(exports, existing);
   assert.deepEqual(added, []);
   assert.deepEqual(dropped, []);
+});
+
+test("cada entrada conserva types primero y el mismo target ESM para import/default", () => {
+  const old = { types: "./dist/analytics.d.ts", import: "./dist/analytics.js" };
+  const { exports, changed } = reconcileExports({ "./analytics": old }, ["analytics", "chat"]);
+  assert.deepEqual(changed, ["analytics"]);
+  for (const value of Object.values(exports)) {
+    assert.deepEqual(Object.keys(value), ["types", "import", "default"]);
+    assert.equal(value.import, value.default);
+    assert.equal(value.require, undefined);
+  }
+});
+
+test("el CLI detecta condiciones incompletas y normaliza el fallback sin cambiar el orden curado", (t) => {
+  const dir = mkdtempSync("/tmp/opencode/derive-exports-conditions-");
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, "src"));
+  for (const name of ["chat", "analytics"]) writeFileSync(join(dir, "src", `${name}.ts`), "export {};\n");
+  const manifest = join(dir, "package.json");
+  const old = Object.fromEntries(["chat", "analytics"].map((name) => [
+    `./${name}`, { types: `./dist/${name}.d.ts`, import: `./dist/${name}.js` },
+  ]));
+  writeFileSync(manifest, JSON.stringify({ name: "fixture", type: "module", exports: old }, null, 2));
+  const script = fileURLToPath(new URL("./derive-exports.mjs", import.meta.url));
+  const before = spawnSync(process.execPath, [script, dir, "--check"], { encoding: "utf8" });
+  assert.equal(before.status, 1);
+  assert.match(before.stderr, /condiciones\/targets desincronizados/);
+  execFileSync(process.execPath, [script, dir]);
+  const { exports } = JSON.parse(readFileSync(manifest, "utf8"));
+  assert.deepEqual(Object.keys(exports), ["./chat", "./analytics"]);
+  assert.deepEqual(exports, { "./chat": entry("chat"), "./analytics": entry("analytics") });
+  execFileSync(process.execPath, [script, dir, "--check"]);
+  const once = readFileSync(manifest, "utf8");
+  execFileSync(process.execPath, [script, dir]);
+  assert.equal(readFileSync(manifest, "utf8"), once);
+});
+
+test("el fallback resuelve lookup CommonJS sin cambiar la identidad ni el formato ESM", async (t) => {
+  const dir = mkdtempSync("/tmp/opencode/derive-exports-esm-");
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, "dist"));
+  writeFileSync(join(dir, "dist", "analytics.js"), "export const identity = {};\n");
+  writeFileSync(join(dir, "package.json"), JSON.stringify({
+    name: "esm-fixture", type: "module", exports: { "./analytics": entry("analytics") },
+  }));
+  const require = createRequire(join(dir, "package.json"));
+  const lookup = require.resolve("esm-fixture/analytics");
+  assert.equal(lookup, join(dir, "dist", "analytics.js"));
+  const runtime = await import(pathToFileURL(lookup).href);
+  assert.equal(runtime.identity, (await import(pathToFileURL(join(dir, "dist", "analytics.js")).href)).identity);
+  assert.match(readFileSync(lookup, "utf8"), /^export /);
 });
