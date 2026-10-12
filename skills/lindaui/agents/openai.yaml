@@ -1,0 +1,6 @@
+interface:
+  display_name: "LindaUI"
+  short_description: "Build React interfaces with LindaUI components"
+  default_prompt: "Use $lindaui to implement this interface with the installed LindaUI API."
+policy:
+  allow_implicit_invocation: true

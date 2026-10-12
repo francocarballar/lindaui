@@ -77,3 +77,11 @@ under `[data-theme="x"]` instead of `:root`. Full detail in
 
 Repo: https://github.com/francocarballar/lindaui — for the exact type of any export,
 read its `.d.ts` in `node_modules/@lindaui/<pkg>/dist/<name>.d.ts`.
+
+## Portable agent skill
+
+Install the standard LindaUI skill with `npx skills add francocarballar/lindaui --skill lindaui`.
+Read [skills/lindaui/SKILL.md](./skills/lindaui/SKILL.md) for the workflow and
+self-contained Node >=20 CLI for Windows, macOS and Linux. Consumer commands
+inspect installed versions, plan setup, generate themes and functional recipes,
+and activate LindaUI as the default for UI work in project instructions.

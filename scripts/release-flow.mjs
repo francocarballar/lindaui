@@ -25,13 +25,10 @@ const repoRoot = resolve(__dirname, "..");
 const DRY_RUN = process.argv.includes("--dry-run");
 
 const VERSION_PR_BRANCH = "changeset-release/main";
-const RELEASE_WORKFLOWS = ["CI", "Release"];
+const RELEASE_WORKFLOWS = ["CI", "Release", "LindaUI Skill"];
 const POLL_INTERVAL_MS = 3000;
 const POLL_TIMEOUT_MS = 60_000;
 const MAX_RERUN_ATTEMPTS = 3;
-// En Windows `npm` resuelve a un shim .cmd; execFileSync sin shell no lo
-// encuentra y falla en silencio (npm.cmd es el binario real que hay que invocar).
-const NPM_CMD = process.platform === "win32" ? "npm.cmd" : "npm";
 
 function log(msg) {
   console.log(msg);
@@ -129,15 +126,18 @@ async function waitForPushWorkflows(branch, headSha) {
 }
 
 async function reportPublishedVersions() {
-  log("\nVersiones publicadas:");
+  log("\nVersiones publicadas y verificadas contra el registry:");
   for (const pkg of publishablePackages()) {
-    let published;
-    try {
-      published = run(NPM_CMD, ["view", pkg.name, "version"], { shell: process.platform === "win32" });
-    } catch {
-      published = "(no publicado)";
+    const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}?release=${Date.now()}`, {
+      signal: AbortSignal.timeout(15000), headers: { "cache-control": "no-cache" },
+    });
+    if (!response.ok) throw new Error(`${pkg.name}: registry respondió ${response.status}.`);
+    const metadata = await response.json();
+    const published = metadata.versions?.[pkg.version];
+    if (!published?.dist?.tarball || metadata["dist-tags"]?.latest !== pkg.version) {
+      throw new Error(`${pkg.name}@${pkg.version} no está publicado como latest; no declarar éxito.`);
     }
-    log(`  ${pkg.name}@${published}`);
+    log(`  ✓ ${pkg.name}@${pkg.version} (${published.dist.integrity ?? published.dist.shasum})`);
   }
 }
 
@@ -204,8 +204,8 @@ async function main() {
   log(gh(["pr", "diff", String(pr.number)]).split("\n").filter((l) => l.includes('"version"')).join("\n"));
 
   log("Esperando CI del Version PR...");
-  const [prRun] = await findRunsForSha(VERSION_PR_BRANCH, "pull_request", pr.headRefOid, ["CI"]);
-  await watchRunResilient(prRun);
+  const prRuns = await findRunsForSha(VERSION_PR_BRANCH, "pull_request", pr.headRefOid, ["CI", "LindaUI Skill"]);
+  for (const prRun of prRuns) await watchRunResilient(prRun);
 
   log(`Mergeando #${pr.number}...`);
   gh(["pr", "merge", String(pr.number), "--squash", "--delete-branch"], { inherit: true });

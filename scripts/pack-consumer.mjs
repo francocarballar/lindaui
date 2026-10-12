@@ -3,6 +3,8 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { runManager } from "../skills/lindaui/scripts/lib/process.mjs";
+import { tarballManifest } from "../skills/lindaui/scripts/lib/setup.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -13,7 +15,7 @@ if (!args.includes("--destination") || !destinationArg || destinationArg.startsW
 const destination = resolve(process.cwd(), destinationArg);
 const packages = ["tokens", "ui", "blocks"];
 
-execFileSync("node", [resolve(root, "scripts/gen.mjs"), "exports", "--check"], {
+execFileSync(process.execPath, [resolve(root, "scripts/gen.mjs"), "exports", "--check"], {
   cwd: root,
   stdio: "inherit",
 });
@@ -54,11 +56,10 @@ mkdirSync(destination, { recursive: true });
 for (const name of packages) {
   const dir = resolve(root, "packages", name);
   const manifest = JSON.parse(readFileSync(resolve(dir, "package.json"), "utf8"));
-  execFileSync("pnpm", ["pack", "--pack-destination", destination], { cwd: dir, stdio: "inherit" });
+  const receipt = runManager({ root: dir, manager: "pnpm" }, ["pack", "--pack-destination", destination]);
+  console.log(receipt.stdout);
   const filename = `${manifest.name.replace(/^@/, "").replaceAll("/", "-")}-${manifest.version}.tgz`;
-  const packed = JSON.parse(execFileSync("tar", ["-xOf", resolve(destination, filename), "package/package.json"], {
-    encoding: "utf8",
-  }));
+  const packed = tarballManifest(resolve(destination, filename));
   for (const section of ["dependencies", "peerDependencies", "devDependencies"]) {
     for (const [dependency, version] of Object.entries(packed[section] ?? {})) {
       if (/^(workspace:|link:|file:)/.test(version)) {

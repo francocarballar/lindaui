@@ -1,0 +1,34 @@
+name: LindaUI Skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  portable-cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [20, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # The installed skill is self-contained: no pnpm/dependency installation.
+      - run: node --test scripts/lindaui-skill.test.mjs
+      - run: node scripts/validate-lindaui-skill.mjs
+
+  real-consumers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/common-actions/install
+      - run: pnpm build
+      - run: pnpm pack:consumer --destination skill-artifacts
+      - run: node scripts/verify-skill-consumers.mjs --tarballs skill-artifacts

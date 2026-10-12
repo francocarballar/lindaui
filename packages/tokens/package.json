@@ -25,12 +25,12 @@
   },
   "type": "module",
   "exports": {
-    "./css": "./dist/index.css",
-    "./theme.css": "./src/theme.css",
-    "./heroui.css": "./src/heroui.css",
-    "./lead-converter.css": "./src/lead-converter.css",
-    "./lead-converter/compiled.css": "./dist/lead-converter.css",
-    "./theme-template.css": "./theme-template.css",
+    "./css": { "types": "./src/style.d.ts", "default": "./dist/index.css" },
+    "./theme.css": { "types": "./src/style.d.ts", "default": "./src/theme.css" },
+    "./heroui.css": { "types": "./src/style.d.ts", "default": "./src/heroui.css" },
+    "./lead-converter.css": { "types": "./src/style.d.ts", "default": "./src/lead-converter.css" },
+    "./lead-converter/compiled.css": { "types": "./src/style.d.ts", "default": "./dist/lead-converter.css" },
+    "./theme-template.css": { "types": "./src/style.d.ts", "default": "./theme-template.css" },
     "./package.json": "./package.json"
   },
   "files": [

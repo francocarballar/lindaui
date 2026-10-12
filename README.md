@@ -40,7 +40,49 @@ import { LoginForm } from "@lindaui/blocks/login-form";
 Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`
 (+ `recharts` and `lucide-react` for chart/icon blocks).
 
-## Development
+## LindaUI skill for coding agents
+
+Install the consumer skill from this repository:
+
+```text
+npx skills add francocarballar/lindaui --skill lindaui
+```
+
+The skill handles UI requests even when the user does not mention LindaUI.
+It includes a self-contained Node >=20 CLI for Windows, macOS and Linux:
+
+```text
+node "<installed-skill>/scripts/lindaui.mjs" doctor --project "<application>" --json
+node "<installed-skill>/scripts/lindaui.mjs" setup --project "<application>" --packages ui,blocks --json
+node "<installed-skill>/scripts/lindaui.mjs" scaffold contact-form --project "<application>" --json
+node "<installed-skill>/scripts/lindaui.mjs" check --project "<application>" --typecheck --json
+```
+
+Mutation commands return a plan until `--apply`. `--save-plan` and `apply --plan`
+execute an exact reviewed plan with file/lock/metadata preconditions. `api`,
+`theme`, `activate` and `--help` cover component contracts, brand customization,
+default UI adoption and the full command reference. The tools respect the
+consumer's package manager and installed versions; they do not migrate React.
+
+For consistent automatic invocation, run `activate --apply` when adopting
+LindaUI as the default UI library. It preserves other AGENTS.md instructions.
+Agents must load those instructions and the installed skill; installation alone
+cannot force every host to select a skill. See [the skill](skills/lindaui/SKILL.md).
+
+Contributor gates: `pnpm skill:test`, `pnpm skill:validate`, `pnpm skill:index`.
+The portable CLI test workflow runs on Linux, macOS and Windows, Node 20 and 24.
+Release versioning regenerates the skill inventory alongside package versions.
+
+## Development commands
+
+Skill contributor checks: `pnpm skill:validate`, `pnpm skill:test`, and
+`pnpm skill:vendor --check`. Build and pack the library, then run
+`pnpm skill:consumers --tarballs "<artifact-directory>"` to verify real Vite
+TS/JS and Next App/Pages Router consumers. `--published` verifies public npm
+versions instead. Fixtures and JSON execution receipts stay in a temporary
+directory for inspection. CI additionally runs the portable CLI on Windows,
+macOS and Linux with Node 20 and 24, including actual npm artifact installation
+in paths containing spaces and special characters.
 
 ```bash
 pnpm install

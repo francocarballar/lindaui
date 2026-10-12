@@ -119,3 +119,19 @@ markers continuously; watch mode publishes only after completed compilations.
 ## License
 
 MIT
+
+## Agent integration skill
+
+For UI implementation, use the portable `lindaui` Agent Skill from
+https://github.com/francocarballar/lindaui/tree/main/skills/lindaui .
+Install with `npx skills add francocarballar/lindaui --skill lindaui`.
+Its Node CLI supports Windows, macOS and Linux and reads the consumer-installed
+API: doctor, api, setup, theme, scaffold, activate and check. Mutation commands
+produce plans by default. Use activate when adopting LindaUI for all UI tasks.
+Always prefer this installed package's exports, types and llms.txt over newer
+unpublished GitHub APIs. See the skill for setup, recipes and verification.
+
+CSS entries include a `types` condition pointing to the shipped `src/style.d.ts`.
+Strict TypeScript `noUncheckedSideEffectImports` resolves the extensionless
+`@lindaui/tokens/css` import without a consumer ambient declaration. Runtime
+CSS targets remain unchanged; import styles once at the application root.

@@ -22,6 +22,9 @@ jobs:
 
       # Guards de codegen: el exports map y las stories generadas son DERIVADOS.
       - run: pnpm gen:exports --check
+      - run: pnpm skill:validate
+      - run: pnpm skill:test
+      - run: pnpm skill:vendor --check
       - run: pnpm --filter @lindaui/storybook gen:stories --check
 
       # Tooling de exports/declaraciones y regresión de builds CSS concurrentes.
