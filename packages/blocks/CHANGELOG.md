@@ -1,11 +1,22 @@
 # @lindaui/blocks
 
+## 0.5.2
+
+### Patch Changes
+
+- Render OTP slots when no custom children are supplied. Correct form category labeling,
+  image loading after source changes, preview accessibility, and chat scroll cleanup.
+  Regenerate the stylesheet bundles from the current component inventory.
+
+  Verify each first-party source file with 100% statement, branch, function and line
+  coverage, plus real component stories and desktop/mobile browser interaction tests.
+
 ## 0.5.1
 
 ### Patch Changes
 
 - 8a74ca6: Document the portable LindaUI consumer skill and its agent-first integration workflow in the shipped package documentation. Add version-aware API inspection, setup plans, theme generation, functional recipes and integration diagnostics, maintained with the library and verified on Windows, macOS and Linux.
-  
+
   Declare stylesheet side-effect types for all token CSS exports so strict TypeScript consumers with noUncheckedSideEffectImports can import @lindaui/tokens/css without a local ambient workaround. Runtime exports remain CSS.
 
 ## 0.5.0
@@ -13,7 +24,7 @@
 ### Minor Changes
 
 - c7eeb67: Add AppShell and its footer, EntitySwitcher, CommandPalette, ConnectionPanel, ChannelSettings, SettingsLayout, SaveBar, Stepper, KanbanBoard, KanbanColumn, EntityCard, FilterBar, SourceSelector, and StatusFilters. Add independent `/chat`, `/analytics`, and `/compat` namespaces while preserving the existing flat chat entries. Keep the blocks controlled through props and callbacks, with no SDK, persistence, or business logic; keep ScheduleGrid and TimeSlotSelector out of the package.
-  
+
   Normalize published declaration references for Node16/NodeNext, exclude tests and stories from package output, and add the `default` export condition for Next/webpack resolution.
 
 ## 0.4.2

@@ -4,7 +4,7 @@
   "packages": [
     {
       "name": "@lindaui/tokens",
-      "version": "0.4.1",
+      "version": "0.4.2",
       "peerDependencies": {},
       "peerDependenciesMeta": {},
       "entries": [
@@ -19,7 +19,7 @@
     },
     {
       "name": "@lindaui/ui",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "peerDependencies": {
         "@lindaui/tokens": ">=0.4.0",
         "lucide-react": ">=0.4",
@@ -126,7 +126,7 @@
     },
     {
       "name": "@lindaui/blocks",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "peerDependencies": {
         "@lindaui/tokens": ">=0.4.0",
         "@lindaui/ui": ">=0.5.0",

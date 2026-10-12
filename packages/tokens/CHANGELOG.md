@@ -1,11 +1,22 @@
 # @lindaui/tokens
 
+## 0.4.2
+
+### Patch Changes
+
+- Render OTP slots when no custom children are supplied. Correct form category labeling,
+  image loading after source changes, preview accessibility, and chat scroll cleanup.
+  Regenerate the stylesheet bundles from the current component inventory.
+
+  Verify each first-party source file with 100% statement, branch, function and line
+  coverage, plus real component stories and desktop/mobile browser interaction tests.
+
 ## 0.4.1
 
 ### Patch Changes
 
 - 8a74ca6: Document the portable LindaUI consumer skill and its agent-first integration workflow in the shipped package documentation. Add version-aware API inspection, setup plans, theme generation, functional recipes and integration diagnostics, maintained with the library and verified on Windows, macOS and Linux.
-  
+
   Declare stylesheet side-effect types for all token CSS exports so strict TypeScript consumers with noUncheckedSideEffectImports can import @lindaui/tokens/css without a local ambient workaround. Runtime exports remain CSS.
 
 ## 0.4.0
@@ -13,7 +24,7 @@
 ### Minor Changes
 
 - afe7a12: Add `/heroui.css` and `/lead-converter.css` source entries for portable Tailwind pipelines, plus `/lead-converter/compiled.css`, a standalone violet LeadConverter bundle that leaves the default teal `theme.css` unchanged. Include the bundles in the build and its cache inputs while keeping Storybook scanning separate from published CSS.
-  
+
   Isolate temporary CSS inputs and outputs per build, validate complete snapshots before atomic rename, and clean only files owned by that invocation so concurrent builds produce complete, byte-identical artifacts.
 
 ## 0.3.1
