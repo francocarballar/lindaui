@@ -17,7 +17,10 @@ pnpm add @lindaui/ui @lindaui/tokens
 ```
 
 Peer dependencies you must provide: `react >=19`, `react-dom >=19`,
-`react-hook-form >=7` (only for `field`), and `@lindaui/tokens` (ships the CSS).
+`react-hook-form >=7` (only for `field`), and `@lindaui/tokens >=0.4.0` (ships the CSS).
+Optional shared peer `lucide-react >=0.4` is needed by `/compat` input/search
+icons; the original flat entries do not require it. Dayjs, Framer Motion,
+Sonner, QR encoding and Recharts are runtime dependencies owned by this package.
 
 ## Setup (once, at app root)
 
@@ -38,6 +41,47 @@ import { Select } from "@lindaui/ui/select";
 ```
 
 ## Global conventions (READ — these prevent the common mistakes)
+
+Migration entry points `/compound`, `/compat`, `/motion`, `/notifications`,
+`/charts` and `/qr-code` require UI >=0.5.0. UI 0.4.1 and earlier lack these
+entries; blocks 0.5.0 must not be paired with that earlier published UI.
+
+These conventions apply to the stable flat entries, NOT `/compound`.
+`@lindaui/ui/compound` explicitly exports the full original HeroUI v3 API,
+including compound anatomy, hooks, variants and types. Existing compound apps
+can replace the import without changing props or markup. Never mix flat and
+compound anatomy under the same component name.
+
+Visual integration entries: `/motion` re-exports Framer Motion; `/notifications`
+exports Sonner toast/Toaster/useSonner and types; `/charts` re-exports Recharts
+(the existing `/chart` helper API remains separate). `/qr-code` presents raw,
+image or ASCII values without framework-specific dependencies.
+
+### @lindaui/ui/qr-code
+
+`QRCode` requires `value` and accessible `alt`; optional type is `raw|dataUrl|ascii`
+(detected when omitted), size defaults to 170, imageSize to 180, level to `M`.
+Optional className/renderImage customize presentation without a Next.js dependency.
+`detectQRCodeType` and QRCodeProps/QRCodeImageProps/QRCodeType are also exported.
+
+### @lindaui/ui/compat — separate migration contracts
+
+- `Button`: legacy `color`, `variant` (`solid|light|flat|faded|shadow|bordered|ghost`),
+  `isLoading`, `onPress`, `startContent`, `endContent`, `fullWidth`, `size`.
+- `IconButton`: `icon`, required `aria-label`, the same legacy color/variant/loading
+  contract; default `variant="light"`.
+- `Input`: `value`/`defaultValue`, `onValueChange`, label/description/errorMessage,
+  `startContent`/`endContent`, `className`, `variant` (`flat|bordered|faded|underlined`),
+  `size`, disabled/read-only/required/invalid states. This is NOT `/input`.
+- `SearchInput`: controlled `value`/`onValueChange`, `isClearable`, placeholder,
+  variant/size/className; clear emits an empty string.
+- `Badge`, `Divider`, `Spinner` preserve the former presentation API. Utilities:
+  `cn`, `formatRelativeTime`, `isToday`, `isYesterday`, `useDebounce`.
+
+`@lindaui/blocks/compat` re-exports this surface and adds KPI/status/date blocks.
+The existing per-component UI APIs below are unchanged.
+
+## Stable flat-entry conventions
 
 - **Controls emit `onChange`, NOT `onValueChange`.** `checkbox`/`radio`/`switch`
   give `onChange(isSelected: boolean)`; `slider` `onChange(value)`.
