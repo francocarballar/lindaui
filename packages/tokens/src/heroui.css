@@ -1,0 +1,2 @@
+/* HeroUI defaults only. Import Tailwind in the consuming application first. */
+@import "@heroui/styles";

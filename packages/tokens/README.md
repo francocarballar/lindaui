@@ -21,6 +21,38 @@ Toggle a `.dark` class on an ancestor (e.g. `<html class="dark">`). The dark
 palette redefines the canonical tokens; HeroUI's variables reference them, so
 components re-skin for free.
 
+## HeroUI defaults and LeadConverter
+
+These style entries and the migration utility layer first ship in tokens
+**0.4.0**, required by UI/blocks 0.5.0. They are not in published tokens 0.3.1.
+
+The default `/css` and `/theme.css` teal theme remains unchanged. To preserve
+HeroUI defaults rather than inherit that theme, choose a separate source entry:
+
+```css
+/* globals.css — your application runs Tailwind v4 */
+@import "tailwindcss";
+@import "@lindaui/tokens/lead-converter.css";
+@source "../node_modules/@lindaui/ui/dist";
+@source "../node_modules/@lindaui/ui/src";
+@source "../node_modules/@lindaui/blocks/dist";
+@source "../node_modules/@lindaui/blocks/src";
+@source "./";
+```
+
+Adjust these relative `@source` paths to your stylesheet location. Installed
+tarballs include both `dist` and public source; app scanning keeps dynamic
+composition classes available. Import this instead of `@heroui/styles` and
+never alongside `/css`: it includes HeroUI defaults, the original violet
+light/dark accents, field borders, notice CTA states and scrollbar styles.
+It does not change the root font size or import teal canonical variables.
+
+`@lindaui/tokens/heroui.css` provides only upstream styles for custom native
+HeroUI themes. Without a Tailwind pipeline, import
+`@lindaui/tokens/lead-converter/compiled.css` once instead; it already contains
+Tailwind, HeroUI, the violet theme and the library's utilities. Do not combine
+source and compiled entries, which would duplicate layers.
+
 ## Custom theme (per project)
 
 Every consumer can ship its own brand without rebuilding this package or touching
@@ -72,9 +104,17 @@ The template's bottom section documents this pattern in full.
 pnpm --filter @lindaui/tokens build
 ```
 
-Regenerates `dist/index.css`. The build chains `@import "tailwindcss"` +
+Regenerates `dist/index.css` and `dist/lead-converter.css`. The build chains `@import "tailwindcss"` +
 `@source` scans of `@lindaui/ui` / `@lindaui/blocks` source + `@heroui/styles` + the
 brand `theme.css`, run through `@tailwindcss/cli` (Tailwind v4).
+The token task also hashes UI/blocks source because their class changes must
+invalidate compiled CSS even when no token values change.
+Independent builds can run concurrently: each invocation compiles to unique
+temporary files, validates its complete CSS snapshot, and atomically replaces
+the public output. Cleanup never touches another invocation's files.
+Regression check: `node --test scripts/tokens-concurrent-build.test.mjs` from
+the repository root. It runs two builders together and checks output bytes and
+markers continuously; watch mode publishes only after completed compilations.
 
 ## License
 

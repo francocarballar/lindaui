@@ -1,0 +1,58 @@
+@import "./heroui.css";
+@custom-variant dark (&:is(.dark *));
+
+/* LeadConverter preserves HeroUI defaults except for these existing overrides.
+   Deliberately does not import the default Lindaui teal theme. */
+:root,
+.light,
+[data-theme="light"] {
+  --accent: oklch(0.541 0.281 293.009);
+  --accent-foreground: oklch(1 0 0);
+}
+
+.dark,
+[data-theme="dark"] {
+  --accent: oklch(0.606 0.25 292.717);
+  --accent-foreground: oklch(1 0 0);
+}
+
+:root,
+.light,
+.dark,
+[data-theme="light"],
+[data-theme="dark"] {
+  --field-border-width: 1px;
+  --field-border: color-mix(
+    in oklab,
+    var(--muted) 34%,
+    var(--surface-secondary)
+  );
+  --field-background: var(--surface-secondary);
+}
+
+.notice-action.button--primary {
+  --button-bg: color-mix(in oklab, var(--accent) 92%, black);
+  --button-bg-hover: color-mix(in oklab, var(--accent) 85%, black);
+  --button-bg-pressed: var(--button-bg-hover);
+}
+
+.notice-action.button--danger {
+  --button-bg: color-mix(in oklab, var(--danger) 80%, black);
+  --button-bg-hover: color-mix(in oklab, var(--danger) 72%, black);
+  --button-bg-pressed: var(--button-bg-hover);
+}
+
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted/70 rounded-full hover:bg-muted transition-colors;
+  }
+}

@@ -7,6 +7,9 @@
 
 ## Install
 
+The migration stylesheet entries and utility layer require tokens >=0.4.0.
+UI/blocks 0.5.0 declare this floor; tokens 0.3.1 does not provide these entries.
+
 ```bash
 pnpm add @lindaui/tokens
 ```
@@ -83,5 +86,14 @@ Toggle with `document.documentElement.dataset.theme = "ocean"` + the `.dark` cla
   apps that run their own Tailwind pass and need the custom utilities to resolve there too;
   normal consumers never import this.
 - `@lindaui/tokens/theme-template.css` → commented theme template to copy (not imported).
+- `@lindaui/tokens/heroui.css` → HeroUI defaults only; import after Tailwind.
+- `@lindaui/tokens/lead-converter.css` → Tailwind source entry: HeroUI defaults +
+  original violet light/dark accents, field border/background, notice CTAs and
+  scrollbars. Does NOT inherit teal tokens or the 18px root font size. Import
+  after `tailwindcss`, instead of `@heroui/styles`, and scan app + ui/blocks
+  `dist`/`src` via relative `@source` paths to their installed node_modules paths.
+- `@lindaui/tokens/lead-converter/compiled.css` → standalone prebuilt variant
+  including library utilities for apps without Tailwind. Never combine it with
+  source `/lead-converter.css`, `/css`, or another compiled Tailwind bundle.
 - No JS entry point. `@lindaui/ui` and `@lindaui/blocks` declare this as a peer.
 - If a layout looks unstyled ("just text"), the consumer usually forgot the `/css` import.

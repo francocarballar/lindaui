@@ -27,12 +27,16 @@
   "exports": {
     "./css": "./dist/index.css",
     "./theme.css": "./src/theme.css",
+    "./heroui.css": "./src/heroui.css",
+    "./lead-converter.css": "./src/lead-converter.css",
+    "./lead-converter/compiled.css": "./dist/lead-converter.css",
     "./theme-template.css": "./theme-template.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
-    "src/theme.css",
+    "!dist/.build-css-*",
+    "src",
     "LICENSE",
     "README.md",
     "llms.txt",
@@ -44,6 +48,9 @@
   "scripts": {
     "build": "node scripts/build-css.mjs",
     "dev": "node scripts/build-css.mjs --watch"
+  },
+  "dependencies": {
+    "@heroui/styles": "3.2.6"
   },
   "devDependencies": {
     "@heroui/react": "^3.2.6",

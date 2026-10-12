@@ -24,8 +24,8 @@ jobs:
       - run: pnpm gen:exports --check
       - run: pnpm --filter @lindaui/storybook gen:stories --check
 
-      # Tests del tooling de la raíz (derive-exports) con el runner nativo.
-      - run: node --test "scripts/derive-exports.test.mjs"
+      # Tooling de exports/declaraciones y regresión de builds CSS concurrentes.
+      - run: node --test "scripts/derive-exports.test.mjs" "scripts/normalize-declarations.test.mjs" "scripts/tokens-concurrent-build.test.mjs"
 
       - run: pnpm turbo build
 
