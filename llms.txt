@@ -12,17 +12,23 @@ Three publishable packages, composed bottom-up: `@lindaui/tokens` (CSS) ← `@li
 
 ## Packages
 
-- [@lindaui/ui](./packages/ui/llms.txt): 71 React component entry points over HeroUI v3
+- [@lindaui/ui](./packages/ui/llms.txt): 89 public entry points over HeroUI v3
   — buttons, inputs, controls, select/combobox, dialogs, menu, table, charts primitive,
   hooks (`use-disclosure`, `use-media-query`) and utils (`search`, `cn`). Flat ergonomic
   APIs where it matters; compound re-exports where composition is too deep.
-- [@lindaui/blocks](./packages/blocks/llms.txt): 22 composed sections built on
+- [@lindaui/blocks](./packages/blocks/llms.txt): 58 public composition/type entries built on
   `@lindaui/ui` — login-form, auth-layout, list-pane, detail-panel, confirm-dialog,
   split-workspace, media viewers, and 9 chart blocks. Generic, controlled, mobile-first.
 - [@lindaui/tokens](./packages/tokens/llms.txt): the brand/design-token CSS bundle
   (HeroUI styles + OKLCH teal tokens + Tailwind v4 utilities). One import, no JS.
 
 ## Quick start
+
+Migration-compatible versions: UI >=0.5.0, blocks >=0.5.0, tokens >=0.4.0.
+Blocks requires UI >=0.5.0; UI and blocks require tokens >=0.4.0. Older
+published peers do not contain the opt-in compound/compat APIs and styles.
+Portable integrations use relative `file:vendor/lindaui-<package>-<version>.tgz`
+references after building and packing these versions; no absolute repo links.
 
 ```bash
 pnpm add @lindaui/ui @lindaui/blocks @lindaui/tokens
@@ -38,6 +44,11 @@ Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, and
 `recharts >=3` for chart blocks. Import per entry point — there is no root barrel.
 
 ## Critical conventions (full detail in each package's llms.txt)
+
+The flat-entry conventions below do not apply to the opt-in `/compound` or
+`/compat` APIs. `/compound` retains upstream HeroUI anatomy; `/compat` keeps
+legacy props. Generic migration chat/analytics live under blocks `/chat` and
+`/analytics`, separate from existing per-component flat APIs.
 
 - Controls emit `onChange`, NOT `onValueChange`.
 - `select`/`combobox`: flat `items` + `onChange(value)` — there is no `SelectItem`.

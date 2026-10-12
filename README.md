@@ -46,11 +46,46 @@ Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`
 pnpm install
 pnpm build        # turbo: tokens → ui → blocks
 pnpm test         # vitest suites for ui + blocks
+pnpm test:declarations  # NodeNext declaration normalization regressions
 pnpm dev          # turbo watch
 ```
 
 The contributor contract (wrapper styles, build pipeline, anti-regressions)
 lives in [`CLAUDE.md`](./CLAUDE.md).
+
+UI/blocks still build JS with Bunchee and declarations with TypeScript. The
+declaration stage then normalizes relative imports/exports/import types to
+explicit NodeNext-compatible paths, including directory indexes, and updates
+declaration maps. It never rewrites runtime JS, source components or ordinary comments.
+The actual packed packages must pass both `publint` and
+`attw --pack --profile esm-only`; bundler-only typechecking is not enough.
+Public entries keep `types` first and expose `import`/`default` to the same ESM
+file so Next/webpack dynamic-import lookups can resolve it. This is not a
+CommonJS build or a runtime wrapper.
+
+### Portable local integration
+
+The migration starts at UI **0.5.0**, blocks **0.5.0**, tokens **0.4.0**.
+UI and blocks require tokens >=0.4.0; blocks requires UI >=0.5.0. Earlier
+published peers lack required entries/styles and are not compatible.
+
+After feature owners finish, regenerate exports, build all three libraries, then
+pack them into the consumer's tracked vendor directory (no publish or absolute links):
+
+```bash
+pnpm gen:exports
+pnpm build
+pnpm pack:consumer --destination ../gym-ecosystem/apps/lead-converter/web/vendor
+```
+
+The pack command rejects missing or stale declarations/JS/CSS and non-portable
+manifest references. Consumers use relative `file:vendor/*.tgz` dependencies;
+refresh their filtered pnpm installation and lock after replacing tarballs.
+The current archives are `lindaui-ui-0.5.0.tgz`, `lindaui-blocks-0.5.0.tgz`,
+and `lindaui-tokens-0.4.0.tgz`. Always derive names from the built versions;
+do not overwrite archives carrying already-published version numbers.
+LeadConverter uses `@lindaui/tokens/lead-converter.css`, not the default teal
+bundle. See the token package README for source and standalone CSS usage.
 
 ## License
 

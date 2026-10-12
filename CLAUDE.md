@@ -47,8 +47,8 @@ Antes del primer mensaje, 3 chequeos. **Solo hablar si hay algo accionable** (si
 | No filtrar tipos de HeroUI en API custom | Donde hay wrapper ergonómico (`select`, `dialog`, `menu`, `table`, inputs, controls), la API pública es propia. No re-exportar `@heroui/react` types en esos. |
 | `"use client";` primera línea | En todo wrapper interactivo. bunchee la preserva al `dist`. Sin ella, rompe en RSC. |
 | Tests co-locados + queries semánticas | `src/x.tsx` ↔ `src/x.test.tsx`. Solo `getByRole`/`getByLabelText`. **Prohibido `getByTestId`.** |
-| Toda entry nueva va al `exports` map | `packages/ui/package.json` → `"./x": { "types": "./dist/x.d.ts", "import": "./dist/x.js" }`. bunchee descubre las entries del build desde ese map — no hay config aparte. |
-| Build de dos pasos, no se toca | `@lindaui/ui` build = `bunchee --no-dts && tsc -p tsconfig.build.json`. Razón en "Anti-regresiones #1". No volver a `bunchee` pelado. |
+| Toda entry nueva va al `exports` map | `"./x": { "types": "./dist/x.d.ts", "import": "./dist/x.js", "default": "./dist/x.js" }`, derivado para UI/blocks. Types primero; import/default al mismo ESM. bunchee descubre las entries desde ese map. |
+| Build de JS + declaraciones, no se reemplaza | `bunchee --no-dts` genera JS; `tsc -p tsconfig.build.json` emite tipos y `node ../../scripts/normalize-declarations.mjs dist` normaliza sus referencias. Razón en "Anti-regresiones #1 y #15". No volver a `bunchee` pelado. |
 | Tokens via `@tailwindcss/cli` | Tailwind v4. Un `postcss` pelado NO procesa las directivas v4. Ver "build de @lindaui/tokens". |
 | ESM only | Todo `"type": "module"`. Imports con semántica ESM. |
 | pnpm only, pinneado | `pnpm@11.7.0`. Sin npm/yarn. Node ≥20. |
@@ -75,7 +75,7 @@ Antes del primer mensaje, 3 chequeos. **Solo hablar si hay algo accionable** (si
 
 **PROHIBIDO aunque lo pidan (sin confirmación):** `changeset publish` / `npm publish` · `git push` a remoto · `git push --force` · crear repo remoto · borrar trabajo sin confirmación tipeada.
 
-**Estado de publicación (importante):** **PUBLICADO y CI andando.** Los 3 paquetes están live en npm bajo el scope `@lindaui` en **`0.0.3`** (`@lindaui/tokens`, `@lindaui/ui`, `@lindaui/blocks`). Org npm `@lindaui` creado, owner `francocarballar`. Git remote: `origin git@github.com:francocarballar/lindaui.git`. Metadata completa: `license: "MIT"` + `description` + `repository` (→ `lindaui`, corregido) + `publishConfig.access: "public"`; `@lindaui/ui`/`@lindaui/blocks` además `sideEffects: false`. `LICENSE` + `README.md` + `llms.txt` en el array `files` de los 3 → entran al tarball. **El 0.0.2 se publicó LOCAL** (`pnpm -r publish`, token bypass cargado con `npm config set`); **el 0.0.3 ya salió por CI**. **Flujo de release (`release.yml`, funcionando):** push a `main` con un changeset → changesets/action arma el Version PR (bump + changelog) → al mergearlo (o FF-merge del branch `changeset-release/main` a `main` + push), el run sin changesets corre **`pnpm -r publish --access public --no-git-checks`** (NO `changeset publish`, ver Anti-regresión #13) y publica. **Auth del publish:** el token va como **`NODE_AUTH_TOKEN`** (+ `NPM_TOKEN`) en el env del step — crítico, ver #13. El secret `NPM_TOKEN` es un token **con bypass 2FA**. **Provenance: deferida.** `id-token: write` + `NPM_CONFIG_PROVENANCE` están **comentados** en el yml porque rompían el publish con token (#13); se re-activan SOLO tras configurar OIDC Trusted Publishing. **Objetivo final pendiente (opcional) — OIDC Trusted Publishing** (sin token, con provenance): npmjs.com por paquete → Settings → Trusted Publisher → repo `francocarballar/lindaui`, workflow `release.yml`; después descomentar `id-token`/`provenance` y borrar el secret `NPM_TOKEN` + las env.
+**Estado de publicación (revisado 2026-10-12):** `@lindaui/ui@0.4.1`, `@lindaui/blocks@0.4.2` y `@lindaui/tokens@0.3.1` son las versiones live verificadas en npm. La entrega preparada apunta a UI/blocks `0.5.0` y tokens `0.4.0`, con un changeset por paquete. Git remoto: `origin git@github.com:francocarballar/lindaui.git`. Los workflows CI y Release están activos; los dos últimos runs de `main` observados terminaron bien. **Flujo de release (`release.yml`):** push a `main` con changesets → changesets/action crea/actualiza el Version Packages PR con bumps y changelog → merge del PR → el run sin changesets publica mediante `pnpm -r publish --access public --no-git-checks` (no usar `changeset publish`, ver Anti-regresión #13). El secret `NPM_TOKEN` está configurado en GitHub Actions y se entrega como `NODE_AUTH_TOKEN` + `NPM_TOKEN` al step de publish. La publicación local requiere autenticación npm; la máquina puede no tener sesión. Provenance sigue diferida hasta configurar OIDC Trusted Publishing.
 
 ## Arquitectura (referencia rápida)
 
@@ -181,6 +181,7 @@ pnpm test                    # turbo: corre las suites vitest de @lindaui/ui y @
 pnpm typecheck               # turbo: tsc --noEmit en ui/blocks/storybook/verona (cubre tests y stories, que el build excluye)
 pnpm dev                     # turbo watch
 node --test "scripts/derive-exports.test.mjs"   # tests del tooling raíz (node:test, sin vitest)
+pnpm test:declarations       # normalización AST de declaraciones + resolución NodeNext real
 
 # Generador (raíz — mata el boilerplate; mantiene el exports map derivado):
 pnpm gen:component <nombre>  # nuevo componente en @lindaui/ui: src/<n>.tsx + test + entry
@@ -214,6 +215,20 @@ pnpm release:flow --dry-run  # solo lee estado (branch/ahead-behind/PR abierto),
 
 `@lindaui/ui` y `@lindaui/blocks`: `bunchee --no-dts` genera el JS (esbuild, externaliza HeroUI + peers, preserva `"use client"`, resuelve extensiones de imports relativos) y `tsc -p tsconfig.build.json` genera los `.d.ts` (`emitDeclarationOnly`, excluye tests). Turbo ordena `@lindaui/tokens` → `@lindaui/ui` → `@lindaui/blocks` (por `^build`) y cachea. `@lindaui/blocks` externaliza `@lindaui/ui`, así que los tests/build de blocks necesitan el `dist/` de `@lindaui/ui` presente (turbo lo garantiza con `^build`).
 
+La etapa de declaraciones termina con `scripts/normalize-declarations.mjs`.
+Usa el parser estable de `@typescript/typescript6` y reemplaza solamente
+specifiers relativos de imports, exports, import types y referencias de tipos.
+Resuelve archivos e índices reales, actualiza columnas de los declaration maps
+y falla ante referencias internas ausentes. No reimprime archivos ni toca JS,
+strings ordinarios, comentarios ordinarios o directivas de cliente. El script compartido
+es input explícito de cache de UI/blocks. No cambies el perfil ESM-only de attw.
+
+El generador también emite `default` después de `import`, al mismo `.js` ESM.
+Next/webpack usa condiciones require/default para `require.resolveWeak` generado
+por `next/dynamic`: un export import-only bloquea ese lookup aunque el import
+estático funcione. No agregues wrappers CommonJS ni cambies el dynamic loading
+de la app para ocultarlo. `gen:exports --check` valida estas condiciones.
+
 ## Generador + blocks (workflow de autoría)
 
 - **No editar el `exports` map a mano.** Es DERIVADO de `src/`: cada `src/<name>.{ts,tsx}` (no-test, no `test-setup`) = una entry `./name`. `pnpm gen:exports` lo re-deriva (preserva el orden curado, agrega faltantes, dropea huérfanas); `--check` falla si hay drift. Excepción: las entries del set `PRESERVE` de `derive-exports.mjs` (hoy `"./package.json"`, estándar npm para tooling) se preservan verbatim y no cuentan como huérfanas. Las funciones puras del derivador tienen tests en `scripts/derive-exports.test.mjs` (node:test).
@@ -226,6 +241,40 @@ pnpm release:flow --dry-run  # solo lee estado (branch/ahead-behind/PR abierto),
 - El codegen vive en `scripts/` (Node `.mjs`, templates string — sin plop/hygen). `gen.mjs` orquesta; `derive-exports.mjs` hace la derivación (reusable por paquete).
 
 **Entries no-componente de `@lindaui/ui` (hooks + util, 10 entries):** además de los 68 wrappers, `@lindaui/ui` exporta utilidades (cada `src/<n>.{ts,tsx}` no-test = una entry, igual que los componentes): `@lindaui/ui/search` (`normalizeText`/`matchesSearch`), `@lindaui/ui/cn` (re-export de `cn` de `tailwind-variants` — mismo merge+dedup tailwind que usa HeroUI; punto único, `chart.tsx` lo consume en vez de copia local), `@lindaui/ui/use-disclosure` (estado boolean para overlays controlados: `isOpen`/`open`/`close`/`toggle`, callbacks estables — HeroUI v3 no trae uno), `@lindaui/ui/use-media-query` (`useMediaQuery(q)` SSR-safe + helpers `useIsDesktop`/`useIsMobile`/`useIsTablet` ancladas a los breakpoints md 768px / [768,1024); el block `split-workspace` lo consume), `@lindaui/ui/use-debounce`, `@lindaui/ui/use-previous`, `@lindaui/ui/use-theme` (toggle light/dark con `localStorage` + `prefers-color-scheme`, togglea `.dark` en `<html>`), `@lindaui/ui/date` (`isToday`/`isYesterday`/`formatShortTime`/`formatRelativeTime` — `Intl`/`Date` nativos, sin `dayjs`), `@lindaui/ui/format` (`formatCurrency`/`formatDate`/`formatPhone` genérico) y `@lindaui/ui/time-grouping` (`groupByDay`, usado por `conversation-thread`). Los hooks llevan `"use client"`; test co-locado con `renderHook` (jsdom no trae `matchMedia`/`localStorage` de forma confiable en este entorno Node → los tests los stubean con un fake, el hook degrada a valores por default sin tirar).
+
+## Superficies opt-in de la migración LeadConverter
+
+Versiones previstas: UI/blocks 0.5.0 y tokens 0.4.0. UI y blocks requieren
+tokens >=0.4.0; blocks requiere UI >=0.5.0. Cada paquete publicable lleva su
+changeset; el workflow genera el Version Packages PR y su changelog. No adelantar
+manualmente las versiones antes de que Changesets las calcule.
+
+El builder de CSS usa temporales únicos por proceso, valida cada snapshot antes
+del rename atómico y limpia solamente sus archivos. El test de concurrencia es
+`node --test scripts/tokens-concurrent-build.test.mjs`. Invocaciones Turbo
+independientes pueden compilar tokens simultáneamente sin truncar CSS público.
+
+La migración aprobada conserva el diseño original y no cambia las APIs flat ni
+el tema teal existentes. `@lindaui/ui/compound` reexporta HeroUI v3 directamente;
+`/motion`, `/notifications` (Sonner) y `/charts` exponen sus APIs upstream. No
+confundir Sonner con el `/toast` original. `/compat` separa los controles con
+props legacy (`color`, `onValueChange`) de los wrappers flat.
+
+`@lindaui/blocks/chat`, `/analytics` y `/compat` son namespaces independientes:
+sus tipos no son intercambiables con `/chat-types` ni con el picker flat.
+Los nuevos blocks de shell, entidades, filtros, Kanban, conexión y settings
+reciben datos, etiquetas y acciones; el dominio y fetching quedan en la app.
+El catálogo preciso vive en `packages/blocks/llms.txt`.
+
+`@lindaui/tokens/lead-converter.css` es una entrada source aislada para Tailwind;
+`/lead-converter/compiled.css` es su bundle standalone. No importarlos junto con
+el bundle teal. El task de tokens incluye UI/blocks como inputs de cache y usa
+el CLI de Tailwind instalado, sin auto-instalar herramientas durante el build.
+Tests y stories están excluidos de exports, declaraciones y tarballs; Storybook
+descubre también las demos anidadas en `packages/blocks/src`.
+Para integración local portable: build completo y `pnpm pack:consumer`, luego
+instalación filtrada en el consumidor con dependencias relativas `file:vendor/`.
+No links absolutos entre repositorios ni publish para esta validación.
 
 ## Clonar / portar componentes de otro design system (comportamiento PRIORITARIO)
 
@@ -310,7 +359,7 @@ Regla: **pisar SOLO los canónicos (A)**; nunca (B) HeroUI ni (C) `--color-*` (s
     - **Primer publish con OIDC es imposible:** Trusted Publisher se configura en npmjs.com *por paquete*, y el paquete tiene que existir → el primer publish va con token (o local), después OIDC.
     - **Bump de un peerDependency escala los dependientes a MAJOR.** changesets, por default, trata el bump de un paquete que es **peer** de otro como breaking → al dependiente le mete **major** (ej: `tokens` minor → `ui`/`blocks` saltaban a `1.0.0`, aunque el CHANGELOG diga "Patch Changes"). `@lindaui/tokens` y `@lindaui/ui` son peers de los demás. Fix aplicado en `.changeset/config.json`: `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange: true` → solo bumpea al dependiente si la nueva versión queda **fuera** del rango peer declarado. Como los peers son `"*"`, cualquier versión entra → los dependientes NO se bumpean por un cambio de peer (solo por changeset propio). Verificar siempre las versiones tras `changeset version` antes de pushear.
 14. **Mover la carpeta del repo rompe `node_modules` de pnpm** → pnpm guarda el path absoluto en `node_modules/.modules.yaml`; tras un `Move-Item`/`mv` del workspace, el próximo `pnpm install`/`turbo build` intenta purgar y recrear el modules dir y aborta sin TTY (`ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`). Fix: `CI=true pnpm install` (reusa el store, ~reinstala links sin descargar). No es que `node_modules` "se preserve" al mover — hay que reinstalar. Además, un `git worktree` anidado (ej. `.claude/worktrees/*`) registra paths absolutos en `.git/worktrees` → removerlo (`git worktree remove --force` + purgar el dir; si "Filename too long", robocopy mirror-from-empty) ANTES de mover.
-15. **Import relativo sin extensión que re-expone un TYPE de otro entry → attw `node16 (from ESM): Internal resolution error`.** Cuando un wrapper importa un valor de un entry hermano (`import { Button } from "./button"`) y ese valor NO aparece en su propia superficie de tipos pública, `tsc` no emite ningún `import` en el `.d.ts` — no hay problema (caso normal: `chart.tsx` usa `cn` de `./cn` solo en runtime). Pero si además importa un **type** y lo reexpone (`interface IconButtonProps extends Omit<ButtonProps, ...>`), `tsc` SÍ emite `import { type ButtonProps } from "./button"` en el `.d.ts`, preservando el specifier tal cual — sin extensión, porque `moduleResolution: "bundler"` no la exige. Node en ESM real sí la exige → el `.d.ts` queda con una import que no resuelve (bunchee/esbuild sí la resuelven bien en el `.js`, así que build+test+typecheck quedan en verde; solo lo detecta `attw --pack --profile esm-only`, que simula la resolución real de Node). Fix: en el `.tsx` que re-expone el type, escribir el import con `.js` (`from "./button.js"`) — `tsc`/esbuild bajo `moduleResolution: bundler` resuelven igual al `.tsx` real, y ahora el `.d.ts` emitido apunta a `dist/button.js`, que sí existe. Regla: **todo import relativo que reexporta/extiende un type de otro entry va con `.js`** (`type X } from "./y.js"`); los que solo consumen un valor en runtime pueden quedar sin extensión. Corrí `attw --pack --profile esm-only` (no solo build/test/typecheck) tras agregar un wrapper que compone otro (`icon-button`→`button`, los `chat-*` sobre `chat-types`) — es el único chequeo que lo pesca.
+15. **Declaraciones relativas sin extensión → attw `InternalResolutionError` en Node16 ESM.** `tsc` con resolución bundler conserva imports, reexports e import types sin extensión; Bunchee corrige solamente el JS. El postprocesador AST `scripts/normalize-declarations.mjs` normaliza todo el árbol emitido de UI/blocks a `.js`/`.mjs`/`.cjs` y expande índices cuando corresponde. Referencias triple-slash apuntan al archivo de declaraciones real. Conservá imports source con `.js` donde ya existen; no hace falta rediseñar componentes ni imprimir/reemplazar strings con regex. Corré `pnpm test:declarations`, `publint` y el gate real `pnpm -r --filter @lindaui/ui --filter @lindaui/blocks exec attw --pack --profile esm-only`. No ocultes problemas ni cambies perfiles para pasar CI.
 16. **`execFileSync("npm", ...)` en Windows tira `EINVAL` silencioso.** En Windows `npm` resuelve a un shim `npm.cmd`; `child_process.execFileSync`/`spawnSync` sin `shell: true` no lo puede spawnear (ni siquiera pidiendo `npm.cmd` explícito — sigue tirando `EINVAL`). Pisado en `scripts/release-flow.mjs` al verificar versiones publicadas: el `catch` silencioso hacía que TODO apareciera como "no publicado" aunque estuviera live en npm — un falso negativo, no un error visible. Fix: `execFileSync(process.platform === "win32" ? "npm.cmd" : "npm", args, { shell: process.platform === "win32" })`. Regla: cualquier script Node de `scripts/` que invoque `npm` (no `git`/`gh`, esos sí son binarios directos) necesita este tratamiento en Windows — y probar el resultado real (`console.log`), no solo que el `try/catch` no explote.
 
 ## Convenciones de tests
