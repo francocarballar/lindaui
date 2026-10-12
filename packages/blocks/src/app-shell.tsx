@@ -69,7 +69,7 @@ export function AppShell({
             href={brand.href}
             renderLink={renderLink}
           >
-            {logo(32, cn("rounded-lg", isCollapsed ? "h-7 w-7" : "h-8 w-8") ?? "")}
+            {logo(32, `rounded-lg ${isCollapsed ? "h-7 w-7" : "h-8 w-8"}`)}
             {isCollapsed ? null : <span className="font-extrabold text-sm uppercase">{brand.label}</span>}
           </ShellLink>
           {isCollapsed ? null : (

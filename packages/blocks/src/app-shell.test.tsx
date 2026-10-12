@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CalendarDays, LayoutDashboard, MessageCircle, Settings, Users } from "lucide-react";
 import { describe, expect, test, vi } from "vitest";
@@ -85,7 +85,7 @@ describe("AppShell", () => {
     const drawer = container.querySelectorAll("aside")[1]!;
     await user.click(screen.getByRole("button", { name: "Open menu" }));
     const links = within(drawer).getAllByRole("link");
-    links.at(-1)!.focus();
+    act(() => links.at(-1)!.focus());
     await user.keyboard("{Tab}");
     expect(links[0]).toHaveFocus();
     await user.keyboard("{Shift>}{Tab}{/Shift}");
@@ -137,4 +137,36 @@ describe("AppShell", () => {
     expect(within(screen.getByRole("main")).getByText("Connection notice")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Account" })).toBeInTheDocument();
   });
+});
+
+test("logo-free brands and mobile close controls preserve drawer state", async () => {
+  const user = userEvent.setup();
+  const { container } = renderShell({ brand: { label: 'Text brand', href: '#' }, navItems: [{ key: 'home', label: 'Home', href: '#home', icon: LayoutDashboard, isActive: true }] });
+  expect(container.querySelector('img')).toBeNull();
+  const drawer = container.querySelectorAll('aside')[1]!;
+  await user.click(screen.getByRole('button', { name: 'Open menu' }));
+  const overlay = container.querySelector('[role="button"]')!;
+  fireEvent.keyDown(overlay, { key: 'a' });
+  expect(drawer).not.toHaveAttribute('inert');
+  fireEvent.click(overlay);
+  expect(drawer).toHaveAttribute('inert');
+  await user.click(screen.getByRole('button', { name: 'Open menu' }));
+  await user.click(within(drawer).getByRole('button', { name: 'Close menu' }));
+  expect(drawer).toHaveAttribute('inert');
+  await user.click(screen.getByRole('button', { name: 'Open menu' }));
+  await user.click(within(drawer).getByRole('link', { name: 'Home' }));
+  expect(drawer).toHaveAttribute('inert');
+  const bottom = screen.getByRole('navigation', { name: 'Bottom navigation' });
+  expect(within(bottom).getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+});
+
+test("visiting navigation handles an inactive center and a center hidden on mobile", () => {
+  const { rerender } = render(<AppShell navItems={navItems.map(item => ({ ...item, isActive: false }))} brand={{ label: "Workspace", href: "/overview" }} isVisiting><p>Content</p></AppShell>);
+  let bottom = screen.getByRole("navigation", { name: "Bottom navigation" });
+  expect(bottom).toHaveClass("bg-warning-soft/80");
+  expect(within(bottom).getByRole("link", { name: "Messages" }).firstElementChild).not.toHaveClass("scale-105");
+  rerender(<AppShell navItems={navItems.map(item => item.isCenterButton ? { ...item, hideOnMobile: true } : item)} brand={{ label: "Workspace", href: "/overview" }}><p>Content</p></AppShell>);
+  bottom = screen.getByRole("navigation", { name: "Bottom navigation" });
+  expect(within(bottom).queryByRole("link", { name: "Messages" })).not.toBeInTheDocument();
+  expect(within(bottom).getByRole("link", { name: "Overview" })).toBeInTheDocument();
 });

@@ -35,7 +35,8 @@ export function useDrawerFocus(isOpen: boolean, onClose: () => void) {
     if ((event.shiftKey && activeElement === first)
       || (!event.shiftKey && activeElement === last)) {
       event.preventDefault();
-      (event.shiftKey ? last : first)?.focus();
+      // Matching a real activeElement to either boundary proves the list is nonempty.
+      (event.shiftKey ? last : first)!.focus();
     }
   };
   return { drawerRef, triggerRef, onKeyDown };
