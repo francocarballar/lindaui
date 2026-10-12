@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import ts from "@typescript/typescript6";
 import { decode, encode } from "@jridgewell/sourcemap-codec";
 import { normalizeDeclaration, normalizeDeclarationMap, normalizeDeclarations } from "./normalize-declarations.mjs";
 
 function fixture(t, files) {
-  const root = mkdtempSync("/tmp/opencode/lindaui-declarations-");
+  const root = mkdtempSync(path.join(tmpdir(), "lindaui-declarations-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const [name, source] of Object.entries(files)) {
     mkdirSync(path.dirname(path.join(root, name)), { recursive: true });

@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
 import { deriveNames, reconcileExports } from "./derive-exports.mjs";
@@ -18,7 +19,7 @@ const entry = (name) => ({
 });
 
 test("deriva sólo entradas públicas, sin tests ni stories anidadas", () => {
-  const dir = mkdtempSync("/tmp/opencode/derive-exports-");
+  const dir = mkdtempSync(join(tmpdir(), "derive-exports-"));
   try {
     for (const name of ["button.tsx", "compound.ts", "button.test.tsx", "format.test.ts", "chat.stories.tsx", "analytics.stories.ts", "test-setup.ts"]) {
       writeFileSync(join(dir, name), "");
@@ -86,7 +87,7 @@ test("cada entrada conserva types primero y el mismo target ESM para import/defa
 });
 
 test("el CLI detecta condiciones incompletas y normaliza el fallback sin cambiar el orden curado", (t) => {
-  const dir = mkdtempSync("/tmp/opencode/derive-exports-conditions-");
+  const dir = mkdtempSync(join(tmpdir(), "derive-exports-conditions-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   mkdirSync(join(dir, "src"));
   for (const name of ["chat", "analytics"]) writeFileSync(join(dir, "src", `${name}.ts`), "export {};\n");
@@ -110,7 +111,7 @@ test("el CLI detecta condiciones incompletas y normaliza el fallback sin cambiar
 });
 
 test("el fallback resuelve lookup CommonJS sin cambiar la identidad ni el formato ESM", async (t) => {
-  const dir = mkdtempSync("/tmp/opencode/derive-exports-esm-");
+  const dir = mkdtempSync(join(tmpdir(), "derive-exports-esm-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   mkdirSync(join(dir, "dist"));
   writeFileSync(join(dir, "dist", "analytics.js"), "export const identity = {};\n");
