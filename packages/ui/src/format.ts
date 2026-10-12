@@ -35,6 +35,5 @@ export function formatPhone(phone: string): string {
   const hasPlus = trimmed.startsWith("+");
   const digits = trimmed.replace(/\D/g, "");
   if (!digits) return trimmed;
-  const groups = digits.match(/.{1,3}/g) ?? [digits];
-  return (hasPlus ? "+" : "") + groups.join(" ");
+  return (hasPlus ? "+" : "") + digits.replace(/(\d{3})(?=\d)/g, "$1 ");
 }
