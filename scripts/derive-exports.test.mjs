@@ -10,7 +10,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { join } from "node:path";
-import { deriveNames, reconcileExports } from "./derive-exports.mjs";
+import { deriveNames, reconcileExports, deriveExports } from "./derive-exports.mjs";
 
 const entry = (name) => ({
   types: `./dist/${name}.d.ts`,
@@ -124,4 +124,56 @@ test("el fallback resuelve lookup CommonJS sin cambiar la identidad ni el format
   const runtime = await import(pathToFileURL(lookup).href);
   assert.equal(runtime.identity, (await import(pathToFileURL(join(dir, "dist", "analytics.js")).href)).identity);
   assert.match(readFileSync(lookup, "utf8"), /^export /);
+});
+
+test('CLI accepts compact/indented/CRLF manifests and preserves unrelated metadata', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'derive-format-'));
+  try {
+    mkdirSync(join(dir, 'src'));
+    writeFileSync(join(dir, 'src/button.tsx'), 'export const Button = 1;');
+    for (const [indent, eol, exports] of [
+      [undefined, '\n', {}], [4, '\n', {}], [2, '\r\n', {}], [undefined, '\n', undefined],
+    ]) {
+      const manifest = { name: '@example/ui', license: 'MIT', custom: { keep: ['yes'] }, exports };
+      writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, indent).replaceAll('\n', eol) + eol);
+      const result = spawnSync(process.execPath, [fileURLToPath(new URL('./derive-exports.mjs', import.meta.url)), dir], { encoding: 'utf8' });
+      assert.equal(result.status, 0, result.stderr);
+      const output = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'));
+      assert.equal(output.license, 'MIT');
+      assert.deepEqual(output.custom, { keep: ['yes'] });
+      assert.deepEqual(output.exports['./button'], entry('button'));
+    }
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('CLI check reports added, orphaned and stale entries then accepts the repaired manifest', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'derive-drift-'));
+  try {
+    mkdirSync(join(dir, 'src'));
+    writeFileSync(join(dir, 'src/button.tsx'), 'export const Button = 1;');
+    writeFileSync(join(dir, 'src/new-item.tsx'), 'export const Item = 1;');
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: '@example/ui', exports: { './button': { types: './wrong.d.ts' }, './orphan': entry('orphan') } }, null, 2));
+    const script = fileURLToPath(new URL('./derive-exports.mjs', import.meta.url));
+    const check = spawnSync(process.execPath, [script, dir, '--check'], { encoding: 'utf8' });
+    assert.equal(check.status, 1);
+    for (const diagnostic of ['faltan', 'huérfanas', 'desincronizados']) assert.ok(check.stderr.includes(diagnostic), check.stderr);
+    const repair = spawnSync(process.execPath, [script, dir], { encoding: 'utf8' });
+    assert.equal(repair.status, 0, repair.stderr);
+    const repaired = spawnSync(process.execPath, [script, dir, '--check'], { encoding: 'utf8' });
+    assert.equal(repaired.status, 0, repaired.stderr);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test('default package resolution preserves string exports and provides a usable contributor path', () => {
+  const root = mkdtempSync(join(tmpdir(), 'derive-default-'));
+  try {
+    const dir = join(root, 'packages/ui');
+    mkdirSync(join(dir, 'src'), { recursive: true });
+    writeFileSync(join(dir, 'src/button.tsx'), 'export const Button = 1;');
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({ name: '@example/ui', exports: { './package.json': './package.json' } }, null, 2));
+    assert.equal(deriveExports(['--check'], { root }), 1);
+    assert.equal(deriveExports([], { root }), 0);
+    assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')).exports['./package.json'], './package.json');
+    assert.equal(deriveExports(['--check'], { root }), 0);
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });

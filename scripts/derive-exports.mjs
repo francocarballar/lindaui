@@ -77,12 +77,15 @@ function spliceExportsBlock(raw, exports) {
   const eol = raw.includes("\r\n") ? "\r\n" : "\n";
   const lines = raw.split(/\r?\n/);
   const startIdx = lines.findIndex((l) => /^\s*"exports":\s*\{/.test(l));
-  if (startIdx === -1) throw new Error("No se encontró el bloque \"exports\" en package.json");
+  // Valid JSON may be compact or use a different indentation. Keep the
+  // contributor format when possible, and normalize other valid manifests.
+  const normalize = () => JSON.stringify({ ...JSON.parse(raw), exports }, null, 2).replaceAll("\n", eol) + eol;
+  if (startIdx === -1) return normalize();
   let endIdx = -1;
   for (let i = startIdx + 1; i < lines.length; i++) {
     if (/^\s{2}\},?$/.test(lines[i])) { endIdx = i; break; }
   }
-  if (endIdx === -1) throw new Error("No se encontró el cierre del bloque \"exports\"");
+  if (endIdx === -1) return normalize();
 
   const keys = Object.keys(exports);
   const entryLines = keys.map((k, i) => {
@@ -100,11 +103,11 @@ function spliceExportsBlock(raw, exports) {
   ].join(eol);
 }
 
-function main() {
-  const args = process.argv.slice(2);
+export function deriveExports(args, { root = repoRoot } = {}) {
   const check = args.includes("--check");
   const pkgArg = args.find((a) => !a.startsWith("--"));
-  const pkgDir = resolve(repoRoot, pkgArg ?? "packages/ui");
+  const pkgLabel = pkgArg ?? "packages/ui";
+  const pkgDir = resolve(root, pkgLabel);
   const pkgPath = resolve(pkgDir, "package.json");
   const srcDir = resolve(pkgDir, "src");
 
@@ -115,15 +118,15 @@ function main() {
 
   if (check) {
     if (added.length || dropped.length || changed.length) {
-      console.error(`✗ exports drift en ${pkgArg ?? "packages/ui"}:`);
+      console.error(`✗ exports drift en ${pkgLabel}:`);
       if (added.length) console.error(`  faltan (en src, no en exports): ${added.join(", ")}`);
       if (dropped.length) console.error(`  huérfanas (en exports, no en src): ${dropped.join(", ")}`);
       if (changed.length) console.error(`  condiciones/targets desincronizados: ${changed.join(", ")}`);
       console.error(`  Corré: pnpm gen:exports`);
-      process.exit(1);
+      return 1;
     }
-    console.log(`✓ exports sincronizado (${derived.length} entries) en ${pkgArg ?? "packages/ui"}`);
-    return;
+    console.log(`✓ exports sincronizado (${derived.length} entries) en ${pkgLabel}`);
+    return 0;
   }
 
   const out = spliceExportsBlock(raw, exports);
@@ -132,10 +135,11 @@ function main() {
   const parts = [`${Object.keys(exports).length} entries`];
   if (added.length) parts.push(`+${added.length} (${added.join(", ")})`);
   if (dropped.length) parts.push(`-${dropped.length} huérfanas (${dropped.join(", ")})`);
-  console.log(`✓ exports derivado en ${pkgArg ?? "packages/ui"}: ${parts.join(", ")}`);
+  console.log(`✓ exports derivado en ${pkgLabel}: ${parts.join(", ")}`);
+  return 0;
 }
 
 // Solo correr si se invoca directo (permite importar las funciones puras).
 if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("derive-exports.mjs")) {
-  main();
+  process.exitCode = deriveExports(process.argv.slice(2));
 }

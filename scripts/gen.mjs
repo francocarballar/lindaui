@@ -23,10 +23,10 @@ const DERIVABLE = ["packages/ui", "packages/blocks"];
 const pascal = (s) =>
   s.split("-").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
 
-function deriveExports(pkgRel, check = false) {
-  const args = [deriveScript, pkgRel];
+function deriveExports(pkgRel, check, root = repoRoot) {
+  const args = [deriveScript, resolve(root, pkgRel)];
   if (check) args.push("--check");
-  execFileSync("node", args, { stdio: "inherit" });
+  execFileSync(process.execPath, args, { stdio: "inherit" });
 }
 
 function componentTemplate(Name, kind) {
@@ -64,47 +64,52 @@ describe("${Name}", () => {
 `;
 }
 
-function genUnit(kind, name) {
-  if (!/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name)) {
-    console.error(`Nombre inválido: "${name}". Usá kebab-case (ej: data-list).`);
-    process.exit(1);
+export function genUnit(kind, name, { root = repoRoot } = {}) {
+  if (!Object.hasOwn(PKG_DIR, kind)) throw new Error(`Tipo inválido: ${kind}`);
+  if (typeof name !== "string" || !/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(name)) {
+    throw new Error(`Nombre inválido: "${name}". Usá kebab-case (ej: data-list).`);
   }
   const pkgRel = PKG_DIR[kind];
-  const srcDir = resolve(repoRoot, pkgRel, "src");
+  const srcDir = resolve(root, pkgRel, "src");
   if (!existsSync(srcDir)) {
-    console.error(`No existe ${pkgRel}/src. ¿Está creado el paquete?`);
-    process.exit(1);
+    throw new Error(`No existe ${pkgRel}/src. ¿Está creado el paquete?`);
   }
   const tsx = resolve(srcDir, `${name}.tsx`);
   const test = resolve(srcDir, `${name}.test.tsx`);
   if (existsSync(tsx) || existsSync(test)) {
-    console.error(`Ya existe ${name}.tsx o ${name}.test.tsx en ${pkgRel}/src. Abortando.`);
-    process.exit(1);
+    throw new Error(`Ya existe ${name}.tsx o ${name}.test.tsx en ${pkgRel}/src. Abortando.`);
   }
   const Name = pascal(name);
   writeFileSync(tsx, componentTemplate(Name, kind), "utf8");
   writeFileSync(test, testTemplate(Name, name), "utf8");
-  deriveExports(pkgRel);
+  deriveExports(pkgRel, false, root);
   console.log(`✓ ${kind} "${name}" creado en ${pkgRel}/src (+ test, + entry exports).`);
   console.log(`  Editá ${name}.tsx y reemplazá el smoke test por aserciones reales.`);
 }
 
-const args = process.argv.slice(2);
-const kind = args[0];
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    const args = process.argv.slice(2);
+    const kind = args[0];
 
-if (kind === "exports") {
-  const check = args.includes("--check");
-  for (const pkgRel of DERIVABLE) {
-    if (existsSync(resolve(repoRoot, pkgRel, "src"))) deriveExports(pkgRel, check);
+    if (kind === "exports") {
+      const check = args.includes("--check");
+      for (const pkgRel of DERIVABLE) {
+        if (existsSync(resolve(repoRoot, pkgRel, "src"))) deriveExports(pkgRel, check);
+      }
+    } else if (kind === "component" || kind === "block") {
+      const name = args[1];
+      if (!name) {
+        console.error(`Uso: node scripts/gen.mjs ${kind} <nombre-kebab>`);
+        process.exit(1);
+      }
+      genUnit(kind, name);
+    } else {
+      console.error("Uso: node scripts/gen.mjs <component|block|exports> [nombre] [--check]");
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
   }
-} else if (kind === "component" || kind === "block") {
-  const name = args[1];
-  if (!name) {
-    console.error(`Uso: node scripts/gen.mjs ${kind} <nombre-kebab>`);
-    process.exit(1);
-  }
-  genUnit(kind, name);
-} else {
-  console.error("Uso: node scripts/gen.mjs <component|block|exports> [nombre] [--check]");
-  process.exit(1);
 }

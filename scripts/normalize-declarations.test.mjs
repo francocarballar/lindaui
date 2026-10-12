@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import ts from "@typescript/typescript6";
@@ -217,4 +218,45 @@ test("shared declaration build inputs retain dependency ordering and cached dist
     assert(task.inputs.includes("$TURBO_DEFAULT$"));
     assert(task.inputs.includes("$TURBO_ROOT$/scripts/normalize-declarations.mjs"));
   }
+});
+
+test("runtime-only files and directory indexes resolve without inventing declaration files", (t) => {
+  const root = fixture(t, {
+    "runtime.js": "export {};", "folder/index.mjs": "export {};", "nested/index.cjs": "module.exports = {};",
+  });
+  const source = `export * from './runtime'; export * from './folder/'; export * from './nested';`;
+  assert.equal(normalizeDeclaration(source, path.join(root, 'index.d.ts')).code,
+    `export * from './runtime.js'; export * from './folder/index.mjs'; export * from './nested/index.cjs';`);
+  assert.throws(() => normalizeDeclaration(`/// <reference path="./runtime" />\nexport {};`, path.join(root, 'index.d.ts')), /cannot resolve/);
+  assert.throws(() => normalizeDeclaration(`export * from './runtime/child';`, path.join(root, 'index.d.ts')), /cannot resolve/);
+  symlinkSync('loop.d.ts', path.join(root, 'loop.d.ts'));
+  assert.throws(() => normalizeDeclaration(`export * from './loop';`, path.join(root, 'index.d.ts')), { code: 'ELOOP' });
+});
+
+test("declaration maps shift columns inside shortened literals and on the final line", (t) => {
+  const root = fixture(t, { 'value.d.ts': 'export {};', 'nested/index.d.ts': 'export {};' });
+  const source = `export * from './value';\nexport * from './nested/index.d.ts';`;
+  const result = normalizeDeclaration(source, path.join(root, 'index.d.ts'));
+  const edit = result.edits[1];
+  const lineStart = result.lineStarts[1];
+  const columns = [0, edit.start - lineStart + 2, edit.end - lineStart - 1, edit.end - lineStart + 1];
+  const original = { version: 3, sources: ['source.ts'], names: [], mappings: encode([[[0]], columns.map(column => [column])]) };
+  const map = JSON.parse(normalizeDeclarationMap(JSON.stringify(original), result));
+  const shift = edit.text.length - (edit.end - edit.start);
+  assert.deepEqual(decode(map.mappings)[1].map(segment => segment[0]), [columns[0], columns[1], edit.start - lineStart + edit.text.length, columns[3] + shift]);
+  writeFileSync(path.join(root, 'index.d.ts'), source);
+  writeFileSync(path.join(root, 'index.d.ts.map'), JSON.stringify(original));
+  normalizeDeclarations(root);
+  assert.deepEqual(JSON.parse(readFileSync(path.join(root, 'index.d.ts.map'), 'utf8')), map);
+});
+
+test("declaration CLI reports its results and rejects missing directory arguments", (t) => {
+  const root = fixture(t, { 'value.d.ts': 'export {};', 'index.d.ts': "export * from './value';" });
+  const script = new URL('./normalize-declarations.mjs', import.meta.url);
+  const result = spawnSync(process.execPath, [script.pathname, root], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /2 declarations checked; 1 relative references normalized/);
+  const invalid = spawnSync(process.execPath, [script.pathname], { encoding: 'utf8' });
+  assert.equal(invalid.status, 1);
+  assert.match(invalid.stderr, /Usage:/);
 });
