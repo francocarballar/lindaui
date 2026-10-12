@@ -58,6 +58,9 @@ export default function Demo() {
       entry = `src/main.${ext}`;
       file(app, entry, 'import { createRoot } from "react-dom/client"; import Demo from "./Demo"; createRoot(document.getElementById("root")' + (ts ? '!' : '') + ').render(<Demo />);\n');
     } else {
+      // create-next-app includes these references before the first build. They
+      // provide Next's CSS side-effect and image types to standalone tsc.
+      file(app, 'next-env.d.ts', '/// <reference types="next" />\n/// <reference types="next/image-types/global" />\n');
       file(app, 'next.config.mjs', 'export default { env: { NEXT_TELEMETRY_DISABLED: "1" }, experimental: { cpus: 2 } };\n');
       if (kind === 'next-app') {
         entry = 'src/app/layout.tsx';
