@@ -97,7 +97,9 @@ StatusDatum: key/label/count/color. HealthEntity: id/name/score and status
 TimeRangePicker uses preset `24h|7d|30d|custom`, customRange
 `RangeValue<DateValue> | null`, onPresetChange/onCustomRangeChange and translation
 function `t`. This is NOT the unchanged flat `/time-range-picker` documented below.
-SDK mapping, tenant policy, fetching and navigation stay in the consumer.
+AiPerformanceCard accepts omitted metrics: containment/response time and AI-vs-human
+values default to zero. SDK mapping, tenant policy, fetching and navigation stay
+in the consumer.
 
 Dayjs, @internationalized/date, @react-types/shared, motion and drag/drop are
 runtime dependencies (including public date types), not workspace-only tooling.

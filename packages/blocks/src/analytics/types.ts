@@ -29,7 +29,7 @@ export interface HealthCardLabels {
 }
 export interface EntityHealthCardProps { entities: HealthEntity[]; labels: HealthCardLabels; renderEntityLink?: (entity: HealthEntity, children: ReactNode) => ReactNode; }
 export interface AiVsHumanData { aiConverted: number; aiLeads: number; aiRate: number; humanConverted: number; humanLeads: number; humanRate: number; }
-export interface AiPerformanceCardProps { aiVsHuman: AiVsHumanData; avgResponseTimeMinutes: number; containmentRate: number; t: (key: string, opts?: Record<string, unknown>) => string; }
+export interface AiPerformanceCardProps { aiVsHuman?: AiVsHumanData; avgResponseTimeMinutes?: number; containmentRate?: number; t: (key: string, opts?: Record<string, unknown>) => string; }
 export interface AiCostData { available: boolean; conversionsCount: number; costPerConversion: number; totalCostUsd: number; }
 export interface AiCostCardProps { aiCost: AiCostData | undefined; isLoading: boolean; t: (key: string, opts?: Record<string, unknown>) => string; }
 export type Preset = "24h" | "7d" | "30d" | "custom";

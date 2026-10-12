@@ -7,6 +7,29 @@ import { Building2 } from "lucide-react";
 const t = (key: string) => key;
 const labels: HealthCardLabels = { title: "Entity health", healthy: "Healthy", atRisk: "At risk", critical: "Critical", allHealthy: "All healthy", criticalBadge: (n) => `${n} critical`, scoreLabel: (n) => `Score ${n}`, statusLabel: (status) => status, idleNote: "Idle entities are excluded" };
 describe("generic analytics compatibility", () => {
+  it("handles empty health data and non-link alert rows", () => {
+    const { container, rerender } = render(<EntityHealthCard entities={[]} labels={labels} />);
+    expect(screen.getByText("All healthy")).toBeInTheDocument();
+    expect(container.querySelector(".bg-success[style]")).toHaveStyle({ width: "0%" });
+    rerender(<EntityHealthCard entities={[{ id: "risk", name: "Risk", score: 40, status: "at_risk" }]} labels={labels} />);
+    expect(screen.getByText("Risk")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+  it("defaults AI metrics to zero with muted conversion rates", () => {
+    render(<AiPerformanceCard t={t} />);
+    for (const rate of screen.getAllByText("0%")) expect(rate).toHaveClass("text-muted");
+    expect(screen.getByText("analytics.aiPerformance.title")).toBeInTheDocument();
+  });
+  it("formats nonzero conversion costs and positive KPI trends", () => {
+    render(<><AiCostCard aiCost={{ available: true, conversionsCount: 5, costPerConversion: 2.5, totalCostUsd: 12.5 }} isLoading={false} t={t} /><KPICard icon={Building2} title="Growth" value={8} trend={{ value: 12, isPositive: true }} /></>);
+    expect(screen.getByText("$2.50")).toBeInTheDocument();
+    expect(screen.getByText("+12%")).toHaveClass("text-success");
+  });
+  it("supports numeric ranking cells, left badges and extra cells without column keys", () => {
+    render(<TopEntitiesTable columns={[{ key: "status", label: "Status" }]} rows={[{ id: "one", name: "One", cells: [{ value: "ignored", badge: { color: "success", label: "Healthy" } }, { value: "42", align: "right" }] }]} emptyLabel="No data" />);
+    expect(screen.getByText("Healthy")).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "42" })).toHaveClass("text-right", "tabular-nums");
+  });
   it("uses the original KPI anatomy, semantic color and signed trend", () => {
     const { container, rerender } = render(<KPICard icon={Building2} title="Entities" value={42} color="success" trend={{ value: -8, isPositive: false }} />);
     expect(screen.getByText("42")).toHaveClass("text-2xl", "text-success");
