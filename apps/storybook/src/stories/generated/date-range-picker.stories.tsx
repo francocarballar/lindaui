@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/date-range-picker";
+import * as M from "@lindaui/ui/date-range-picker";
+import { parseDate } from "@internationalized/date";
+import { Label, DateField, RangeCalendar } from "@lindaui/ui/compound";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>date-range-picker</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/DateRangePicker", component: Scaffold };
+const meta: Meta = { title: "Components/DateRangePicker" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.DateRangePicker defaultValue={{start: parseDate("2026-10-12"), end: parseDate("2026-10-15")}}><Label>Período</Label><DateField.Group><DateField.InputContainer><DateField.Input slot="start">{segment => <DateField.Segment segment={segment} />}</DateField.Input><M.DateRangePicker.RangeSeparator /><DateField.Input slot="end">{segment => <DateField.Segment segment={segment} />}</DateField.Input></DateField.InputContainer><DateField.Suffix><M.DateRangePicker.Trigger aria-label="Elegir período"><M.DateRangePicker.TriggerIndicator /></M.DateRangePicker.Trigger></DateField.Suffix></DateField.Group><M.DateRangePicker.Popover><RangeCalendar aria-label="Período"><RangeCalendar.Header><RangeCalendar.NavButton slot="previous" /><RangeCalendar.Heading /><RangeCalendar.NavButton slot="next" /></RangeCalendar.Header><RangeCalendar.Grid><RangeCalendar.GridHeader>{day => <RangeCalendar.HeaderCell>{day}</RangeCalendar.HeaderCell>}</RangeCalendar.GridHeader><RangeCalendar.GridBody>{date => <RangeCalendar.Cell date={date} />}</RangeCalendar.GridBody></RangeCalendar.Grid></RangeCalendar></M.DateRangePicker.Popover></M.DateRangePicker>) };

@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/chat-avatar";
+import * as M from "@lindaui/blocks/chat-avatar";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>chat-avatar</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/ChatAvatar", component: Scaffold };
+const meta: Meta = { title: "Components/ChatAvatar" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<div className="flex items-center gap-3"><M.ChatAvatar name="Ada Lovelace" size="sm" /><M.ChatAvatar name="Grace Hopper" /><M.ChatAvatar name="Alan Turing" size="lg" /></div>) };

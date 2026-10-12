@@ -81,3 +81,11 @@ describe("KanbanBoard controlled behavior", () => {
     expect(screen.getByText(/^a:/).textContent).toBe(original);
   });
 });
+
+test("custom columns receive only their own entities", () => {
+  const renderColumn = vi.fn((column, items) => <section aria-label={column.title}>{items.map((item: typeof entities[number]) => <p key={item.id}>{item.id}</p>)}</section>);
+  render(<KanbanBoard {...props} renderColumn={renderColumn} onColumnChange={vi.fn()} />);
+  expect(renderColumn).toHaveBeenCalledWith(props.columns[0], [entities[0]]);
+  expect(renderColumn).toHaveBeenCalledWith(props.columns[1], [entities[1]]);
+  expect(screen.getByRole("region", { name: "Done" })).toHaveTextContent("task-b");
+});

@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/color-swatch-picker";
+import * as M from "@lindaui/ui/color-swatch-picker";
+import { useState } from "react";
+function SwatchesDemo() { const [color, setColor] = useState("#7c3aed"); return <><M.ColorSwatchPicker aria-label="Color del tema" value={color} onChange={value => setColor(value.toString("hex"))}>{["#7c3aed", "#0d9488", "#e11d48"].map(value => <M.ColorSwatchPicker.Item key={value} color={value}><M.ColorSwatchPicker.Swatch /><M.ColorSwatchPicker.Indicator /></M.ColorSwatchPicker.Item>)}</M.ColorSwatchPicker><output role="status">{color}</output></>; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>color-swatch-picker</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/ColorSwatchPicker", component: Scaffold };
+const meta: Meta = { title: "Components/ColorSwatchPicker" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<SwatchesDemo />) };

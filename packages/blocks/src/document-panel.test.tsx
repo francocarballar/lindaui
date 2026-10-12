@@ -3,6 +3,19 @@ import { describe, test, expect } from "vitest";
 import { DocumentPanel } from "./document-panel";
 
 describe("DocumentPanel", () => {
+  test("block metadata and a status badge remain visible in the header", () => {
+    render(<DocumentPanel title="Doc" state="ready" subtitle="Author" meta="Date" statusBadge={<span>Approved</span>} />);
+    for (const text of ["Author", "Date", "Approved"]) expect(screen.getByText(text)).toBeInTheDocument();
+  });
+  test("inline metadata handles either slot alone and both absent", () => {
+    const { rerender } = render(<DocumentPanel title="Doc" state="ready" metaPlacement="inline" meta="Date" />);
+    expect(screen.getByText("Date")).toHaveTextContent(/^Date$/);
+    rerender(<DocumentPanel title="Doc" state="ready" metaPlacement="inline" subtitle="Author" />);
+    expect(screen.getByText("Author")).toBeInTheDocument();
+    expect(screen.queryByText("Date")).toBeNull();
+    rerender(<DocumentPanel title="Doc" state="ready" metaPlacement="inline" />);
+    expect(screen.queryByText("Author")).toBeNull();
+  });
   test("state=empty renders emptyContent", () => {
     render(
       <DocumentPanel title="My Doc" state="empty" emptyContent={<p>No hay datos</p>} />

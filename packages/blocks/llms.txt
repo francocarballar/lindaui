@@ -217,6 +217,8 @@ emptyDescription />` — auto-scrolls to the last message; groups by calendar da
 ### @lindaui/blocks/message-bubble
 Renders one `GenericMessage`: text, image (click → `onImageClick(url)`), audio (via
 `audio-player`), or pdf (link). Side-aligned; outgoing messages show a status icon.
+Image buttons use the media alt text as their accessible name, falling back to
+"Abrir imagen" when it is omitted or empty.
 
 ### @lindaui/blocks/message-composer
 `<MessageComposer value onValueChange onSend placeholder isSending isDisabled

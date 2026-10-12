@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/table-pane";
+import * as M from "@lindaui/blocks/table-pane";
+import { useState } from "react";
+function TablePaneDemo() { const [search, setSearch] = useState(""); const rows = [{name: "Ada Lovelace", status: "Confirmado"}, {name: "Grace Hopper", status: "Pendiente"}]; const filtered = rows.filter(row => row.name.toLowerCase().includes(search.toLowerCase())); return <M.TablePane columns={[{key: "name", label: "Nombre"}, {key: "status", label: "Estado"}]} rows={filtered} ariaLabel="Turnos" searchValue={search} onSearchChange={setSearch} footerCount={{shown: filtered.length, total: rows.length}} />; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>table-pane</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/TablePane", component: Scaffold };
+const meta: Meta = { title: "Components/TablePane" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<TablePaneDemo />) };

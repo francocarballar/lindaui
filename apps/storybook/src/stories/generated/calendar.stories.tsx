@@ -1,20 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/calendar";
+import * as M from "@lindaui/ui/calendar";
+import { parseDate } from "@internationalized/date";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>calendar</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/Calendar", component: Scaffold };
+const meta: Meta = { title: "Components/Calendar" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.Calendar aria-label="Fecha del turno" defaultValue={parseDate("2026-10-12")}><M.Calendar.Header><M.Calendar.NavButton slot="previous" /><M.Calendar.Heading /><M.Calendar.NavButton slot="next" /></M.Calendar.Header><M.Calendar.Grid><M.Calendar.GridHeader>{day => <M.Calendar.HeaderCell>{day}</M.Calendar.HeaderCell>}</M.Calendar.GridHeader><M.Calendar.GridBody>{date => <M.Calendar.Cell date={date} />}</M.Calendar.GridBody></M.Calendar.Grid></M.Calendar>) };

@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/entity-health-card";
+import * as M from "@lindaui/blocks/entity-health-card";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>entity-health-card</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/EntityHealthCard", component: Scaffold };
+const meta: Meta = { title: "Components/EntityHealthCard" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.EntityHealthCard title="Salud del sistema" description="Estado de las integraciones" items={[{id: "messages", label: "Mensajes", value: 128, status: "success", statusLabel: "Operativo"}, {id: "queue", label: "Cola pendiente", value: 3, status: "warning", statusLabel: "Pendiente"}]} />) };

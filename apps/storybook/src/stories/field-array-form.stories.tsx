@@ -1,5 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FieldArrayForm } from "@lindaui/blocks/field-array-form";
+import { useState } from "react";
+import { FieldArrayForm, type FieldArrayFormProps } from "@lindaui/blocks/field-array-form";
+
+
+function FormDemo(props: Omit<FieldArrayFormProps, "onSubmit">) {
+  const [submission, setSubmission] = useState("");
+  return <>
+    <FieldArrayForm {...props} onSubmit={(values) => setSubmission(JSON.stringify(values))} />
+    <output role="status" aria-label="Submitted values" className="block break-all text-sm">{submission}</output>
+  </>;
+}
 
 const meta: Meta<typeof FieldArrayForm> = {
   title: "Blocks/FieldArrayForm",
@@ -19,10 +29,9 @@ const STUDY_OPTIONS = [
 
 export const Default: Story = {
   render: () => (
-    <div className="w-[480px] p-6 border border-border rounded-xl bg-card">
-      <FieldArrayForm
+    <div className="w-[min(480px,calc(100vw-2rem))] p-6 border border-border rounded-xl bg-card">
+      <FormDemo
         options={STUDY_OPTIONS}
-        onSubmit={(values) => console.log("submit", values)}
         categoryLabel="Modalidad"
         nameLabel="Nombre del estudio"
         namePlaceholder="Ej. RMN Rodilla Derecha con contraste"
@@ -39,10 +48,9 @@ export const Default: Story = {
 
 export const WithDefaultValues: Story = {
   render: () => (
-    <div className="w-[480px] p-6 border border-border rounded-xl bg-card">
-      <FieldArrayForm
+    <div className="w-[min(480px,calc(100vw-2rem))] p-6 border border-border rounded-xl bg-card">
+      <FormDemo
         options={STUDY_OPTIONS}
-        onSubmit={(values) => console.log("submit", values)}
         categoryLabel="Modalidad"
         nameLabel="Nombre del estudio"
         entriesLabel="Parámetros técnicos"
@@ -64,10 +72,9 @@ export const WithDefaultValues: Story = {
 
 export const Loading: Story = {
   render: () => (
-    <div className="w-[480px] p-6 border border-border rounded-xl bg-card">
-      <FieldArrayForm
+    <div className="w-[min(480px,calc(100vw-2rem))] p-6 border border-border rounded-xl bg-card">
+      <FormDemo
         options={STUDY_OPTIONS}
-        onSubmit={async () => { await new Promise((r) => setTimeout(r, 2000)); }}
         categoryLabel="Modalidad"
         nameLabel="Nombre del estudio"
         entriesLabel="Parámetros"

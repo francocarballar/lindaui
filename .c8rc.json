@@ -1,0 +1,15 @@
+{
+  "all": true,
+  "src": ["scripts", "skills/lindaui/scripts", "apps/storybook/scripts", "packages/tokens/scripts"],
+  "include": ["scripts/**/*.mjs", "skills/lindaui/scripts/**/*.mjs", "apps/storybook/scripts/**/*.mjs", "packages/tokens/scripts/**/*.mjs"],
+  "exclude": ["**/*.test.mjs", "skills/lindaui/scripts/lib/vendor.mjs"],
+  "extension": [".mjs"],
+  "reporter": ["text", "json", "json-summary", "html", "lcov"],
+  "reports-dir": "coverage/tooling",
+  "check-coverage": true,
+  "per-file": true,
+  "lines": 100,
+  "statements": 100,
+  "functions": 100,
+  "branches": 100
+}

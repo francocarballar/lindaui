@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/date-input";
+import * as M from "@lindaui/ui/date-input";
+import { parseDate } from "@internationalized/date";
+import { Label } from "@lindaui/ui/compound";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>date-input</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/DateInput", component: Scaffold };
+const meta: Meta = { title: "Components/DateInput" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.DateInput defaultValue={parseDate("2026-10-12")}><Label>Fecha del turno</Label><M.DateInput.Group><M.DateInput.Input>{segment => <M.DateInput.Segment segment={segment} />}</M.DateInput.Input></M.DateInput.Group></M.DateInput>) };

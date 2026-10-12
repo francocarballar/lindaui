@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/empty-chat-view";
+import * as M from "@lindaui/blocks/empty-chat-view";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>empty-chat-view</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/EmptyChatView", component: Scaffold };
+const meta: Meta = { title: "Components/EmptyChatView" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<div className="h-80"><M.EmptyChatView title="Elegí una conversación" description="Los mensajes de la conversación seleccionada aparecerán aquí." /></div>) };

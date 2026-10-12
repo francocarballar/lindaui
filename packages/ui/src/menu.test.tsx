@@ -4,6 +4,14 @@ import { Menu } from "./menu";
 import { describe, test, expect, vi } from "vitest";
 
 describe("Menu", () => {
+  test("allows optional actions, rich labels and danger styling", async () => {
+    render(<Menu trigger="Acciones" items={[{ key: "other", label: "Otro" }, { key: "delete", label: <span>Eliminar</span>, isDanger: true }]} />);
+    await userEvent.click(screen.getByRole("button", { name: "Acciones" }));
+    const action = await screen.findByRole("menuitem", { name: "Eliminar" });
+    expect(action).toHaveClass("text-danger");
+    await userEvent.click(action);
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
   test("trigger is visible", () => {
     render(
       <Menu items={[{ key: "edit", label: "Editar" }]} trigger="Acciones" />,

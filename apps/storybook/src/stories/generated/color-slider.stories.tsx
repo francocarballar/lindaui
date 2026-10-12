@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/color-slider";
+import * as M from "@lindaui/ui/color-slider";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>color-slider</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/ColorSlider", component: Scaffold };
+const meta: Meta = { title: "Components/ColorSlider" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.ColorSlider aria-label="Tono" channel="hue" colorSpace="hsl" defaultValue="#7c3aed"><M.ColorSlider.Track><M.ColorSlider.Thumb /></M.ColorSlider.Track><M.ColorSlider.Output /></M.ColorSlider>) };

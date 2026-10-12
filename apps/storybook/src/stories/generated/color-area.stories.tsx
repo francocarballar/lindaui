@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/color-area";
+import * as M from "@lindaui/ui/color-area";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>color-area</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/ColorArea", component: Scaffold };
+const meta: Meta = { title: "Components/ColorArea" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.ColorArea aria-label="Saturación y brillo" defaultValue="#7c3aed" colorSpace="hsb" xChannel="saturation" yChannel="brightness"><M.ColorArea.Thumb /></M.ColorArea>) };

@@ -80,3 +80,8 @@ describe("RecordingOverlay", () => {
     expect(root.className).toMatch(/h-full/);
   });
 });
+
+test("recording instructions are visible while a recording is active", () => {
+  render(<RecordingOverlay label="Recording" elapsed={1} description="Speak into the microphone" onStop={vi.fn()} onCancel={vi.fn()} />);
+  expect(screen.getByText("Speak into the microphone")).toBeInTheDocument();
+});

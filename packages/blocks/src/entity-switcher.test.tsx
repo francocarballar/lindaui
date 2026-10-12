@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, test, vi } from "vitest";
 import { EntitySwitcher } from "./entity-switcher";
@@ -34,10 +34,10 @@ describe("EntitySwitcher", () => {
     />);
     expect(screen.getByText("Visiting")).toBeInTheDocument();
     const trigger = screen.getByRole("button", { name: labels.trigger });
-    trigger.focus();
+    act(() => trigger.focus());
     await userEvent.keyboard("{Enter}");
     const action = await screen.findByRole("menuitemradio", { name: "Return to admin" });
-    action.focus();
+    act(() => action.focus());
     await userEvent.keyboard("{Enter}");
     expect(onAction).toHaveBeenCalledOnce();
     expect(onSelect).not.toHaveBeenCalled();
@@ -50,4 +50,13 @@ describe("EntitySwitcher", () => {
     rerender(<EntitySwitcher currentEntity={{ ...entities[0]!, description: "" }} entities={entities} labels={labels} onSelect={vi.fn()} />);
     expect(screen.getByText("No address")).toBeInTheDocument();
   });
+});
+
+test("custom avatars appear in both the trigger and selectable entities", async () => {
+  render(<EntitySwitcher currentEntity={entities[0]} entities={entities} labels={labels} onSelect={vi.fn()} renderAvatar={entity => <span>{entity.identifier} avatar</span>} />);
+  expect(screen.getByText("north avatar")).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("button", { name: labels.trigger }));
+  const menu = await screen.findByRole("menu");
+  expect(within(menu).getByText("south avatar")).toBeInTheDocument();
+  expect(within(menu).getByText("north avatar")).toBeInTheDocument();
 });

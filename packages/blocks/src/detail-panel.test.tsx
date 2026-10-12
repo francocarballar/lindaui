@@ -4,6 +4,17 @@ import { describe, test, expect, vi } from "vitest";
 import { DetailPanel } from "./detail-panel";
 
 describe("DetailPanel", () => {
+  test("supports custom empty content and complete detail slots", () => {
+    const { rerender } = render(<DetailPanel emptyIcon={<span>Empty icon</span>} emptyDescription="Choose a record" />);
+    expect(screen.getByText("Empty icon")).toBeInTheDocument();
+    expect(screen.getByText("Choose a record")).toBeInTheDocument();
+    rerender(<DetailPanel selected title="Record" badges={<span>Badge</span>} media={<span>Media</span>} meta={[{ label: "First", value: "One", icon: <span>Meta icon</span> }, { label: "Second", value: "Two" }]} />);
+    for (const text of ["Badge", "Media", "Meta icon", "One", "Two"]) expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByRole("separator")).toBeInTheDocument();
+    rerender(<DetailPanel selected title="Record" media={<span>Media only</span>} meta={[]} />);
+    expect(screen.getByText("Media only")).toBeInTheDocument();
+    expect(screen.queryByText("First")).toBeNull();
+  });
   test("shows empty state when selected=false", () => {
     render(<DetailPanel selected={false} emptyTitle="Seleccioná un elemento" />);
     expect(screen.getByText("Seleccioná un elemento")).toBeInTheDocument();

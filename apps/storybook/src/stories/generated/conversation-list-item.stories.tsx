@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/conversation-list-item";
+import * as M from "@lindaui/blocks/conversation-list-item";
+import { useState } from "react";
+function ConversationItemDemo() { const [selected, setSelected] = useState(false); return <M.ConversationListItem conversation={{id: "ada", title: "Ada Lovelace", subtitle: "¿Confirmamos el turno?", unreadCount: 2, lastMessageAt: "2026-10-12T12:00:00Z"}} selected={selected} onSelect={() => setSelected(!selected)} />; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>conversation-list-item</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/ConversationListItem", component: Scaffold };
+const meta: Meta = { title: "Components/ConversationListItem" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<ConversationItemDemo />) };

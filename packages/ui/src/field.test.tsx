@@ -8,14 +8,14 @@ import { describe, test, expect, vi } from "vitest";
 
 const schema = z.object({ name: z.string().min(1, "Requerido") });
 
-function Wrapper({ onSubmit = vi.fn() }: { onSubmit?: () => void }) {
+function Wrapper({ onSubmit = vi.fn(), className }: { onSubmit?: () => void; className?: string }) {
   const { control, handleSubmit } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { name: "" },
   });
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Field control={control} name="name" label="Nombre" hint="Tu nombre completo">
+      <Field control={control} name="name" label="Nombre" hint="Tu nombre completo" className={className}>
         {({ field, invalid }) => (
           <input {...field} aria-label="Nombre" aria-invalid={invalid} />
         )}
@@ -26,6 +26,10 @@ function Wrapper({ onSubmit = vi.fn() }: { onSubmit?: () => void }) {
 }
 
 describe("Field", () => {
+  test("applies a supplied layout class to the field wrapper", () => {
+    render(<Wrapper className="custom-layout" />);
+    expect(screen.getByLabelText("Nombre").parentElement).toHaveClass("custom-layout");
+  });
   test("renders label", () => {
     render(<Wrapper />);
     expect(screen.getByText("Nombre")).toBeInTheDocument();

@@ -367,8 +367,34 @@ Regla: **pisar SOLO los canónicos (A)**; nunca (B) HeroUI ni (C) `--color-*` (s
 
 ## Convenciones de tests
 
+`pnpm test:coverage` mide V8 en todo el source TS/TSX de UI/blocks y Verona
+y c8 en el tooling Node propio, excluyendo solo tests, stories, declarations y setup.
+Ejecuta todas las suites aunque falle un umbral y conserva sus resultados en
+`coverage/run.json`; el comando falla si falla cualquier suite.
+El tooling usa dos workers concurrentes. Reporta líneas, sentencias, funciones
+y ramas; un módulo importado no demuestra cobertura de sus comportamientos.
+La inspección de TypeScript resuelve instalaciones del consumidor o sus ancestros;
+no debe usar el compilador del agente mediante `NODE_PATH`.
+`pnpm test:e2e` compila Storybook y Verona y ejecuta tester.army e2e en Chromium aislado
+con puerto dinámico. El catálogo se colecta desde el `index.json` compilado;
+las pruebas de interacción usan roles/nombres accesibles. Para diagnosticar,
+leer `.e2e/report.json` y `results/**/trace.md` antes de cambiar locators.
+Instalación del navegador: `pnpm test:e2e:install`; MCP: `pnpm test:e2e:mcp`.
+Verona usa `e2e.verona.config.ts` y guarda evidencia en `.e2e/verona/`.
+El generador exige demos reales para cada entry de componente; falla antes de
+escribir si falta una composición o story manual. No acepta placeholders de exports.
+Los grupos de menú de Verona usan botones LindaUI con `aria-expanded`; el
+submenú cerrado debe permanecer `inert` y `aria-hidden` para evitar foco oculto.
+`compat-chat/ImageLightbox` nombra su diálogo con `alt`: todo modal sin heading
+debe declarar `aria-label` o `aria-labelledby`. OTP se prueba con ResizeObserver
+y `pushPasswordManagerStrategy="none"` (la detección de badges requiere hit
+testing del navegador), timers reales y desmontaje explícito.
+`OtpInput` crea sus slots visibles desde `maxLength` cuando `children` se omite;
+pasar `children` conserva la composición personalizada. HeroUI InputOTP exige
+children y no crea slots por sí solo: no quitar el ensamblado del wrapper.
+
 Vitest + jsdom + `@testing-library/react` + `user-event`. Co-locados. **Solo queries semánticas** (`getByRole`, `getByLabelText`, `findByRole`; `getByText` ok para bespoke sin rol) — sin `getByTestId`. Para componentes compound re-exportados que requieren `@internationalized/date` o composición pesada (date/color), el test asserta que el export resuelve (`toBeDefined`), no renderiza media composición. Para debuggear estructura RAC en jsdom: `console.log(container.innerHTML)`. **Cobertura: cero gap** — todo módulo fuente de `@lindaui/ui` aparece en ≥1 test (suite actual: 45 files / 154 tests en `ui`, 40 files / 167 tests en `blocks`). Dos suites compartidas agrupan los `toBeDefined`: `src/date-time-color.test.tsx` (date/time/color) y `src/compound-exports.test.tsx` (los 22 re-export: accordion/card/popover/tooltip/drawer/etc.). Trampas de test pisadas:
-- **`otp-input`**: HeroUI `InputOTP` (lib `input-otp`) agenda trabajo async (ResizeObserver/timers) que en jsdom dispara un *unhandled error* flaky post-test → su test asserta solo el export (`toBeDefined`), no renderiza. Si SÍ tenés que renderizar algo basado en `input-otp` o charts, polyfilleá `globalThis.ResizeObserver ||= class { observe(){} unobserve(){} disconnect(){} }` en `beforeAll`.
+- **`otp-input`**: HeroUI `InputOTP` (lib `input-otp`) necesita ResizeObserver en jsdom. El test funcional usa un stub local, `pushPasswordManagerStrategy="none"`, timers reales y desmontaje explícito; verifica escritura y `onComplete`. La detección de badges de password managers requiere hit testing real y se deja al navegador. Charts también requieren ResizeObserver cuando se monta ResponsiveContainer.
 - **`ToggleButtonGroup` con `selectionMode="single"`** rinde sus hijos `ToggleButton` con **`role="radio"`** (no `button`); `onSelectionChange` emite un `Set<Key>` (`[...set]` para materializar). `CheckboxGroup` emite `onChange(string[])`. Confirmar el rol observado con `container.innerHTML`, no asumirlo.
 - **`SwitchGroup` es layout puro** (sin `value`/`onChange`); **`avatar` wrapper expone solo el Root** — `Avatar.Image`/`Avatar.Fallback` (donde vive el fallback de `src` roto) NO son alcanzables vía `@lindaui/ui/avatar`. Ambos sin comportamiento testeable más allá del smoke render.
 

@@ -1,20 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/tag-group";
+import * as M from "@lindaui/ui/tag-group";
+import { Tag } from "@lindaui/ui/tag";
+import { useState } from "react";
+function TagsDemo() { const [tags, setTags] = useState(["React", "TypeScript", "LindaUI"]); return <M.TagGroup aria-label="Tecnologías" onRemove={keys => setTags(current => current.filter(tag => !keys.has(tag)))}><M.TagGroup.List>{tags.map(tag => <Tag key={tag} id={tag}>{tag}<Tag.RemoveButton /></Tag>)}</M.TagGroup.List></M.TagGroup>; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>tag-group</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/TagGroup", component: Scaffold };
+const meta: Meta = { title: "Components/TagGroup" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<TagsDemo />) };

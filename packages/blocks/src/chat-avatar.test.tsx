@@ -29,3 +29,14 @@ describe("ChatAvatar", () => {
     expect(screen.getByText("JP")).toBeInTheDocument();
   });
 });
+
+test("blank names use a question-mark fallback", () => {
+  render(<ChatAvatar name="   " />);
+  expect(screen.getByText('?')).toBeInTheDocument();
+});
+
+test("image errors also fall back without a consumer callback", () => {
+  const { container } = render(<ChatAvatar name="Ada Lovelace" src="/missing.png" />);
+  fireEvent.error(container.querySelector('img')!);
+  expect(screen.getByText('AL')).toBeInTheDocument();
+});

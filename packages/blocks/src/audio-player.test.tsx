@@ -9,6 +9,21 @@ beforeAll(() => {
 });
 
 describe("AudioPlayer", () => {
+  test("pauses playback, shows elapsed time, and resets after ending", async () => {
+    const { container } = render(<AudioPlayer src="https://example.test/audio.mp3" />);
+    const audio = container.querySelector("audio")!;
+    fireEvent.play(audio);
+    await userEvent.click(screen.getByRole("button", { name: "Pausar" }));
+    expect(HTMLMediaElement.prototype.pause).toHaveBeenCalled();
+    fireEvent.pause(audio);
+    expect(screen.getByRole("button", { name: "Reproducir" })).toBeInTheDocument();
+    audio.currentTime = 65;
+    fireEvent.timeUpdate(audio);
+    expect(screen.getByText("01:05")).toBeInTheDocument();
+    fireEvent.play(audio);
+    fireEvent.ended(audio);
+    expect(screen.getByRole("button", { name: "Reproducir" })).toBeInTheDocument();
+  });
   test("renders a fixed duration when provided", () => {
     render(<AudioPlayer src="https://example.com/a.mp3" durationSeconds={90} />);
     expect(screen.getByText("01:30")).toBeInTheDocument();

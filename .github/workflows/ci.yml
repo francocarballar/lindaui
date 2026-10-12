@@ -28,11 +28,24 @@ jobs:
       - run: pnpm --filter @lindaui/storybook gen:stories --check
 
       # Tooling de exports/declaraciones y regresión de builds CSS concurrentes.
-      - run: node --test "scripts/derive-exports.test.mjs" "scripts/normalize-declarations.test.mjs" "scripts/tokens-concurrent-build.test.mjs"
+      - run: node --test "scripts/derive-exports.test.mjs" "scripts/normalize-declarations.test.mjs" "scripts/tokens-concurrent-build.test.mjs" "scripts/coverage-gaps.test.mjs"
 
       - run: pnpm turbo build
 
       - run: pnpm turbo test
+
+      - run: pnpm test:coverage
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: repository-coverage
+          path: |
+            packages/*/coverage/
+            apps/verona/coverage/
+            coverage/tooling/
+            coverage/run.json
+          retention-days: 14
 
       - run: pnpm turbo typecheck
 
@@ -43,3 +56,20 @@ jobs:
       # (storybook es @lindaui/* pero privado — se excluye)
       - run: pnpm -r --filter "@lindaui/*" --filter "!@lindaui/storybook" exec publint
       - run: pnpm -r --filter "@lindaui/ui" --filter "@lindaui/blocks" exec attw --pack --profile esm-only
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/common-actions/install
+      - run: pnpm exec e2e-web install chromium --with-deps
+      - run: pnpm test:e2e:typecheck
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-evidence
+          path: .e2e/
+          include-hidden-files: true
+          retention-days: 14

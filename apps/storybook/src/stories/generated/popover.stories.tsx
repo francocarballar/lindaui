@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/popover";
+import * as M from "@lindaui/ui/popover";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>popover</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/Popover", component: Scaffold };
+const meta: Meta = { title: "Components/Popover" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.Popover><M.Popover.Trigger tabIndex={0}>Ver detalles</M.Popover.Trigger><M.Popover.Content><M.Popover.Dialog><M.Popover.Heading>Información del turno</M.Popover.Heading><p>Traé tu documento de identidad.</p></M.Popover.Dialog></M.Popover.Content></M.Popover>) };

@@ -42,6 +42,14 @@ describe("useTheme", () => {
     expect(result.current.theme).toBe("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });
+  test("remains usable without browser storage", () => {
+    Object.defineProperty(window, "localStorage", { value: undefined, configurable: true });
+    const { result } = renderHook(() => useTheme());
+    expect(result.current.theme).toBe("light");
+    act(() => result.current.setTheme("dark"));
+    expect(result.current.theme).toBe("dark");
+    expect(document.documentElement).toHaveClass("dark");
+  });
 
   test("picks up prefers-color-scheme when nothing is stored", () => {
     installMatchMedia(true);

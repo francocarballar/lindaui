@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/message-composer";
+import * as M from "@lindaui/blocks/message-composer";
+import { useState } from "react";
+function ComposerDemo() { const [value, setValue] = useState(""); const [sent, setSent] = useState(""); return <div className="w-full max-w-lg"><M.MessageComposer value={value} onValueChange={setValue} onSend={() => { setSent(value); setValue(""); }} /><output role="status">{sent ? `Enviado: ${sent}` : "Sin mensajes enviados"}</output></div>; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>message-composer</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/MessageComposer", component: Scaffold };
+const meta: Meta = { title: "Components/MessageComposer" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<ComposerDemo />) };

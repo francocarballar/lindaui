@@ -128,3 +128,26 @@ describe("TablePane", () => {
     expect(screen.getByText("custom footer")).toBeInTheDocument();
   });
 });
+
+test("empty tables accept a custom icon and footer counts have a useful default label", () => {
+  render(<TablePane columns={columns} rows={[]} emptyIcon={<span>Custom empty icon</span>} footerCount={{ shown: 0, total: 10 }} />);
+  expect(screen.getByText("Custom empty icon")).toBeInTheDocument();
+  expect(screen.getByText(/Mostrando/)).toHaveTextContent("Mostrando 0 de 10");
+});
+
+test("an explicitly null empty icon uses the document fallback", () => {
+  const { container } = render(<TablePane columns={columns} rows={[]} emptyIcon={null} />);
+  expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+  expect(container.querySelector('svg.lucide-file-text')).toBeInTheDocument();
+});
+
+test("false explicitly suppresses the empty icon without suppressing its message", () => {
+  const { container } = render(<TablePane columns={columns} rows={[]} emptyIcon={false} />);
+  expect(screen.getByText("Sin resultados")).toBeInTheDocument();
+  expect(container.querySelector('svg.lucide-file-text')).toBeNull();
+});
+
+test("empty-state descriptions give the user a recovery instruction", () => {
+  render(<TablePane columns={columns} rows={[]} emptyDescription={<p>Change the search filters</p>} />);
+  expect(screen.getByText("Change the search filters")).toBeInTheDocument();
+});

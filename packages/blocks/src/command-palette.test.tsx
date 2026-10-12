@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 import { CommandPalette } from "./command-palette";
@@ -58,7 +58,7 @@ describe("CommandPalette", () => {
     const input = await screen.findByRole("textbox", { name: "Search" });
     await userEvent.type(input, "beta");
     const option = screen.getByRole("option", { name: /Beta/ });
-    option.focus();
+    act(() => option.focus());
     await userEvent.keyboard("{Enter}");
     expect(onSelect).toHaveBeenCalledWith(items[1]);
     expect(onClose).not.toHaveBeenCalled();
@@ -77,5 +77,15 @@ describe("CommandPalette", () => {
     rerender(<CommandPalette isOpen={false} items={items} onClose={onClose} onSelect={vi.fn()} />);
     rerender(<CommandPalette isOpen items={items} onClose={onClose} onSelect={vi.fn()} />);
     expect(await screen.findByRole("textbox", { name: "Search" })).toHaveValue("");
+  });
+
+  test("minimal items support supplied avatars and the default no-results message", async () => {
+    renderPalette({ items: [{ identifier: "ada", name: "Ada" }], renderAvatar: item => <span>{item.name} avatar</span> });
+    const input = await screen.findByRole("textbox", { name: "Search" });
+    expect(screen.getByText("Ada avatar")).toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    await userEvent.type(input, "missing");
+    expect(await screen.findByText(/No results for/)).toHaveTextContent("missing");
+    expect(screen.queryByRole("option", { name: /Ada/ })).toBeNull();
   });
 });

@@ -104,6 +104,7 @@
     "dev": "bunchee --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "peerDependencies": {
@@ -125,6 +126,7 @@
     "framer-motion": "14.0.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "5.0.3",
     "@hookform/resolvers": "^5.9.1",
     "@lindaui/tokens": "workspace:*",
     "@lindaui/ui": "workspace:*",

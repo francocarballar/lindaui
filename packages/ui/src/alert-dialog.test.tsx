@@ -4,6 +4,14 @@ import { AlertDialog } from "./alert-dialog";
 import { describe, test, expect, vi } from "vitest";
 
 describe("AlertDialog", () => {
+  test("destructive confirmation uses danger styling and closes after confirming", async () => {
+    const order: string[] = [];
+    render(<AlertDialog open isDestructive title="Eliminar" description="Irreversible" onConfirm={() => order.push("confirm")} onClose={() => order.push("close")} />);
+    const confirm = screen.getByRole("button", { name: "Confirmar" });
+    expect(confirm).toHaveClass("button--danger");
+    await userEvent.click(confirm);
+    expect(order).toEqual(["confirm", "close"]);
+  });
   test("renders title + description when open", () => {
     render(
       <AlertDialog

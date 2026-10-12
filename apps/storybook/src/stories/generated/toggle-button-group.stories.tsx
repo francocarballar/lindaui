@@ -1,20 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/toggle-button-group";
+import * as M from "@lindaui/ui/toggle-button-group";
+import { ToggleButton } from "@lindaui/ui/toggle-button";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>toggle-button-group</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/ToggleButtonGroup", component: Scaffold };
+const meta: Meta = { title: "Components/ToggleButtonGroup" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.ToggleButtonGroup aria-label="Alineación" selectionMode="single" defaultSelectedKeys={["left"]}><ToggleButton id="left">Izquierda</ToggleButton><ToggleButton id="center">Centro</ToggleButton><ToggleButton id="right">Derecha</ToggleButton></M.ToggleButtonGroup>) };

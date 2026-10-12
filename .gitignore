@@ -3,6 +3,7 @@ dist/
 .turbo/
 storybook-static/
 coverage/
+.e2e/
 *.tsbuildinfo
 .env
 _entry.css

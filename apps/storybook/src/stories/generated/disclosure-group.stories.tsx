@@ -1,20 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/disclosure-group";
+import * as M from "@lindaui/ui/disclosure-group";
+import { Disclosure, DisclosureHeading, DisclosureTrigger, DisclosureContent } from "@lindaui/ui/disclosure";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>disclosure-group</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/DisclosureGroup", component: Scaffold };
+const meta: Meta = { title: "Components/DisclosureGroup" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.DisclosureGroup><Disclosure id="shipping"><DisclosureHeading><DisclosureTrigger>Envíos</DisclosureTrigger></DisclosureHeading><DisclosureContent>Entregamos en todo el país.</DisclosureContent></Disclosure><Disclosure id="returns"><DisclosureHeading><DisclosureTrigger>Devoluciones</DisclosureTrigger></DisclosureHeading><DisclosureContent>Podés devolver tu pedido dentro de 30 días.</DisclosureContent></Disclosure></M.DisclosureGroup>) };

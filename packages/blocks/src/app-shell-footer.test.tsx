@@ -24,7 +24,7 @@ describe("AppShellFooter", () => {
     render(<AppShellFooter isCollapsed isInstallable mounted theme="light" onToggleTheme={onToggleTheme} onSignOut={vi.fn()} />);
     expect(screen.queryByRole("button", { name: "Install app" })).not.toBeInTheDocument();
     const themeButton = screen.getByRole("button", { name: "Dark mode" });
-    themeButton.focus();
+    act(() => themeButton.focus());
     await userEvent.keyboard("{Enter}");
     expect(onToggleTheme).toHaveBeenCalledOnce();
     await userEvent.click(screen.getByRole("button", { name: "Sign out" }));
@@ -63,4 +63,19 @@ describe("AppShellFooter", () => {
     expect(onSignOut).toHaveBeenCalledTimes(2);
     await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
   });
+});
+
+test.each([false, true])("dark theme controls stay named in collapsed=%s disconnected footers", async (isCollapsed) => {
+  const onToggleTheme = vi.fn();
+  render(<AppShellFooter onSignOut={vi.fn()} mounted theme="dark" isCollapsed={isCollapsed} isConnected={false} onToggleTheme={onToggleTheme} />);
+  const theme = screen.getByRole('button', { name: 'Light mode' });
+  await userEvent.click(theme);
+  expect(onToggleTheme).toHaveBeenCalledOnce();
+});
+
+test.each([false, true])("connected footers render light theme controls in collapsed=%s", async (isCollapsed) => {
+  render(<AppShellFooter onSignOut={vi.fn()} mounted theme="light" isCollapsed={isCollapsed} isConnected user={{ displayName: "Ada", avatarAlt: "Ada profile", avatarSrc: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>" }} />);
+  expect(screen.getByRole("button", { name: "Dark mode" })).toBeEnabled();
+  if (isCollapsed) expect(screen.getByLabelText("Connected")).toBeInTheDocument();
+  else expect(screen.getByText("Connected")).toHaveClass("text-success");
 });

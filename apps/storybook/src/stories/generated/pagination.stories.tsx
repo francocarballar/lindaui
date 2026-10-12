@@ -1,20 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/pagination";
+import * as M from "@lindaui/ui/pagination";
+import { useState } from "react";
+function PaginationDemo() { const [page, setPage] = useState(1); return <M.Pagination aria-label="Páginas"><M.Pagination.Content><M.Pagination.Item><M.Pagination.Previous isDisabled={page === 1} onPress={() => setPage(page - 1)}>Anterior</M.Pagination.Previous></M.Pagination.Item>{[1, 2, 3].map(value => <M.Pagination.Item key={value}><M.Pagination.Link isActive={page === value} onPress={() => setPage(value)}>{value}</M.Pagination.Link></M.Pagination.Item>)}<M.Pagination.Item><M.Pagination.Next isDisabled={page === 3} onPress={() => setPage(page + 1)}>Siguiente</M.Pagination.Next></M.Pagination.Item></M.Pagination.Content><M.Pagination.Summary><output role="status">Página {page} de 3</output></M.Pagination.Summary></M.Pagination>; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>pagination</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/Pagination", component: Scaffold };
+const meta: Meta = { title: "Components/Pagination" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<PaginationDemo />) };

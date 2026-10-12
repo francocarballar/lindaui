@@ -34,6 +34,7 @@ jobs:
       # Gate: nunca publicar sin la suite verde (un push directo a main
       # saltea el CI de PRs).
       - run: pnpm turbo test
+      - run: pnpm test:coverage
 
       - run: pnpm skill:validate
       - run: pnpm skill:test

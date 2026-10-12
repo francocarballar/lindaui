@@ -1,20 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/switch-group";
+import * as M from "@lindaui/ui/switch-group";
+import { Switch } from "@lindaui/ui/switch";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>switch-group</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/SwitchGroup", component: Scaffold };
+const meta: Meta = { title: "Components/SwitchGroup" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.SwitchGroup aria-label="Notificaciones"><Switch defaultSelected>Correo electrónico</Switch><Switch>Mensajes de texto</Switch></M.SwitchGroup>) };

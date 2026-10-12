@@ -1,20 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/toast";
+import * as M from "@lindaui/ui/toast";
+import { useEffect } from "react";
+import { Button } from "@lindaui/ui/button";
+function ToastDemo() { useEffect(() => () => M.toastQueue.clear(), []); return <><M.ToastProvider /><Button onPress={() => M.toast.success("Cambios guardados", {description: "Tu información está actualizada.", timeout: 0})}>Guardar cambios</Button></>; }
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>toast</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/Toast", component: Scaffold };
+const meta: Meta = { title: "Components/Toast" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<ToastDemo />) };

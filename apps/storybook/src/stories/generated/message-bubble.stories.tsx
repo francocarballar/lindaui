@@ -1,20 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/blocks/message-bubble";
+import * as M from "@lindaui/blocks/message-bubble";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>message-bubble</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "Blocks/MessageBubble", component: Scaffold };
+const meta: Meta = { title: "Components/MessageBubble" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<div className="w-full max-w-lg space-y-3"><M.MessageBubble message={{id: "incoming", side: "incoming", text: "¿Podemos confirmar el turno?", sentAt: "2026-10-12T12:00:00Z"}} /><M.MessageBubble message={{id: "outgoing", side: "outgoing", text: "Sí, te esperamos mañana.", sentAt: "2026-10-12T12:01:00Z", status: "read"}} /></div>) };

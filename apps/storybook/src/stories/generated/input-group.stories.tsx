@@ -1,20 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import * as Mod from "@lindaui/ui/input-group";
+import * as M from "@lindaui/ui/input-group";
+import { InputGroup as Parts } from "@lindaui/ui/compound";
 
-// Scaffold auto-generado. TODO: componer una story real (ver CLAUDE.md).
-const exportNames = Object.keys(Mod);
-
-function Scaffold() {
-  return (
-    <div style={{ padding: 16, fontFamily: "monospace", fontSize: 13 }}>
-      <p><strong>input-group</strong> &mdash; story pendiente.</p>
-      <p>Exports: {exportNames.join(", ")}</p>
-    </div>
-  );
-}
-
-const meta: Meta<typeof Scaffold> = { title: "WIP/InputGroup", component: Scaffold };
+const meta: Meta = { title: "Components/InputGroup" };
 export default meta;
-type Story = StoryObj<typeof Scaffold>;
+type Story = StoryObj;
 
-export const Default: Story = {};
+export const Default: Story = { render: () => (<M.InputGroup><Parts.Prefix>$</Parts.Prefix><Parts.Input aria-label="Importe" placeholder="0.00" /><Parts.Suffix>USD</Parts.Suffix></M.InputGroup>) };

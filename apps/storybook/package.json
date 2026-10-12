@@ -32,6 +32,7 @@
     "zod": "^4.6.5"
   },
   "dependencies": {
+    "@internationalized/date": "3.12.4",
     "@lindaui/blocks": "workspace:*",
     "@lindaui/tokens": "workspace:*",
     "@lindaui/ui": "workspace:*"

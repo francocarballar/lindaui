@@ -89,3 +89,18 @@ describe("ConfirmDialog", () => {
     expect(onConfirm).toHaveBeenCalledTimes(1);
   });
 });
+
+test.each([false, true])("icon styling and identity initials follow destructive=%s", (destructive) => {
+  render(<ConfirmDialog open onOpenChange={vi.fn()} onConfirm={vi.fn()} title="Review" icon={<span data-testid="action-icon">!</span>} destructive={destructive} identity={{ name: '  Ada   Lovelace  ' }} />);
+  expect(screen.getByText('AL')).toBeInTheDocument();
+  expect(screen.getByTestId('action-icon').parentElement).toHaveClass(destructive ? 'text-destructive' : 'text-primary');
+});
+
+test("Escape requests closing without confirming the action", async () => {
+  const onOpenChange = vi.fn();
+  const onConfirm = vi.fn();
+  render(<ConfirmDialog open onOpenChange={onOpenChange} onConfirm={onConfirm} title="Review" />);
+  await userEvent.setup().keyboard('{Escape}');
+  expect(onOpenChange).toHaveBeenCalledWith(false);
+  expect(onConfirm).not.toHaveBeenCalled();
+});

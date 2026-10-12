@@ -9,6 +9,13 @@ const items = [
 ];
 
 describe("Select", () => {
+  test("controlled selection keeps the supplied value without a callback", async () => {
+    render(<Select label="Tipo" value="b" items={items} />);
+    expect(screen.getByRole("button")).toHaveTextContent("Opción B");
+    await userEvent.click(screen.getByRole("button"));
+    await userEvent.click(await screen.findByRole("option", { name: "Opción A" }));
+    expect(screen.getByRole("button")).toHaveTextContent("Opción B");
+  });
   test("renders label", () => {
     render(<Select label="Tipo" items={items} />);
     expect(screen.getByText("Tipo")).toBeInTheDocument();

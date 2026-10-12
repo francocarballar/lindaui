@@ -75,6 +75,48 @@ Release versioning regenerates the skill inventory alongside package versions.
 
 ## Development commands
 
+Browser tests use [tester.army e2e](https://e2e.tester.army/docs/llms.txt)
+against the compiled Storybook and the production Verona build, with a dedicated Chromium instance and a free
+loopback port. The runner owns startup and cleanup; it does not reuse your tabs.
+
+```bash
+pnpm test:coverage       # library + Verona + tooling; all four coverage metrics
+pnpm test:tooling:coverage # measure Node tooling separately while closing gaps
+pnpm test:coverage:gaps --json # uncovered locations for coding agents
+pnpm test:e2e:install    # install the engine's matching Chromium once
+pnpm test:e2e            # build Storybook + Verona, then run browser suites
+pnpm test:e2e:list       # inspect collected tests without launching Chromium
+pnpm test:e2e:mcp        # app inspection tools for coding agents
+pnpm exec e2e run tests/interactions.e2e.ts --headed
+```
+
+Coverage reports live in `packages/{ui,blocks}/coverage/`, `apps/verona/coverage/`
+and `coverage/tooling/` (HTML, JSON and LCOV).
+All suites run even when a coverage threshold fails; `coverage/run.json` records
+each suite's exit code, signal or launch error. The command exits nonzero if any suite fails.
+Each source file must reach 100% in all four metrics; CI rejects lower coverage.
+Tooling tests use two concurrent workers to keep resource use predictable.
+Tooling coverage includes the contributor scripts, token builder, Storybook
+generator and consumer skill CLI. Its generated Babel/semver dependency bundle
+is excluded like other third-party dependencies; `pnpm skill:vendor --check`
+separately verifies it against the pinned packages and licenses.
+Browser evidence lives in `.e2e/`: `report.json`, `summary.md`, `junit.xml`, and
+failure-specific `results/**/trace.md` plus screenshots. Inspect the trace's
+accessible screen before changing a locator. The catalog suite collects from
+the built `index.json`; adding a story automatically adds a browser check.
+Catalog rendering checks and interaction tests are distinct from code coverage.
+Every generated story composes real components. The generator rejects a new
+component entry without a manual story or a mapped demo, preserving the previous
+inventory. Interaction tests verify changes of state separately from rendering.
+Verona evidence lives in `.e2e/verona/`. Run it independently with
+`pnpm exec e2e run --config e2e.verona.config.ts --output .e2e/verona`.
+Both builds must be current before running focused suites.
+The deterministic suite needs no model account or API key.
+Both desktop (1280x800) and narrow (390x844) viewports run by default. Use
+`pnpm exec e2e run --target chromium-mobile` for a focused responsive check.
+`pnpm test:coverage:gaps --check` exits 1 for incomplete repository coverage and
+2 for missing/invalid evidence; missing reports never count as passing.
+
 Skill contributor checks: `pnpm skill:validate`, `pnpm skill:test`, and
 `pnpm skill:vendor --check`. Build and pack the library, then run
 `pnpm skill:consumers --tarballs "<artifact-directory>"` to verify real Vite

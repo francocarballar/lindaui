@@ -37,3 +37,25 @@ describe("compatibility voice-note player", () => {
     expect(remove).toHaveBeenCalledWith("waiting", expect.any(Function));
   });
 });
+
+it("pause events stop playback and invalid duration metadata cannot corrupt time display", () => {
+  const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(function (this: HTMLMediaElement) { this.dispatchEvent(new Event('play')); return Promise.resolve(); });
+  const pause = vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(function (this: HTMLMediaElement) { this.dispatchEvent(new Event('pause')); });
+  const { container } = render(<WhatsAppAudioPlayer src="/voice.ogg" />);
+  const audio = container.querySelector('audio')!;
+  const seek = screen.getByRole('button', { name: 'Cambiar posición del audio' });
+  Object.defineProperty(audio, 'duration', { configurable: true, value: Number.NaN });
+  fireEvent.durationChange(audio);
+  fireEvent.click(seek, { clientX: 40 });
+  expect(audio.currentTime).toBe(0);
+  fireEvent.timeUpdate(audio);
+  expect(screen.getByText('0:00')).toBeInTheDocument();
+  Object.defineProperty(audio, 'duration', { configurable: true, value: -10 });
+  fireEvent.durationChange(audio);
+  expect(screen.getByText('0:00')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Reproducir audio' }));
+  expect(play).toHaveBeenCalledOnce();
+  fireEvent.click(screen.getByRole('button', { name: 'Pausar audio' }));
+  expect(pause).toHaveBeenCalledOnce();
+  expect(screen.getByRole('button', { name: 'Reproducir audio' })).toBeInTheDocument();
+});

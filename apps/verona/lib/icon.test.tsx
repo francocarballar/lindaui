@@ -20,3 +20,8 @@ test('propaga className al svg', () => {
   const { container } = render(<Icon name="pi pi-home" className="layout-menuitem-icon" />);
   expect(container.querySelector('svg')?.getAttribute('class')).toContain('layout-menuitem-icon');
 });
+
+test('clases sin token pi usan el icono fallback', () => {
+  const { container } = render(<Icon name="custom-icon pi pi-fw" />);
+  expect(container.querySelector('svg')).toBeInTheDocument();
+});

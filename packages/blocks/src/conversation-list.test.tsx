@@ -47,3 +47,10 @@ describe("ConversationList", () => {
     expect(screen.getByLabelText("Buscar")).toHaveValue("jua");
   });
 });
+
+test("read-only conversations remain usable and optional filter content is visible", async () => {
+  render(<ConversationList conversations={[{ id: "dated", title: "Ada", lastMessageAt: new Date() }]} filters={<button>Unread</button>} />);
+  expect(screen.getByRole("button", { name: "Unread" })).toBeInTheDocument();
+  await userEvent.click(screen.getByText("Ada"));
+  expect(screen.getByText("Ada")).toBeInTheDocument();
+});

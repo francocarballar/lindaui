@@ -135,6 +135,7 @@
     "dev": "bunchee --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "peerDependencies": {
@@ -160,6 +161,7 @@
     "tailwind-variants": "^3.3.1"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "5.0.3",
     "@hookform/resolvers": "^5.9.1",
     "@lindaui/tokens": "workspace:*",
     "@testing-library/jest-dom": "^7.0.1",

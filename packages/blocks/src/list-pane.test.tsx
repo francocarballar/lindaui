@@ -66,3 +66,21 @@ describe("ListPane", () => {
     expect(screen.getByText("Nada por aquí")).toBeInTheDocument();
   });
 });
+
+test("optional callbacks tolerate input and filter interaction, and counts preserve zero", async () => {
+  const user = userEvent.setup();
+  render(<ListPane filters={[{ key: 'all', label: 'All', count: 0 }]} />);
+  expect(screen.getByText('0')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'All' }));
+  await user.type(screen.getByRole('searchbox'), 'a');
+  expect(screen.getByRole('searchbox')).toHaveValue('');
+});
+
+test("empty and error states support custom content and omitted retry handlers", () => {
+  const { rerender } = render(<ListPane emptyIcon={<span>Custom icon</span>} emptyDescription="Try a different filter" />);
+  expect(screen.getByText('Custom icon')).toBeInTheDocument();
+  expect(screen.getByText('Try a different filter')).toBeInTheDocument();
+  rerender(<ListPane error="Offline" />);
+  expect(screen.getByText('Offline')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Reintentar' })).toBeNull();
+});

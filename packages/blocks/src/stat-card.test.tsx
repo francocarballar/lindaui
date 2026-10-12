@@ -92,3 +92,11 @@ describe("StatCard", () => {
     expect(screen.getByText("+71%")).toBeInTheDocument();
   });
 });
+
+test("featured cards display descriptions and sparklines, and standard cards display icons", () => {
+  const { rerender } = render(<StatCard variant="featured" label="Trend" value="42" description="Weekly activity" sparkline={{ data: [{ v: 1 }, { v: 3 }], dataKey: "v" }} />);
+  expect(screen.getByText("Weekly activity")).toBeInTheDocument();
+  expect(screen.getByText("42")).toBeInTheDocument();
+  rerender(<StatCard label="Revenue" value="10" icon={<svg aria-label="Revenue icon" />} />);
+  expect(screen.getByLabelText("Revenue icon")).toBeInTheDocument();
+});

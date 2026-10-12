@@ -40,4 +40,10 @@ describe("groupByDay", () => {
   test("returns an empty array for no items", () => {
     expect(groupByDay<Msg>([], (m) => m.at)).toEqual([]);
   });
+  test("accepts Date objects and numeric timestamps", () => {
+    const first = new Date(2026, 6, 8, 8);
+    const second = new Date(2026, 6, 8, 9).getTime();
+    const result = groupByDay([first, second], (value) => value);
+    expect(result).toEqual([{ key: "2026-07-08", label: "Hoy", items: [first, second] }]);
+  });
 });
