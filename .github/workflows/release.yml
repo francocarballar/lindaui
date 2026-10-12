@@ -39,7 +39,7 @@ jobs:
       - run: pnpm skill:validate
       - run: pnpm skill:test
 
-      - uses: changesets/action@v1
+      - uses: changesets/action@v2
         with:
           version: pnpm version-packages
           # NO usar `changeset publish`: changesets@2.31 + npm 11 crashea en
