@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "commit": {
+      "source": "francocarballar/commit-skill",
+      "sourceType": "github",
+      "skillPath": "skills/commit/SKILL.md",
+      "computedHash": "4d6e3a41192f7f1c3f63572846713d236a927b1caedf8ef079a617521c2b516d"
+    },
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",
