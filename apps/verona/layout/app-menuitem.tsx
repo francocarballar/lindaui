@@ -6,6 +6,7 @@ import { useLayout } from './context/layout-context';
 import { useMenu } from './context/menu-context';
 import { Icon } from '@/lib/icon';
 import type { MenuModel } from '@/types/layout';
+import { Button } from '@lindaui/ui/button';
 
 interface Props {
   item: MenuModel;
@@ -28,7 +29,7 @@ export default function AppMenuitem({ item, index, parentKey, root }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const itemClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+  const itemClick = (event: React.MouseEvent<Element>) => {
     if (item.disabled) {
       event.preventDefault();
       return;
@@ -43,7 +44,7 @@ export default function AppMenuitem({ item, index, parentKey, root }: Props) {
 
   const subMenu =
     item.items && item.visible !== false ? (
-      <ul>
+      <ul inert={!root && !active} aria-hidden={!root && !active}>
         {item.items.map((child, i) => (
           <AppMenuitem item={child} index={i} parentKey={key} key={child.label} />
         ))}
@@ -59,7 +60,17 @@ export default function AppMenuitem({ item, index, parentKey, root }: Props) {
       )}
 
       {(!item.to || item.items) && item.visible !== false && !root ? (
-        <a
+        item.items || !item.url ? <Button
+          variant="ghost"
+          onClick={itemClick}
+          className={item.class}
+          aria-expanded={active}
+          isDisabled={item.disabled}
+        >
+          <Icon name={item.icon} className="layout-menuitem-icon" />
+          <span className="layout-menuitem-text">{item.label}</span>
+          {item.items && <Icon name="pi pi-angle-down" className="layout-submenu-toggler" />}
+        </Button> : <a
           href={item.url}
           onClick={itemClick}
           className={item.class}
@@ -68,7 +79,6 @@ export default function AppMenuitem({ item, index, parentKey, root }: Props) {
         >
           <Icon name={item.icon} className="layout-menuitem-icon" />
           <span className="layout-menuitem-text">{item.label}</span>
-          {item.items && <Icon name="pi pi-angle-down" className="layout-submenu-toggler" />}
         </a>
       ) : null}
 
