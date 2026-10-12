@@ -51,10 +51,11 @@ export function ConversationThread({ messages, isLoading = false, isError = fals
     if (!el || !listEl) return;
     let settleTimeout: ReturnType<typeof setTimeout> | null = null;
     let settled = false;
-    const scrollNow = () => { el.scrollTop = el.scrollHeight; };
+    const scrollNow = () => scrollToBottom("auto");
     const scheduleSettle = () => {
       if (settleTimeout) clearTimeout(settleTimeout);
       settleTimeout = setTimeout(() => {
+        settleTimeout = null;
         settled = true;
         hasScrolledOnLoad.current = true;
         resizeObserver.disconnect();
@@ -67,8 +68,8 @@ export function ConversationThread({ messages, isLoading = false, isError = fals
     const mutationObserver = new MutationObserver(() => { if (!settled) { scrollNow(); scheduleSettle(); } });
     resizeObserver.observe(listEl);
     mutationObserver.observe(listEl, { childList: true, subtree: true });
-    return () => { if (settleTimeout) clearTimeout(settleTimeout); resizeObserver.disconnect(); mutationObserver.disconnect(); };
-  }, [isLoading, messages.length, firstId]);
+    return () => { settled = true; if (settleTimeout) clearTimeout(settleTimeout); resizeObserver.disconnect(); mutationObserver.disconnect(); };
+  }, [isLoading, messages.length, firstId, scrollToBottom]);
   const messageCount = messages.length;
   const prevMessageCount = useRef(messageCount);
   useEffect(() => {

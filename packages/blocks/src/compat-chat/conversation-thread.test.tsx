@@ -10,7 +10,7 @@ const messages: GenericMessage[] = [
 ];
 const disconnect = vi.fn();
 beforeEach(() => { vi.stubGlobal("ResizeObserver", class { observe() {} unobserve() {} disconnect = disconnect; }); });
-afterEach(() => { vi.unstubAllGlobals(); vi.clearAllMocks(); });
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
 
 describe("generic ConversationThread", () => {
   it("groups days and preserves the original pattern, polling label, and composer clearance", () => {
@@ -37,4 +37,52 @@ describe("generic ConversationThread", () => {
     expect(screen.getByTestId("virtual-thread")).toHaveTextContent("Second");
     expect(screen.queryByText("First")).toBeNull();
   });
+});
+
+it("settles initial scrolling, follows appended messages, and resets when switching conversations", () => {
+  vi.useFakeTimers();
+  const resizeCallbacks: (() => void)[] = [];
+  const mutationCallbacks: (() => void)[] = [];
+  const scrollTo = vi.fn();
+  vi.stubGlobal("ResizeObserver", class {
+    constructor(callback: () => void) { resizeCallbacks.push(callback); }
+    observe() {} unobserve() {} disconnect = disconnect;
+  });
+  vi.stubGlobal("MutationObserver", class {
+    constructor(callback: () => void) { mutationCallbacks.push(callback); }
+    observe() {} disconnect = disconnect;
+  });
+  const frames: FrameRequestCallback[] = [];
+  vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
+  const { rerender, unmount } = render(<ConversationThread messages={messages.slice(0, 1)} labels={labels} />);
+  expect(resizeCallbacks.length).toBeGreaterThan(0);
+  expect(mutationCallbacks.length).toBeGreaterThan(0);
+  const scrollArea = screen.getByText("First").closest("[data-slot='scroll-shadow']") as HTMLElement;
+  scrollArea.scrollTo = scrollTo;
+  Object.defineProperty(scrollArea, "scrollHeight", { configurable: true, value: 500 });
+  resizeCallbacks.forEach(callback => callback());
+  mutationCallbacks.forEach(callback => callback());
+  expect(scrollArea.scrollTop).toBe(500);
+  vi.advanceTimersByTime(250);
+  expect(disconnect).toHaveBeenCalled();
+  // Observer notifications after disconnection must not disturb the position.
+  scrollArea.scrollTop = 25;
+  resizeCallbacks.forEach(callback => callback());
+  mutationCallbacks.forEach(callback => callback());
+  expect(scrollArea.scrollTop).toBe(25);
+  rerender(<ConversationThread messages={messages.slice(0, 2)} labels={labels} />);
+  frames.splice(0).forEach(callback => callback(0));
+  expect(scrollTo).toHaveBeenCalledWith({ behavior: "smooth", top: 500 });
+  rerender(<ConversationThread messages={[{ ...messages[0]!, id: "other-conversation" }]} labels={labels} />);
+  expect(scrollArea.scrollTop).toBe(500);
+  rerender(<ConversationThread messages={messages} labels={labels} />);
+  expect(frames.length).toBeGreaterThan(0);
+  unmount();
+  scrollArea.scrollTop = 35;
+  resizeCallbacks.forEach(callback => callback());
+  mutationCallbacks.forEach(callback => callback());
+  expect(scrollArea.scrollTop).toBe(35);
+  // A queued append callback after unmount must safely ignore the cleared ref.
+  frames.splice(0).forEach(callback => callback(0));
+  vi.useRealTimers();
 });
