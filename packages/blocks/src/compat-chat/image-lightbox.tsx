@@ -13,7 +13,7 @@ export function ImageLightbox({ src, alt = "Media", className }: ImageLightboxPr
       <img alt={alt} className="h-44 w-full max-w-[220px] rounded-lg object-cover" height={600} loading="lazy" src={src} width={800} />
     </button>
     <Modal.Backdrop className="bg-black/80" isOpen={isOpen} onOpenChange={handleOpenChange} variant="blur">
-      <Modal.Container className="overflow-hidden" size="full"><Modal.Dialog className="m-0 rounded-none shadow-none">
+      <Modal.Container className="overflow-hidden" size="full"><Modal.Dialog aria-label={alt} className="m-0 rounded-none shadow-none">
         <Modal.CloseTrigger className="top-4 right-4 z-10 rounded-full bg-black/50 text-white hover:bg-black/70" />
         <Modal.Body className="flex h-full items-center justify-center overflow-hidden p-4"><img alt={alt} className="max-h-full max-w-full rounded-lg object-contain" height={1080} src={src} width={1920} /></Modal.Body>
       </Modal.Dialog></Modal.Container>

@@ -32,6 +32,7 @@ export function MessageBubble({ message, onImageClick }: MessageBubbleProps) {
         {message.media?.kind === "image" && (
           <button
             type="button"
+            aria-label={message.media.alt || "Abrir imagen"}
             onClick={() => onImageClick?.(message.media!.url)}
             className="-mx-1 -mt-1 mb-1 block overflow-hidden rounded-xl"
           >

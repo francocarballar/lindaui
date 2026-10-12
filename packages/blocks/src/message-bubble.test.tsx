@@ -35,7 +35,7 @@ describe("MessageBubble", () => {
       media: { kind: "image", url: "https://example.com/photo.jpg" },
     };
     render(<MessageBubble message={message} onImageClick={onImageClick} />);
-    await userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("button", { name: "Abrir imagen" }));
     expect(onImageClick).toHaveBeenCalledWith("https://example.com/photo.jpg");
   });
 

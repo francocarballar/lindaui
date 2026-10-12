@@ -28,7 +28,8 @@ export function ImageViewer({
   maxZoom = 2.6,
 }: ImageViewerProps) {
   const [zoom, setZoom] = useState(1);
-  const [imgOk, setImgOk] = useState(false);
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const imgOk = loadedSrc === src;
 
   const showPlaceholder = !src || !imgOk;
 
@@ -40,10 +41,11 @@ export function ImageViewer({
       >
         {src && (
           <img
+            key={src}
             src={src}
             alt={alt}
-            onLoad={() => setImgOk(true)}
-            onError={() => setImgOk(false)}
+            onLoad={() => setLoadedSrc(src)}
+            onError={() => setLoadedSrc(null)}
             className="max-h-full max-w-full object-contain"
             style={{ display: imgOk ? "block" : "none" }}
           />
