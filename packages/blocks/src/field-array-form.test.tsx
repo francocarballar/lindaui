@@ -154,3 +154,28 @@ describe("FieldArrayForm", () => {
     expect(screen.getByRole("button", { name: "Enviar" })).toBeInTheDocument();
   });
 });
+
+
+test("category selection and initial values reach submission", async () => {
+  const user = userEvent.setup();
+  const onSubmit = vi.fn();
+  render(<FieldArrayForm onSubmit={onSubmit} options={OPTIONS} defaultValues={{ category: "b", name: "Existing", entries: [{ key: "id", value: "42" }] }} />);
+  await user.click(screen.getByRole("button", { name: /Option B/ }));
+  await user.click(screen.getByRole("option", { name: "Option A" }));
+  await user.click(screen.getByRole("button", { name: "Guardar" }));
+  expect(onSubmit.mock.calls[0][0]).toEqual({ category: "a", name: "Existing", entries: [{ key: "id", value: "42" }] });
+});
+
+test("empty options submit an empty category and empty hints are shown", async () => {
+  const user = userEvent.setup();
+  const onSubmit = vi.fn();
+  render(<FieldArrayForm onSubmit={onSubmit} options={[]} emptyHint="Add your first entry" />);
+  expect(screen.getByText("Add your first entry")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Guardar" }));
+  expect(onSubmit.mock.calls[0][0]).toEqual({ category: "", name: "", entries: [] });
+});
+
+test("category label names its actual selection control", () => {
+  render(<FieldArrayForm onSubmit={vi.fn()} options={OPTIONS} categoryLabel="Document category" />);
+  expect(screen.getByRole('button', { name: /Document category/ })).toBeInTheDocument();
+});

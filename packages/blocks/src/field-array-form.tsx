@@ -63,12 +63,12 @@ export function FieldArrayForm({
       <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5">
         {/* Category Select via Controller */}
         <div>
-          <label className="text-sm font-medium">{categoryLabel}</label>
           <Controller
             control={control}
             name="category"
             render={({ field }) => (
               <Select
+                label={categoryLabel}
                 items={options}
                 value={field.value}
                 onChange={(val) => field.onChange(val)}
