@@ -9,7 +9,7 @@ export const policyText = `${policyStart}\n## UI implementation with LindaUI\n\n
 export function activate(context, options) {
   const path = options.out ?? 'AGENTS.md'; const full = safePath(context.root, path); const text = existsSync(full) ? readFileSync(full, 'utf8') : '';
   const start = text.indexOf(policyStart); const end = text.indexOf(policyEnd);
-  if ((start < 0) !== (end < 0) || (start >= 0 && end < start) || text.indexOf(policyStart, start + 1) >= 0) throw new DXError('POLICY_MARKERS', 'Existing policy markers are malformed; review them before editing.');
+  if ((start < 0) !== (end < 0) || (start >= 0 && end < start) || text.indexOf(policyStart, start + 1) >= 0 || text.indexOf(policyEnd, end + 1) >= 0) throw new DXError('POLICY_MARKERS', 'Existing policy markers are malformed; review them before editing.');
   const result = start >= 0 ? text.slice(0, start) + policyText.trimEnd() + text.slice(end + policyEnd.length) : text + (text && !text.endsWith('\n') ? '\n' : '') + (text ? '\n' : '') + policyText;
   return makePlan(context, 'activate', [change(context.root, path, result)], null, ['Project instructions request automatic selection. Actual discovery also depends on the agent loading the installed skill.']);
 }
@@ -34,7 +34,7 @@ export function theme(context, options) {
     for (const [mode, selector, colors] of [['light', ':root', light], ['dark', '.dark', dark]]) {
       const startMarker = `/* lindaui:brand:${mode}:start */`; const endMarker = `/* lindaui:brand:${mode}:end */`;
       const start = css.indexOf(startMarker); const end = css.indexOf(endMarker);
-      if (start < 0 || end < start || css.indexOf(startMarker, start + 1) >= 0) throw new DXError('THEME_MARKERS', 'Generated brand markers are malformed; preserve and review the existing theme.');
+      if (start < 0 || end < start || css.indexOf(startMarker, start + 1) >= 0 || css.indexOf(endMarker, end + 1) >= 0) throw new DXError('THEME_MARKERS', 'Generated brand markers are malformed; preserve and review the existing theme.');
       css = css.slice(0, start) + block(mode, selector, colors) + css.slice(end + endMarker.length);
     }
   }
@@ -77,7 +77,8 @@ export const recipeEntries = {
   'data-table': ['@lindaui/blocks/table-pane', '@lindaui/ui/search']
 };
 export function scaffold(context, options, kind) {
-  const entries = recipeEntries[kind]; if (!entries) throw new DXError('UNKNOWN_RECIPE', `Recipes: ${Object.keys(recipeEntries).join(', ')}`);
+  if (!Object.hasOwn(recipeEntries, kind)) throw new DXError('UNKNOWN_RECIPE', `Recipes: ${Object.keys(recipeEntries).join(', ')}`);
+  const entries = recipeEntries[kind];
   const name = options.name ?? ({ 'contact-form': 'ContactForm', 'searchable-list': 'SearchableList', 'confirmation-dialog': 'ConfirmationDialog', 'data-table': 'DataTable' })[kind];
   if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) throw new DXError('INVALID_NAME', 'Use a PascalCase component name.');
   const typescript = options.language ? options.language === 'ts' : existsSync(safePath(context.root, 'tsconfig.json'));

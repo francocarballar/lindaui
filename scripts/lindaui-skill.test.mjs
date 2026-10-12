@@ -5,13 +5,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { gzipSync } from 'node:zlib';
-import { target, installed, exportTarget, resolveEntry, compatibleDeclaration, digest } from '../skills/lindaui/scripts/lib/project.mjs';
-import { doctor, api, check } from '../skills/lindaui/scripts/lib/analyze.mjs';
-import { setup } from '../skills/lindaui/scripts/lib/setup.mjs';
+import { gzipSync, gunzipSync } from 'node:zlib';
+import { target, installed, exportTarget, resolveEntry, compatibleDeclaration, digest, sources, ast, walk, imports, compiler, satisfies, peerIssues } from '../skills/lindaui/scripts/lib/project.mjs';
+import { doctor, api, check, inspectSources } from '../skills/lindaui/scripts/lib/analyze.mjs';
+import { setup, registryMetadata, tarballManifest } from '../skills/lindaui/scripts/lib/setup.mjs';
 import { makePlan, change, applyPlan, safePath, addImport } from '../skills/lindaui/scripts/lib/operations.mjs';
 import { theme, scaffold, activate, recipe } from '../skills/lindaui/scripts/lib/generate.mjs';
-import { execute, argumentsFor } from '../skills/lindaui/scripts/lindaui.mjs';
+import { execute, argumentsFor, renderResult } from '../skills/lindaui/scripts/lindaui.mjs';
 import { managerInvocation, runManager, nodeShimEntry } from '../skills/lindaui/scripts/lib/process.mjs';
 
 function file(root, path, value) { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), typeof value === 'string' ? value : JSON.stringify(value, null, 2)); }
@@ -237,4 +237,437 @@ test('portable tarball plans use relative file specs and bind archive hashes', a
   const plan = await setup(target(root), { tarballs: 'vendor', offline: true });
   assert.deepEqual(plan.install.specs, ['@lindaui/tokens@file:vendor/tokens.tgz', '@lindaui/ui@file:vendor/ui.tgz']);
   writeFileSync(join(directory, 'tokens.tgz'), archive({ ...tokens, version: '0.5.0' })); assert.throws(() => applyPlan(target(root), plan), { code: 'STALE_PLAN' });
+});
+
+test('CLI parser validates flags, values, positional limits and prototype names', () => {
+  assert.deepEqual(argumentsFor([]), { command: 'help', options: {}, positional: [] });
+  assert.deepEqual(argumentsFor(['--help']), { command: 'help', options: { help: true }, positional: [] });
+  assert.deepEqual(argumentsFor(['doctor', '-h']), { command: 'doctor', options: { help: true }, positional: [] });
+  assert.equal(argumentsFor(['doctor', '--project=path=with=equals']).options.project, 'path=with=equals');
+  for (const [args, code] of [
+    [['doctor', '--json', '--json'], 'DUPLICATE_OPTION'],
+    [['doctor', '--json=true'], 'INVALID_OPTION'],
+    [['doctor', '--project'], 'MISSING_OPTION_VALUE'],
+    [['doctor', '--project', '--json'], 'MISSING_OPTION_VALUE'],
+    [['doctor', 'extra'], 'UNEXPECTED_ARGUMENT'],
+    [['api', 'button', 'extra'], 'UNEXPECTED_ARGUMENT'],
+    [['scaffold', 'contact-form', 'extra'], 'UNEXPECTED_ARGUMENT'],
+    [['unknown'], 'UNKNOWN_COMMAND'],
+    [['constructor'], 'UNKNOWN_COMMAND'],
+    [['toString', '--json'], 'UNKNOWN_COMMAND'],
+    [['__proto__'], 'UNKNOWN_COMMAND'],
+  ]) assert.throws(() => argumentsFor(args), { code }, JSON.stringify(args));
+});
+
+test('CLI executes saved plans, immediate application, API listing and all local generators', async t => {
+  const root = fixture(t);
+  assert.equal((await execute(['doctor', '--project', root])).command, 'doctor');
+  assert.equal((await execute(['api', '--project', root, '--list'])).command, 'api');
+  assert.equal((await execute(['setup', '--project', root, '--offline', '--apply'])).status, 'applied');
+  assert.equal((await execute(['theme', '--project', root, '--primary', '#2563eb'])).status, 'planned');
+  assert.equal((await execute(['scaffold', 'contact-form', '--project', root])).status, 'planned');
+  assert.equal((await execute(['activate', '--project', root, '--apply'])).status, 'applied');
+  const saved = join(root, 'saved-theme.json');
+  const plan = await execute(['theme', '--project', root, '--primary', '#2563eb', '--save-plan', saved]);
+  assert.equal(plan.status, 'planned');
+  assert.equal(JSON.parse(readFileSync(saved, 'utf8')).id, plan.data.plan.id);
+  assert.equal((await execute(['apply', '--project', root, '--plan', saved])).status, 'applied');
+  await assert.rejects(execute(['apply', '--project', root]), { code: 'PLAN_REQUIRED' });
+});
+
+test('CLI records failed typechecks and rejects unavailable or ambiguous compiler execution', async t => {
+  const root = fixture(t);
+  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  manifest.scripts.typecheck = 'node -e "process.exit(3)"';
+  file(root, 'package.json', manifest);
+  const failed = await execute(['check', '--project', root, '--typecheck']);
+  assert.equal(failed.ok, false);
+  assert.equal(failed.data.verification.typecheck.status, 'failed');
+  assert.ok(failed.findings.some(finding => finding.code === 'TYPECHECK_FAILED'));
+  delete manifest.scripts;
+  file(root, 'package.json', manifest);
+  await assert.rejects(execute(['check', '--project', root, '--typecheck']), { code: 'TYPECHECK_UNAVAILABLE' });
+  manifest.scripts = { typecheck: 'node -e "process.exit(0)"' };
+  delete manifest.packageManager;
+  file(root, 'package.json', manifest);
+  file(root, 'package-lock.json', '{}');
+  file(root, 'yarn.lock', '');
+  await assert.rejects(execute(['check', '--project', root, '--typecheck']), { code: 'AMBIGUOUS_MANAGER' });
+});
+
+test('actual CLI renders help, plans, findings and execution errors with documented exit codes', t => {
+  const root = fixture(t);
+  const cli = (...args) => spawnSync(process.execPath, ['skills/lindaui/scripts/lindaui.mjs', ...args], { encoding: 'utf8' });
+  const help = cli();
+  assert.equal(help.status, 0); assert.match(help.stdout, /LindaUI agent CLI/);
+  const plan = cli('activate', '--project', root);
+  assert.equal(plan.status, 0, plan.stdout); assert.match(plan.stdout, /activate: plan/);
+  const applied = cli('activate', '--project', root, '--apply');
+  assert.equal(applied.status, 0, applied.stdout); assert.match(applied.stdout, /activate: applied/);
+  file(root, 'src/Bad.tsx', "import { Missing } from '@lindaui/ui/nonexistent'; export const view = Missing;");
+  const findings = cli('check', '--project', root);
+  assert.equal(findings.status, 1); assert.match(findings.stdout, /INVALID_IMPORT/);
+  const error = cli('apply', '--project', root);
+  assert.equal(error.status, 2); assert.match(error.stdout, /PLAN_REQUIRED/);
+  const bad = join(root, 'bad-plan.json'); file(root, 'bad-plan.json', '{bad json');
+  const generic = cli('apply', '--project', root, '--plan', bad, '--json');
+  assert.equal(generic.status, 2); assert.equal(JSON.parse(generic.stdout).error.code, 'EXECUTION_ERROR');
+  const strict = cli('doctor', '--project', root, '--strict', '--json');
+  assert.equal(strict.status, 1); assert.equal(JSON.parse(strict.stdout).ok, false);
+});
+
+test('human CLI findings retain actionable and structured details without a message field', () => {
+  const output = renderResult({ command: 'doctor', status: 'issues', data: {}, findings: [
+    { severity: 'warning', code: 'REPAIR', action: 'Run setup' },
+    { severity: 'error', code: 'DETAILS', affectedFiles: ['src/main.tsx'] },
+  ] });
+  assert.match(output, /warning: REPAIR: Run setup/);
+  assert.match(output, /error: DETAILS: .*affectedFiles/);
+});
+
+test('generator guards reject malformed owned policy/theme markers without changing user files', t => {
+  const root = fixture(t); const context = target(root);
+  const start = '<!-- lindaui:ui-policy:start -->';
+  const end = '<!-- lindaui:ui-policy:end -->';
+  for (const text of [start, end, `${end}\n${start}`, `${start}\n${start}\n${end}`, `${start}\n${end}\n${end}`]) {
+    file(root, 'AGENTS.md', text);
+    assert.throws(() => activate(context, {}), { code: 'POLICY_MARKERS' });
+    assert.equal(readFileSync(join(root, 'AGENTS.md'), 'utf8'), text);
+  }
+  file(root, 'AGENTS.md', 'User notes without a newline');
+  const policy = activate(context, { out: 'AGENTS.md' });
+  assert.match(policy.files[0].content, /^User notes without a newline\n\n/);
+  file(root, 'src/main.tsx', 'import "@lindaui/tokens/css";\nexport {};');
+  const valid = theme(context, { primary: '#000000', 'primary-dark': '#ffffff' });
+  const css = valid.files.find(file => file.path.endsWith('.css')).content;
+  assert.match(css, /--primary-foreground: #ffffff/);
+  assert.match(css, /--primary-foreground: #000000/);
+  const lightStart = '/* lindaui:brand:light:start */';
+  const lightEnd = '/* lindaui:brand:light:end */';
+  for (const text of [
+    css.replace(lightStart, ''), css.replace(lightStart, 'TEMP_MARKER').replace(lightEnd, lightStart).replace('TEMP_MARKER', lightEnd),
+    css.replace(lightStart, lightStart + '\n' + lightStart), css + '\n' + lightEnd,
+  ]) {
+    file(root, 'src/lindaui-theme.css', text);
+    assert.throws(() => theme(context, { primary: '#2563eb' }), { code: 'THEME_MARKERS' });
+    assert.equal(readFileSync(join(root, 'src/lindaui-theme.css'), 'utf8'), text);
+  }
+});
+
+test('themes reject missing tokens, invalid colors and entries without a base stylesheet', t => {
+  const root = fixture(t); const context = target(root);
+  for (const primary of [undefined, '#abc', 'red']) assert.throws(() => theme(context, { primary }), { code: 'INVALID_COLOR' });
+  assert.throws(() => theme(context, { primary: '#2563eb' }), { code: 'THEME_ENTRY_REQUIRED' });
+  file(root, 'src/app.css', 'body {}');
+  assert.throws(() => theme(context, { primary: '#2563eb', entry: 'src/app.css' }), { code: 'THEME_ENTRY_REQUIRED' });
+  file(root, 'src/app.css', '@import "@lindaui/tokens/css";\nbody {}');
+  const plan = theme(context, { primary: '#2563eb', entry: 'src/app.css', out: 'brand.css' });
+  assert.match(plan.files.find(file => file.path === 'src/app.css').content, /@import "\.\.\/brand.css"/);
+  applyPlan(context, plan);
+  assert.equal(theme(context, { primary: '#2563eb', entry: 'src/app.css', out: 'brand.css' }).files.length, 0);
+  rmSync(join(root, 'node_modules/@lindaui/tokens/dist/theme-template.css'));
+  assert.throws(() => theme(context, { primary: '#2563eb' }), { code: 'TOKENS_REQUIRED' });
+  rmSync(join(root, 'node_modules/@lindaui/tokens'), { recursive: true });
+  assert.throws(() => theme(context, { primary: '#2563eb' }), { code: 'TOKENS_REQUIRED' });
+});
+
+test('scaffold validates languages, extensions, unavailable recipes and prototype keys', t => {
+  const root = fixture(t); const context = target(root);
+  assert.throws(() => scaffold(context, { language: 'coffee' }, 'contact-form'), { code: 'INVALID_LANGUAGE' });
+  assert.throws(() => scaffold(context, { language: 'js', out: 'Contact.tsx' }, 'contact-form'), { code: 'INVALID_OUTPUT_EXTENSION' });
+  assert.throws(() => scaffold(context, {}, 'toString'), { code: 'UNKNOWN_RECIPE' });
+  assert.throws(() => recipe('unknown', 'Example', true), { code: 'UNKNOWN_RECIPE' });
+  const generated = scaffold(context, {}, 'contact-form');
+  applyPlan(context, generated);
+  assert.equal(scaffold(context, {}, 'contact-form').files.length, 0);
+  rmSync(join(root, 'node_modules/@lindaui/ui/dist/input.js'));
+  assert.throws(() => scaffold(context, {}, 'contact-form'), { code: 'RECIPE_UNAVAILABLE' });
+  rmSync(join(root, 'node_modules/@lindaui/ui'), { recursive: true });
+  assert.throws(() => scaffold(context, {}, 'contact-form'), { code: 'RECIPE_UNAVAILABLE' });
+  const jsRoot = fixture(t, { typescript: false });
+  assert.match(scaffold(target(jsRoot), {}, 'contact-form').files[0].path, /\.jsx$/);
+});
+
+test('setup validates package/style choices and unsupported execution contexts', async t => {
+  const root = fixture(t); const context = target(root);
+  for (const style of ['missing', 'toString']) await assert.rejects(setup(context, { offline: true, style }), { code: 'INVALID_STYLE' });
+  await assert.rejects(setup(context, { offline: true, packages: 'missing' }), { code: 'INVALID_PACKAGES' });
+  await assert.rejects(setup({ ...context, manager: null }, {}), { code: 'AMBIGUOUS_MANAGER' });
+  await assert.rejects(setup({ ...context, unsupported: true }, {}), { code: 'PNP_UNSUPPORTED' });
+  await assert.rejects(setup({ ...context, manifest: { ...context.manifest, workspaces: ['apps/*'] } }, {}), { code: 'WORKSPACE_ROOT' });
+  assert.equal((await setup(context, { offline: true, packages: 'blocks' })).install, null);
+  assert.equal((await setup(context, { offline: true, packages: 'tokens' })).install, null);
+  const tokens = installed('@lindaui/tokens', root).manifest;
+  delete tokens.exports['./css']; file(root, 'node_modules/@lindaui/tokens/package.json', tokens);
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'STYLE_UNAVAILABLE' });
+});
+
+test('setup accepts compatible declared React and peers while rejecting unproven ranges', async t => {
+  const root = fixture(t);
+  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  rmSync(join(root, 'node_modules/react'), { recursive: true });
+  rmSync(join(root, 'node_modules/react-dom'), { recursive: true });
+  rmSync(join(root, 'node_modules/react-hook-form'), { recursive: true });
+  manifest.dependencies['react-hook-form'] = '^7.0.0';
+  manifest.dependencies['lucide-react'] = '^0.4.0';
+  file(root, 'package.json', manifest);
+  assert.equal((await setup(target(root), { offline: true })).install, null);
+  manifest.dependencies['react-hook-form'] = '^6'; file(root, 'package.json', manifest);
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'PEER_CONFLICT' });
+  delete manifest.dependencies['react-hook-form']; file(root, 'package.json', manifest);
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'OFFLINE_PEER_MISSING' });
+  manifest.dependencies.react = '^18'; file(root, 'package.json', manifest);
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'REACT_UNSUPPORTED' });
+});
+
+test('selected and installed peer conflicts never produce an installation plan', async t => {
+  const root = fixture(t);
+  const blocks = installed('@lindaui/blocks', root).manifest;
+  blocks.peerDependencies['@lindaui/ui'] = '>=999';
+  file(root, 'node_modules/@lindaui/blocks/package.json', blocks);
+  await assert.rejects(setup(target(root), { offline: true, packages: 'blocks' }), { code: 'PEER_CONFLICT' });
+  const ui = installed('@lindaui/ui', root).manifest;
+  ui.peerDependencies['react-hook-form'] = '>=999';
+  file(root, 'node_modules/@lindaui/ui/package.json', ui);
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'PEER_CONFLICT' });
+  rmSync(join(root, 'node_modules/@lindaui/ui'), { recursive: true });
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'OFFLINE_PACKAGE_MISSING' });
+});
+
+test('setup preserves existing ambient CSS declarations and supports a CSS entry', async t => {
+  const root = fixture(t);
+  file(root, 'src/lindaui-css.d.ts', "declare module '@lindaui/tokens/css';\n");
+  const plan = await setup(target(root), { offline: true, entry: 'src/app.css' });
+  assert.equal(plan.files.length, 1);
+  assert.match(plan.files[0].content, /^@import "@lindaui\/tokens\/css";/);
+  file(root, 'src/lindaui-css.d.ts', 'declare const userOwned: string;');
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'EXISTING_DECLARATION' });
+  const flat = fixture(t); rmSync(join(flat, 'src'), { recursive: true });
+  file(flat, 'main.tsx', 'export {};');
+  const flatPlan = await setup(target(flat), { offline: true, entry: 'main.tsx' });
+  assert.ok(flatPlan.files.some(file => file.path === 'lindaui-css.d.ts'));
+});
+
+test('tarball discovery rejects duplicates and missing packages, skips unrelated archives and files', async t => {
+  const root = fixture(t); const directory = join(root, 'vendor'); mkdirSync(directory);
+  const tokens = installed('@lindaui/tokens', root).manifest;
+  writeFileSync(join(directory, 'tokens.tgz'), archive(tokens));
+  writeFileSync(join(directory, 'ignored.tgz'), archive({ name: 'unrelated', version: '1.0.0' }));
+  writeFileSync(join(directory, 'README.md'), 'Artifacts');
+  await assert.rejects(setup(target(root), { tarballs: 'vendor', offline: true }), { code: 'MISSING_TARBALL' });
+  writeFileSync(join(directory, 'duplicate.tgz'), archive(tokens));
+  await assert.rejects(setup(target(root), { tarballs: 'vendor', offline: true }), { code: 'AMBIGUOUS_TARBALLS' });
+  rmSync(join(directory, 'duplicate.tgz'));
+  const ui = installed('@lindaui/ui', root).manifest;
+  writeFileSync(join(directory, 'ui.tgz'), archive(ui));
+  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  manifest.dependencies['@lindaui/ui'] = 'file:vendor/ui.tgz';
+  manifest.dependencies['@lindaui/tokens'] = 'file:vendor/tokens.tgz';
+  file(root, 'package.json', manifest);
+  assert.equal((await setup(target(root), { tarballs: 'vendor', offline: true })).install, null);
+});
+
+test('tarball manifest parsing validates boundaries and scans preceding members', t => {
+  const root = fixture(t); const path = join(root, 'fixture.tgz');
+  for (const [name, size] of [['package/package.json', 'not-octal'], ['package/package.json', '-000000001'], ['package/package.json', '77777777777'], ['', '00000000000']]) {
+    const header = Buffer.alloc(512); header.write(name); header.write(size, 124);
+    writeFileSync(path, gzipSync(header));
+    assert.throws(() => tarballManifest(path), { code: 'INVALID_TARBALL' });
+  }
+  const member = Buffer.alloc(1024); member.write('package/README.md'); member.write('00000000003', 124); member.write('abc', 512);
+  writeFileSync(path, gzipSync(Buffer.concat([member, gunzipSync(archive({ name: 'fixture', version: '1.0.0' }))])));
+  assert.equal(tarballManifest(path).name, 'fixture');
+  writeFileSync(path, gzipSync(Buffer.alloc(0)));
+  assert.throws(() => tarballManifest(path), { code: 'INVALID_TARBALL' });
+});
+
+test('registry requests reject unsafe URLs and report HTTP/connection failures', { timeout: 10000 }, async t => {
+  for (const registry of ['http://example.invalid', 'ftp://example.invalid', 'https://user:password@example.invalid']) await assert.rejects(registryMetadata('fixture', registry), { code: 'INVALID_REGISTRY' });
+  const server = createServer((req, res) => {
+    assert.match(req.url, /^\/fixture\?lindaui=\d+$/);
+    assert.equal(req.headers['cache-control'], 'no-cache');
+    res.setHeader('connection', 'close');
+    res.statusCode = 404; res.end('{}');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const registry = `http://127.0.0.1:${server.address().port}/`;
+  await assert.rejects(registryMetadata('fixture', registry), { code: 'REGISTRY_UNAVAILABLE' });
+  server.closeAllConnections();
+  await new Promise(resolve => server.close(resolve));
+  await assert.rejects(registryMetadata('fixture', registry), { code: 'REGISTRY_UNAVAILABLE' });
+});
+
+test('project targeting handles missing manifests, Next apps, lockfile managers and PnP', t => {
+  const root = fixture(t);
+  const empty = join(root, 'empty'); mkdirSync(empty);
+  assert.throws(() => target(empty), { code: 'PROJECT_REQUIRED' });
+  const manifest = { name: 'next-consumer', private: true, dependencies: { next: '^15', react: '^19', 'react-dom': '^19' } };
+  file(root, 'package.json', manifest); mkdirSync(join(root, 'app'));
+  file(root, 'pnpm-lock.yaml', ''); file(root, '.pnp.js', '');
+  const context = target(root);
+  assert.equal(context.framework, 'next'); assert.equal(context.nextApp, true);
+  assert.equal(context.manager, 'pnpm'); assert.equal(context.unsupported, true);
+  file(root, 'node_modules/incorrect/package.json', { name: 'different' });
+  assert.equal(installed('incorrect', root), null);
+  const parent = fixture(t);
+  file(parent, 'pnpm-workspace.yaml', 'packages: ["apps/*"]');
+  file(parent, 'apps/web/package.json', { dependencies: {} });
+  rmSync(join(parent, 'package.json'));
+  assert.equal(target(join(parent, 'apps/web')).owner, realpathSync(parent));
+});
+
+test('source scans report symlinks, oversized files and file limits rather than silently claiming completeness', t => {
+  const root = fixture(t);
+  symlinkSync('main.tsx', join(root, 'src/linked.tsx'));
+  file(root, 'src/large.js', ' '.repeat(1024 * 1024 + 1));
+  file(root, 'src/types.d.ts', 'declare const typeOnly: string;');
+  const scan = sources(root);
+  assert.ok(scan.skipped.some(file => file.reason === 'symlink'));
+  assert.ok(scan.skipped.some(file => file.path === 'src/large.js' && file.reason === 'scan-limit'));
+  assert.ok(!scan.files.some(file => file.relative.endsWith('.d.ts')));
+  assert.equal(sources(root, 0).files.length, 0);
+  assert.ok(inspectSources(target(root)).findings.some(finding => finding.code === 'INCOMPLETE_SCAN'));
+});
+
+test('AST imports cover require literals and skip dynamic expressions and unrelated calls', () => {
+  const tree = ast({ path: 'main.js', text: 'const x = require("@lindaui/ui/input"); require(); require(variable); other("@lindaui/ui/input");' });
+  assert.deepEqual(imports(tree).map(entry => entry.value), ['@lindaui/ui/input']);
+  assert.throws(() => ast({ path: 'broken.jsx', text: '<div' }), error => error.code === 'PARSE_ERROR' && error.message.includes('broken.jsx'));
+  let visits = 0;
+  walk(null, () => visits++); walk('literal', () => visits++);
+  assert.equal(visits, 0);
+  walk({ type: 'Parent', nested: { type: 'Child' }, ignoredValue: 1 }, () => visits++);
+  assert.equal(visits, 2);
+});
+
+test('export resolution supports arrays, conditional declaration targets and wildcard suffixes', t => {
+  const root = fixture(t); const info = installed('@lindaui/ui', root);
+  assert.equal(exportTarget({}, './missing'), null);
+  assert.equal(exportTarget({ exports: { './*.js': './dist/*.js', './long/*.js': './dist/long/*.js' } }, './long/input.js'), './dist/long/input.js');
+  assert.equal(exportTarget({ exports: { './*.js': './dist/*.js' } }, './input.css'), null);
+  assert.equal(exportTarget({ exports: { './x': [null, './dist/input.js'] } }, './x'), './dist/input.js');
+  assert.equal(exportTarget({ exports: { './x': [null] } }, './x'), null);
+  assert.equal(exportTarget({ exports: { './x': { import: { types: './dist/input.d.ts' } } } }, './x', 'types'), './dist/input.d.ts');
+  assert.equal(exportTarget({ exports: { './x': { default: { types: './dist/input.d.ts' } } } }, './x', 'types'), './dist/input.d.ts');
+  assert.equal(exportTarget({ exports: { './x': { default: './dist/input.js' } } }, './x'), './dist/input.js');
+  assert.equal(exportTarget({ exports: { './x': './dist/input.d.ts' } }, './x', 'types'), './dist/input.d.ts');
+  assert.equal(resolveEntry({ ...info, manifest: { exports: { './x': '/absolute.js' } } }, './x'), null);
+  assert.equal(resolveEntry({ ...info, manifest: { exports: { './x': '../escape.js' } } }, './x'), null);
+  assert.equal(resolveEntry({ ...info, manifest: { exports: { './x': './../../escape.js' } } }, './x'), null);
+  assert.equal(satisfies('invalid', '>=19'), false);
+  assert.equal(satisfies('19.0.0', 'invalid'), false);
+});
+
+test('compiler lookup prefers TypeScript 6, falls back to TypeScript and reports unavailable owners', t => {
+  const root = fixture(t);
+  assert.equal(compiler(root), null);
+  const broken = fixture(t);
+  file(broken, 'node_modules/typescript/package.json', { name: 'typescript', main: 'missing.cjs' });
+  assert.equal(compiler(broken), null);
+  const fallback = fixture(t);
+  file(fallback, 'node_modules/typescript/package.json', { name: 'typescript', main: 'index.cjs' });
+  file(fallback, 'node_modules/typescript/index.cjs', 'module.exports = { owner: "typescript" };');
+  assert.equal(compiler(fallback).owner, 'typescript');
+  const preferred = fixture(t);
+  file(preferred, 'node_modules/@typescript/typescript6/package.json', { name: '@typescript/typescript6', main: 'index.cjs' });
+  file(preferred, 'node_modules/@typescript/typescript6/index.cjs', 'module.exports = { owner: "typescript6" };');
+  file(preferred, 'node_modules/typescript/package.json', { name: 'typescript', main: 'index.cjs' });
+  file(preferred, 'node_modules/typescript/index.cjs', 'module.exports = { owner: "typescript" };');
+  assert.equal(compiler(preferred).owner, 'typescript6');
+});
+
+test('doctor reports unsupported contexts, missing artifacts and multiple stylesheet entrypoints', t => {
+  const root = fixture(t);
+  file(root, 'src/main.tsx', 'import "@lindaui/tokens/css";');
+  file(root, 'src/extra.css', '@import url("@lindaui/tokens/css");');
+  const context = target(root);
+  const ui = installed('@lindaui/ui', root).manifest;
+  ui.exports['./*'] = './dist/*.js'; file(root, 'node_modules/@lindaui/ui/package.json', ui);
+  rmSync(join(root, 'node_modules/@lindaui/ui/dist/input.js'));
+  const result = doctor({ ...target(root), manager: null, unsupported: true, manifest: { ...context.manifest, workspaces: ['apps/*'] } });
+  for (const code of ['AMBIGUOUS_MANAGER', 'PNP_UNSUPPORTED', 'WORKSPACE_ROOT', 'MISSING_ARTIFACT', 'MULTIPLE_STYLE_LOCATIONS']) assert.ok(result.findings.some(finding => finding.code === code), code);
+  rmSync(join(root, 'node_modules/@lindaui/ui'), { recursive: true });
+  assert.ok(doctor(target(root)).findings.some(finding => finding.code === 'NOT_INSTALLED'));
+  file(root, 'node_modules/@lindaui/blocks/package.json', { name: '@lindaui/blocks', version: '0.5.0' });
+  assert.doesNotThrow(() => doctor(target(root)));
+  assert.ok(api(target(root), undefined, true).packages.some(pkg => pkg.name === '@lindaui/blocks' && pkg.entries.length === 0));
+});
+
+test('API inspection accepts scoped queries and reports missing documentation/types explicitly', t => {
+  const root = fixture(t);
+  assert.throws(() => api(target(root)), { code: 'COMPONENT_REQUIRED' });
+  const ui = installed('@lindaui/ui', root).manifest;
+  ui.exports['./input'] = './dist/input.js'; file(root, 'node_modules/@lindaui/ui/package.json', ui);
+  rmSync(join(root, 'node_modules/@lindaui/ui/llms.txt'));
+  const entry = api(target(root), '@lindaui/ui/input').entries[0];
+  assert.equal(entry.documentation, null); assert.equal(entry.types, null); assert.equal(entry.declarations, null);
+  rmSync(join(root, 'node_modules/@lindaui/ui'), { recursive: true });
+  assert.throws(() => api(target(root), 'input'), { code: 'ENTRY_UNAVAILABLE' });
+});
+
+test('usage checks distinguish unavailable packages, root imports and legacy handlers', t => {
+  const root = fixture(t);
+  file(root, 'src/View.tsx', `import { Input } from '@lindaui/ui/input'; import { Select } from '@lindaui/ui/select'; import { Dialog } from '@lindaui/ui/dialog'; import { Button } from '@lindaui/ui/button'; import * as Root from '@lindaui/ui'; export const view = <><Input onValueChange={()=>{}}/><Select {...props}/><Select aria-label="Plan"/><Dialog {...props}/><Dialog title="Details"/><Button variant="primary"/><Button variant={value}/><Button/><Root.Unknown /></>;`);
+  let result = check(target(root));
+  assert.ok(result.findings.some(finding => finding.code === 'LEGACY_HANDLER'));
+  assert.equal(result.findings.filter(finding => finding.code === 'SELECT_NAME').length, 0);
+  assert.equal(result.findings.filter(finding => finding.code === 'DIALOG_TITLE').length, 0);
+  rmSync(join(root, 'node_modules/@lindaui/ui'), { recursive: true });
+  rmSync(join(root, 'node_modules/@lindaui/tokens'), { recursive: true });
+  file(root, 'src/app.css', '@import "@lindaui/tokens/css";');
+  result = check(target(root));
+  assert.ok(result.findings.some(finding => finding.code === 'INVALID_IMPORT' && finding.message.includes('not installed')));
+  assert.ok(result.findings.some(finding => finding.code === 'INVALID_STYLE_IMPORT'));
+  assert.deepEqual(peerIssues({ ...target(root), packages: {} }, ['uninstalled']), []);
+});
+
+test('setup treats explicitly required peers as required and rejects unpublished compatible peers', async t => {
+  const root = fixture(t);
+  const ui = installed('@lindaui/ui', root).manifest;
+  file(root, 'node_modules/@lindaui/ui/package.json', {
+    ...ui,
+    peerDependencies: { react: '>=19', 'react-dom': '>=19', '@lindaui/tokens': '>=0.4', 'absent-peer': '>=2' },
+    peerDependenciesMeta: { react: {}, 'react-dom': { optional: false }, 'absent-peer': {} },
+  });
+  await assert.rejects(setup(target(root), { offline: true }), { code: 'OFFLINE_PEER_MISSING' });
+  let response = { versions: { '1.0.0': { version: '1.0.0' } } };
+  const requests = [];
+  const server = createServer((req, res) => {
+    requests.push(decodeURIComponent(req.url.slice(1).split('?')[0]));
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify(response));
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const options = { registry: `http://127.0.0.1:${server.address().port}` };
+  await assert.rejects(setup(target(root), options), { code: 'PEER_CONFLICT' });
+  response = {};
+  await assert.rejects(setup(target(root), options), { code: 'PEER_CONFLICT' });
+  assert.deepEqual(requests, ['absent-peer', 'absent-peer']);
+});
+
+test('setup preserves declared optional peers and supports manifests without peer metadata', async t => {
+  const root = fixture(t);
+  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  manifest.dependencies['lucide-react'] = '>=0.4';
+  file(root, 'package.json', manifest);
+  assert.equal((await setup(target(root), { offline: true })).install, null);
+  const ui = installed('@lindaui/ui', root).manifest;
+  delete ui.peerDependenciesMeta;
+  file(root, 'node_modules/@lindaui/ui/package.json', ui);
+  assert.equal((await setup(target(root), { offline: true })).install, null);
+});
+
+test('refresh keeps matching installed versions without scheduling redundant installs', async t => {
+  const root = fixture(t);
+  const metadata = Object.fromEntries(['@lindaui/ui', '@lindaui/tokens'].map(name => [name, installed(name, root).manifest]));
+  const server = createServer((req, res) => {
+    const manifest = metadata[decodeURIComponent(req.url.slice(1).split('?')[0])];
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ 'dist-tags': { latest: manifest.version }, versions: { [manifest.version]: manifest } }));
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => server.close());
+  const plan = await setup(target(root), { refresh: true, registry: `http://127.0.0.1:${server.address().port}` });
+  assert.equal(plan.install, null);
 });

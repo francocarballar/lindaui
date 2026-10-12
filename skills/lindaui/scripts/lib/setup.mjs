@@ -94,7 +94,7 @@ export async function setup(context, options) {
   }
   const style = options.style ?? 'default';
   const styles = { default: '@lindaui/tokens/css', violet: '@lindaui/tokens/lead-converter/compiled.css' };
-  if (!styles[style]) throw new DXError('INVALID_STYLE', '--style accepts default or violet. Use the theming reference for a custom Tailwind source pipeline.');
+  if (!Object.hasOwn(styles, style)) throw new DXError('INVALID_STYLE', '--style accepts default or violet. Use the theming reference for a custom Tailwind source pipeline.');
   if (!chosen.get('@lindaui/tokens').manifest.exports?.['./' + styles[style].slice('@lindaui/tokens/'.length)]) throw new DXError('STYLE_UNAVAILABLE', `${styles[style]} is not exported by the selected tokens version.`);
   const scan = inspectSources(context); const files = []; const notes = [];
   if (scan.findings.some(f => f.severity === 'error')) throw new DXError('SOURCE_ERRORS', 'Resolve parse/style errors before automatic setup.', { findings: scan.findings });

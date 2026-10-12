@@ -118,7 +118,13 @@ export function compatibleDeclaration(range, required) {
 export function compiler(project) {
   const require = createRequire(join(project, 'package.json'));
   for (const name of ['@typescript/typescript6', 'typescript']) {
-    try { return require(name); } catch { /* unavailable */ }
+    // NODE_PATH belongs to the invoking tool, not necessarily this application.
+    // Resolve only installations owned by the consumer or its workspace ancestors.
+    for (const parent of ancestors(project)) {
+      const location = join(parent, 'node_modules', name);
+      if (!existsSync(location)) continue;
+      try { return require(location); } catch { /* unavailable installation */ }
+    }
   }
   return null;
 }

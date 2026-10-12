@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { dirname, join, delimiter, basename } from 'node:path';
+import { dirname, join, basename } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { DXError } from './project.mjs';
 
@@ -16,10 +16,10 @@ export function nodeShimEntry(shim, text, manager) {
   }
   return null;
 }
-function executable(name) {
-  const pathEnv = Object.entries(process.env).find(([key]) => key.toLowerCase() === 'path')?.[1] ?? '';
-  const dirs = [...new Set([dirname(process.execPath), ...pathEnv.split(delimiter).filter(Boolean)])];
-  const names = process.platform === 'win32' ? [name + '.exe', name + '.cmd', name] : [name];
+function executable(name, { platform, env, execPath }) {
+  const pathEnv = Object.entries(env).find(([key]) => key.toLowerCase() === 'path')?.[1] ?? '';
+  const dirs = [...new Set([dirname(execPath), ...pathEnv.split(platform === 'win32' ? ';' : ':').filter(Boolean)])];
+  const names = platform === 'win32' ? [name + '.exe', name + '.cmd', name] : [name];
   for (const dir of dirs) for (const filename of names) {
     const path = join(dir, filename); if (!existsSync(path)) continue;
     const actual = realpathSync(path);
@@ -27,27 +27,28 @@ function executable(name) {
     const text = readFileSync(actual).subarray(0, 12000).toString();
     if (/\.cmd$/i.test(actual)) {
       const script = nodeShimEntry(actual, text, name);
-      if (script) return { command: process.execPath, prefix: [script] };
+      if (script) return { command: execPath, prefix: [script] };
       continue;
     }
-    if (/^#![^\n]*\bnode\b/.test(text) || /\.(?:cjs|mjs|js)$/.test(actual)) return { command: process.execPath, prefix: [actual] };
+    if (/^#![^\n]*\bnode\b/.test(text) || /\.(?:cjs|mjs|js)$/.test(actual)) return { command: execPath, prefix: [actual] };
     return { command: actual, prefix: [] };
   }
   return null;
 }
-export function managerInvocation(manager, args) {
+export function managerInvocation(manager, args, { platform = process.platform, env = process.env, execPath = process.execPath } = {}) {
+  const environment = { platform, env, execPath };
   if (!['npm', 'pnpm', 'yarn', 'bun'].includes(manager)) throw new DXError('AMBIGUOUS_MANAGER', 'Supported managers: npm, pnpm, yarn, bun.');
-  let binary = executable(manager);
+  let binary = executable(manager, environment);
   if (!binary && ['pnpm', 'yarn'].includes(manager)) {
-    const corepack = executable('corepack');
+    const corepack = executable('corepack', environment);
     if (corepack) binary = { ...corepack, prefix: [...corepack.prefix, manager] };
   }
   if (!binary) throw new DXError('MANAGER_UNAVAILABLE', `Install ${manager}, or Corepack for pnpm/yarn, before applying this plan.`);
   return { command: binary.command, args: [...binary.prefix, ...args] };
 }
-export function runManager(context, args) {
-  const invocation = managerInvocation(context.manager, args);
-  const result = spawnSync(invocation.command, invocation.args, { cwd: context.root, encoding: 'utf8', shell: false, timeout: 300000, maxBuffer: 8 * 1024 * 1024, env: { ...process.env, COREPACK_ENABLE_DOWNLOAD_PROMPT: '0' } });
+export function runManager(context, args, { invoke = managerInvocation, spawn = spawnSync } = {}) {
+  const invocation = invoke(context.manager, args);
+  const result = spawn(invocation.command, invocation.args, { cwd: context.root, encoding: 'utf8', shell: false, timeout: 300000, maxBuffer: 8 * 1024 * 1024, env: { ...process.env, COREPACK_ENABLE_DOWNLOAD_PROMPT: '0' } });
   if (result.error || result.status !== 0) throw new DXError('PACKAGE_MANAGER_FAILED', result.error?.message ?? `${context.manager} exited with ${result.status}.`, { stdout: result.stdout?.slice(-6000), stderr: result.stderr?.slice(-6000), exitCode: result.status });
   return { command: invocation.command, args: invocation.args, exitCode: result.status, stdout: result.stdout?.slice(-2000) };
 }

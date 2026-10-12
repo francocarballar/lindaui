@@ -20,13 +20,14 @@ const optionsByCommand = {
 const booleans = new Set(['json', 'help', 'strict', 'typecheck', 'refresh', 'offline', 'apply', 'dry-run', 'list']);
 export function argumentsFor(args) {
   const command = args[0] && !args[0].startsWith('-') ? args.shift() : 'help';
+  const commandOptions = Object.hasOwn(optionsByCommand, command) ? optionsByCommand[command] : [];
   const options = {}; const positional = [];
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '-h') { options.help = true; continue; }
     if (!arg.startsWith('--')) { positional.push(arg); continue; }
     const [key, ...valueParts] = arg.slice(2).split('=');
-    if (![...common, ...(optionsByCommand[command] ?? [])].includes(key)) throw new DXError('UNKNOWN_OPTION', `--${key} is not supported by ${command}.`);
+    if (![...common, ...commandOptions].includes(key)) throw new DXError('UNKNOWN_OPTION', `--${key} is not supported by ${command}.`);
     if (Object.hasOwn(options, key)) throw new DXError('DUPLICATE_OPTION', `Duplicate --${key}.`);
     if (booleans.has(key)) {
       if (valueParts.length) throw new DXError('INVALID_OPTION', `--${key} takes no value.`);
@@ -37,8 +38,7 @@ export function argumentsFor(args) {
       options[key] = value;
     }
   }
-  if (command !== 'help' && !optionsByCommand[command]) throw new DXError('UNKNOWN_COMMAND', `Unknown command: ${command}`);
-  for (const key of Object.keys(options)) if (![...common, ...(optionsByCommand[command] ?? [])].includes(key)) throw new DXError('UNKNOWN_OPTION', `--${key} is not supported by ${command}.`);
+  if (command !== 'help' && !Object.hasOwn(optionsByCommand, command)) throw new DXError('UNKNOWN_COMMAND', `Unknown command: ${command}`);
   if (positional.length > (['api', 'scaffold'].includes(command) ? 1 : 0)) throw new DXError('UNEXPECTED_ARGUMENT', 'Unexpected positional argument.');
   if (options.apply && options['dry-run']) throw new DXError('CONFLICTING_OPTIONS', 'Choose --apply or --dry-run.');
   return { command, options, positional };
@@ -108,7 +108,7 @@ export async function execute(argv) {
   const ok = !findings.some(f => f.severity === 'error' || (options.strict && f.severity === 'warning'));
   return { schemaVersion: 1, command, project: context.root, ok, status: ok ? status : 'issues', data: rest, findings };
 }
-function render(result) {
+export function renderResult(result) {
   if (result.command === 'help') return result.data.help;
   if (result.status === 'planned') return `${result.command}: plan ${result.data.plan.id}\n${JSON.stringify(result.data.plan, null, 2)}\nUse --apply or save this plan and run apply --plan.\n`;
   return `${result.command}: ${result.status}\n${JSON.stringify(result.data, null, 2)}\n${result.findings.map(f => `${f.severity}: ${f.code}: ${f.message ?? f.action ?? JSON.stringify(f)}`).join('\n')}\n`;
@@ -116,7 +116,7 @@ function render(result) {
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try {
     const result = await execute(process.argv.slice(2));
-    process.stdout.write(process.argv.includes('--json') ? JSON.stringify(result, null, 2) + '\n' : render(result));
+    process.stdout.write(process.argv.includes('--json') ? JSON.stringify(result, null, 2) + '\n' : renderResult(result));
     process.exitCode = result.ok ? 0 : 1;
   } catch (error) {
     const result = { schemaVersion: 1, ok: false, status: 'error', error: { code: error.code ?? 'EXECUTION_ERROR', message: error.message, details: error.details ?? {} } };

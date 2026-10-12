@@ -37,12 +37,12 @@ export function verifyPlan(context, plan) {
   for (const file of plan.files) if (digest(safePath(context.root, file.path)) !== file.before) throw new DXError('STALE_PLAN', `${file.path} changed after planning. Prepare a new plan.`);
   if (plan.install && (plan.install.manager !== context.manager || !['npm', 'pnpm', 'yarn', 'bun'].includes(plan.install.manager) || !plan.install.specs.every(s => /^(?:@[a-z0-9_.-]+\/)?[a-z0-9_.-]+@[^\r\n]+$/i.test(s)))) throw new DXError('INVALID_PLAN', 'Invalid package installation operation.');
 }
-export function applyPlan(context, plan) {
+export function applyPlan(context, plan, { install = runManager } = {}) {
   verifyPlan(context, plan);
   let installation = null;
   if (plan.install?.specs.length) {
     const verb = context.manager === 'npm' ? 'install' : 'add';
-    installation = runManager(context, [verb, ...plan.install.specs]);
+    installation = install(context, [verb, ...plan.install.specs]);
   }
   const written = [];
   try {
