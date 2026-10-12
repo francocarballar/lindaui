@@ -141,8 +141,9 @@ string only; do the matching yourself with `@lindaui/ui/search`
 Layout wrapper to group an input with addons/buttons.
 
 ### @lindaui/ui/otp-input
-`<OtpInput maxLength={6} onChange={(v)=>...} />` — re-exports the `input-otp` API
-(`OtpInputProps = InputOTPProps`).
+`<OtpInput aria-label="Verification code" maxLength={6} onChange={(v)=>...} />`
+renders one visible slot per character by default. `children?` preserves custom
+composition; other props follow HeroUI's `InputOTPProps`, including `onComplete`.
 
 ### @lindaui/ui/select
 `<Select items={[{value,label}]} value onChange={(v)=>...} label placeholder />`
