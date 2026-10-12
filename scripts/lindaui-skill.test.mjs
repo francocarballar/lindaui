@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, symlinkSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, symlinkSync, rmSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -12,7 +12,7 @@ import { setup } from '../skills/lindaui/scripts/lib/setup.mjs';
 import { makePlan, change, applyPlan, safePath, addImport } from '../skills/lindaui/scripts/lib/operations.mjs';
 import { theme, scaffold, activate, recipe } from '../skills/lindaui/scripts/lib/generate.mjs';
 import { execute, argumentsFor } from '../skills/lindaui/scripts/lindaui.mjs';
-import { managerInvocation, runManager } from '../skills/lindaui/scripts/lib/process.mjs';
+import { managerInvocation, runManager, nodeShimEntry } from '../skills/lindaui/scripts/lib/process.mjs';
 
 function file(root, path, value) { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), typeof value === 'string' ? value : JSON.stringify(value, null, 2)); }
 function pkg(root, name, version, entries = {}, peers = {}, optional = {}) {
@@ -27,7 +27,7 @@ function pkg(root, name, version, entries = {}, peers = {}, optional = {}) {
 }
 function fixture(t, { libraries = true, typescript = true, manager = 'npm' } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'Linda UI spaces & unicode-á-')); t.after(() => rmSync(root, { recursive: true, force: true }));
-  file(root, 'package.json', { name: 'consumer', private: true, type: 'module', packageManager: `${manager}@${manager === 'npm' ? '11.0.0' : '11.7.0'}`, dependencies: { react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^7.0.0' }, scripts: { typecheck: 'node -e "process.exit(0)"' } });
+  file(root, 'package.json', { name: 'consumer', private: true, type: 'module', packageManager: `${manager}@${manager === 'npm' ? '11.0.0' : '11.7.0'}`, dependencies: { react: '^19.0.0', 'react-dom': '^19.0.0' }, devDependencies: { vite: '^7.0.0' }, scripts: { typecheck: 'node -e "console.log(\'fixture-typecheck-executed\')"' } });
   file(root, 'src/main.tsx', '"use client";\nimport "./app.css";\nexport const app = 1;\n'); file(root, 'src/app.css', 'body { margin: 0; }\n');
   if (typescript) file(root, 'tsconfig.json', {});
   pkg(root, 'react', '19.0.0'); pkg(root, 'react-dom', '19.0.0');
@@ -180,8 +180,16 @@ test('CLI has structured errors and no mutation in dry run', async t => {
 });
 test('package manager executes without a shell in paths containing spaces and metacharacters', t => {
   const root = fixture(t); const invocation = managerInvocation('npm', ['--version']); assert.ok(invocation.command);
-  assert.equal(runManager(target(root), ['--version']).exitCode, 0);
-  const result = runManager(target(root), ['run', 'typecheck']); assert.equal(result.exitCode, 0);
+  assert.match(runManager(target(root), ['--version']).stdout.trim(), /^\d+\.\d+\.\d+$/);
+  const result = runManager(target(root), ['run', 'typecheck']); assert.equal(result.exitCode, 0); assert.match(result.stdout, /fixture-typecheck-executed/);
+});
+test('Windows npm shim selects the CLI entry rather than a successful bootstrap helper', t => {
+  const root = fixture(t); const shim = join(root, 'npm.cmd');
+  file(root, 'node_modules/npm/bin/npm-prefix.js', 'console.log("prefix only");');
+  file(root, 'node_modules/npm/bin/npm-cli.js', 'console.log("npm actually executed");');
+  const script = nodeShimEntry(shim, 'SET "NPM_PREFIX_JS=%~dp0\\node_modules\\npm\\bin\\npm-prefix.js"\nSET "NPM_CLI_JS=%~dp0\\node_modules\\npm\\bin\\npm-cli.js"', 'npm');
+  assert.equal(script, join(root, 'node_modules/npm/bin/npm-cli.js'));
+  assert.match(spawnSync(process.execPath, [script], { encoding: 'utf8' }).stdout, /npm actually executed/);
 });
 test('npm packs and installs a local artifact with spaces and metacharacters on the current platform', t => {
   const root = fixture(t, { libraries: false });
@@ -202,7 +210,7 @@ test('check --typecheck records real script execution separately from browser ve
 });
 test('workspace targeting resolves from the app and blocks installation at the root', async t => {
   const root = fixture(t); file(root, 'pnpm-workspace.yaml', 'packages: ["apps/*"]'); file(root, 'apps/web/package.json', { name: 'web', dependencies: { react: '^19', 'react-dom': '^19' }, devDependencies: { vite: '^7' } }); file(root, 'apps/web/src/main.tsx', 'export const x = 1;');
-  const context = target(join(root, 'apps/web')); assert.equal(context.owner, root); assert.equal(context.packages['@lindaui/ui'].manifest.version, '0.5.0');
+  const context = target(join(root, 'apps/web')); assert.equal(context.owner, realpathSync(root)); assert.equal(context.packages['@lindaui/ui'].manifest.version, '0.5.0');
   await assert.rejects(setup(target(root), { offline: true }), { code: 'WORKSPACE_ROOT' });
 });
 test('setup reads exact published metadata and selects only compatible peers', async t => {

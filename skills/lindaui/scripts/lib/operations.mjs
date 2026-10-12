@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, realpathSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkSync, realpathSync, lstatSync } from 'node:fs';
 import { dirname, join, relative, resolve, isAbsolute } from 'node:path';
 import { createHash, randomUUID } from 'node:crypto';
 import { DXError, digest, slash, ast, ancestors } from './project.mjs';
@@ -11,7 +11,9 @@ export function safePath(root, path) {
   let existing = dirname(full); while (!existsSync(existing)) existing = dirname(existing);
   const actual = relative(realpathSync(root), realpathSync(existing));
   if (actual === '..' || actual.startsWith('../') || actual.startsWith('..\\') || isAbsolute(actual)) throw new DXError('OUTSIDE_PROJECT', 'Output parent resolves outside the application through a symlink.');
-  if (existsSync(full) && realpathSync(full) !== full) throw new DXError('SYMLINK_OUTPUT', 'Refusing to replace a symlink output.');
+  // A normal file may have an aliased ancestor (/var -> /private/var on macOS).
+  // Reject the output itself when it is a link; parent containment is above.
+  if (existsSync(full) && lstatSync(full).isSymbolicLink()) throw new DXError('SYMLINK_OUTPUT', 'Refusing to replace a symlink output.');
   return full;
 }
 export function change(root, path, content) {

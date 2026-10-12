@@ -1,10 +1,21 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
-import { dirname, join, delimiter } from 'node:path';
+import { dirname, join, delimiter, basename } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { DXError } from './project.mjs';
 
 // Resolve Node package-manager shims to their actual JS entry. Never invoke a
 // shell: cmd.exe quoting of spaces, &, %, and scoped file: specs is fragile.
+export function nodeShimEntry(shim, text, manager) {
+  const matches = [...text.matchAll(/%~?dp0%?[\\/]([^"\r\n]+?\.(?:cjs|mjs|js))/gi)];
+  // npm.cmd also references npm-prefix.js, a bootstrap helper which exits 0
+  // without executing npm. Resolve the manager entry, never that helper.
+  const names = new Set(manager === 'npm' ? ['npm-cli.js', 'npm.js'] : manager === 'pnpm' ? ['pnpm.cjs', 'pnpm.js'] : manager === 'yarn' ? ['yarn.js', 'yarn.cjs'] : ['corepack.js', 'corepack.cjs']);
+  for (const match of matches) {
+    const script = join(dirname(shim), ...match[1].split(/[\\/]/));
+    if (names.has(basename(script).toLowerCase()) && existsSync(script)) return script;
+  }
+  return null;
+}
 function executable(name) {
   const pathEnv = Object.entries(process.env).find(([key]) => key.toLowerCase() === 'path')?.[1] ?? '';
   const dirs = [...new Set([dirname(process.execPath), ...pathEnv.split(delimiter).filter(Boolean)])];
@@ -15,11 +26,8 @@ function executable(name) {
     if (/\.exe$/i.test(actual)) return { command: actual, prefix: [] };
     const text = readFileSync(actual).subarray(0, 12000).toString();
     if (/\.cmd$/i.test(actual)) {
-      const matches = [...text.matchAll(/%~?dp0%?[\\/]([^"\r\n]+?\.(?:cjs|mjs|js))/gi)];
-      for (const match of matches) {
-        const script = join(dirname(actual), ...match[1].split(/[\\/]/));
-        if (existsSync(script)) return { command: process.execPath, prefix: [script] };
-      }
+      const script = nodeShimEntry(actual, text, name);
+      if (script) return { command: process.execPath, prefix: [script] };
       continue;
     }
     if (/^#![^\n]*\bnode\b/.test(text) || /\.(?:cjs|mjs|js)$/.test(actual)) return { command: process.execPath, prefix: [actual] };
