@@ -8,4 +8,6 @@
 @import "tailwindcss/theme" layer(theme);
 @import "tailwindcss/utilities" layer(utilities);
 @source "../src";
+@source "../../../packages/blocks/src/compat-chat/*.stories.tsx";
+@source "../../../packages/blocks/src/analytics/*.stories.tsx";
 @import "@lindaui/tokens/theme.css";

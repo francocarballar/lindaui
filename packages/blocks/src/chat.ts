@@ -1,0 +1,21 @@
+/** Generic migration API. The existing individual chat entry points are unchanged. */
+export { ChatAvatar } from "./compat-chat/chat-avatar";
+export type { ChatAvatarProps, ChatAvatarClassNames } from "./compat-chat/chat-avatar";
+export { ChatHeader } from "./compat-chat/chat-header";
+export type { ChatHeaderProps } from "./compat-chat/chat-header";
+export { ChatLayout } from "./compat-chat/chat-layout";
+export type { ChatLayoutProps } from "./compat-chat/chat-layout";
+export { ConversationList } from "./compat-chat/conversation-list";
+export type { ConversationListProps, ConversationListLabels } from "./compat-chat/conversation-list";
+export { ConversationListItem } from "./compat-chat/conversation-list-item";
+export type { ConversationListItemProps } from "./compat-chat/conversation-list-item";
+export { ConversationThread } from "./compat-chat/conversation-thread";
+export type { ConversationThreadProps } from "./compat-chat/conversation-thread";
+export { EmptyChatView } from "./compat-chat/empty-chat-view";
+export type { EmptyChatViewProps } from "./compat-chat/empty-chat-view";
+export { MessageBubble } from "./compat-chat/message-bubble";
+export type { MessageBubbleProps } from "./compat-chat/message-bubble";
+export { MessageComposer } from "./compat-chat/message-composer";
+export type { MessageComposerProps } from "./compat-chat/message-composer";
+export type { ConversationSummary, ConversationThreadLabels, GenericMessage, GenericMessageMedia, MessageMediaKind, MessageSide } from "./compat-chat/types";
+export type { TimeGroup } from "./compat-chat/time-grouping";

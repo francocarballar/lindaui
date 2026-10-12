@@ -2,7 +2,8 @@
 
 > Composed UI sections built on **@lindaui/ui** primitives — auth forms, master-detail,
 > lists, dialogs, media viewers, and charts. Importable npm package (NOT a copy-paste
-> registry). Each block has its OWN flat API and does not leak HeroUI/RAC types.
+> registry). Existing flat APIs are unchanged; opt-in compatibility namespaces
+> have separate, explicit presentation contracts.
 > This file is for coding agents: every entry, import path, and public API.
 
 All blocks are generic, controlled/mobile-first, and contain zero data-fetching, no
@@ -15,13 +16,95 @@ type of any export, read `node_modules/@lindaui/blocks/dist/<name>.d.ts`.
 pnpm add @lindaui/blocks @lindaui/ui @lindaui/tokens
 ```
 
-Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, `recharts >=3`
-(only for chart blocks), plus `@lindaui/ui` and `@lindaui/tokens`. Import the CSS once
+Peers you provide: `react >=19`, `react-dom >=19`, `react-hook-form >=7`, `lucide-react >=0.4`, `recharts >=3`
+(only for chart blocks), plus `@lindaui/ui >=0.5.0` and `@lindaui/tokens >=0.4.0`. Import the CSS once
 at app root: `import "@lindaui/tokens/css";`.
+
+This is the blocks 0.5.0 migration surface. Earlier UI 0.4.1 lacks `/compound`
+and `/compat`; earlier tokens 0.3.1 lacks the new style entries/utility layer.
+The peer floors intentionally reject those published versions.
 
 ## Import convention
 
 One block per import path: `@lindaui/blocks/<name>`.
+
+## New controlled application blocks
+
+- `/app-shell`: `AppShell` takes `brand`, `navItems`, `children`, translated
+  `labels`, collapsed/visiting flags and sidebar/header/content slots. Inject
+  `renderLink`/`renderImage` for framework integration. `navItems` supply stable
+  keys, labels, URLs, icons, active/mobile/center-button flags and optional actions.
+  `AppShellFooter` is exported from the same entry, not a separate subpath.
+- `/entity-switcher`: `entities`, `currentEntity`, `onSelect`, `labels`, optional
+  actions/avatar renderer and collapsed/visiting presentation.
+- `/command-palette`: controlled `isOpen`, `items`, `onClose`, `onSelect`,
+  recent IDs, labels and optional avatar/empty-state renderers.
+- `/connection-panel`: `state` is checking/disconnected/generating,
+  awaiting_scan (`qrCode` slot, optional `qrFormat`), or connected (`content`).
+  Supply `labels`, `onConnect`/`onRefreshQR` promises, optional error/isActive
+  and QR expiry. QR timers are presentation state; auth/auto-connect stays in app.
+  `ConnectedPanel` is exported from this entry for detail/disconnect presentation.
+- `/channel-settings`: `channels`, navigationLabel, selected/defaultSelected,
+  onSelect and optional class names; channels supply their own content.
+- `/settings-layout`: controlled `sections`, `selected`, `onSelect`, `panels`,
+  `navigationLabel`, optional footer/title/compact/idPrefix. Panels stay mounted.
+- `/save-bar`: `dirty`, `saving`, `form` id, translated labels, optional embedded.
+- `/stepper`: `value`, accessible `label`, optional stepLabel/description/complete,
+  `variant="steps"|"compact"`, className and formatValue. Only presents percentage;
+  the consumer calculates progress/completion. Preserves both original anatomies.
+- `/filter-bar`: searchValue/onSearchChange, controlled selectedFilters and
+  selectedSort plus options/callbacks/labels. Optional renderSearchInput and
+  renderIconButton preserve source-specific presentations. Does not filter data.
+- `/source-selector`: controlled source/options/onSourceChange, isLoading/ariaLabel.
+- `/kanban-board`: entities/columns, getEntityId/getColumnId, renderCard,
+  onColumnChange(entityId,columnId,entity), optional renderColumn/loading/empty
+  content/accessibility labels. Entity/column IDs must be globally unique/stable.
+- `/kanban-column`: id/title/entities/getEntityId/renderCard, optional color class
+  and empty content. `/entity-card`: id/entity/title, optional avatar/subtitle/
+  badges/time/cardClassName/isDragging/onActivate.
+
+## Explicit migration namespaces (never mix with flat APIs below)
+
+### @lindaui/blocks/compat
+
+Re-exports `@lindaui/ui/compat` controls/utilities with their legacy props.
+Adds `KPICard` (title/value/icon/color/trend/isLoading), `StatusFilters`
+(availableStatuses/selectedStatuses/onStatusToggle/counts/labels/colors) and
+`DateDivider`. The existing `/stat-card` and flat component APIs are untouched.
+
+### @lindaui/blocks/chat
+
+Exports ChatAvatar, ChatHeader, ChatLayout, ConversationList, ConversationListItem,
+ConversationThread, EmptyChatView, MessageBubble, MessageComposer and their types.
+Messages: id/text/timestamp, side `left|right|center`, optional authorTag and media
+`{kind:"image"|"audio"|"pdf",url,label?}`. ConversationSummary: id/title, optional
+timestamp/preview/subtitle/badge/isSelected/avatarUrl/unreadCount.
+
+ConversationList uses `items`, `searchValue`/`onSearchChange`, `onItemSelect`, labels,
+optional filters/isLoading/emptyMessage/renderAvatar/renderItems. Search filtering
+stays in the consumer. MessageComposer uses value/onValueChange/onSend, isSending,
+`disabled` and placeholder; Enter sends, Shift+Enter inserts a newline.
+Do NOT import these types from `/chat-types`: that unchanged flat entry has
+incoming/outgoing sides and sentAt instead.
+
+### @lindaui/blocks/analytics
+
+Exports AiCostCard, AiPerformanceCard, AnalyticsCard, AnalyticsSkeleton,
+FetchingIndicator, EntityHealthCard, StatusDistributionChart, TimeRangePicker,
+TopEntitiesTable and corresponding generic presentation types.
+StatusDatum: key/label/count/color. HealthEntity: id/name/score and status
+`healthy|at_risk|critical`; labels and link renderers are injected.
+TimeRangePicker uses preset `24h|7d|30d|custom`, customRange
+`RangeValue<DateValue> | null`, onPresetChange/onCustomRangeChange and translation
+function `t`. This is NOT the unchanged flat `/time-range-picker` documented below.
+SDK mapping, tenant policy, fetching and navigation stay in the consumer.
+
+Dayjs, @internationalized/date, @react-types/shared, motion and drag/drop are
+runtime dependencies (including public date types), not workspace-only tooling.
+Compatibility stories are embedded under src/compat-chat and src/analytics and
+registered in Storybook; they are excluded from exports, declarations and tarballs.
+For original LeadConverter styling use the separate token source
+`@lindaui/tokens/lead-converter.css` after Tailwind; do not also import teal `/css`.
 
 ---
 
@@ -98,7 +181,7 @@ on a fixed dark `viewer-*` surface (for use over media); `inline` drops the abso
 positioning + forced dark bg, fills its container and inherits the panel surface with
 token-driven (legible) text. Content is identical across variants.
 
-## Chat (generic — data-agnostic, WhatsApp-style presentation)
+## Existing flat chat (unchanged — distinct from /chat)
 
 Types live in `@lindaui/blocks/chat-types` (no runtime exports, just shapes):
 `GenericMessage` (`id`, `side: "incoming"|"outgoing"`, `text?`, `media?:

@@ -42,6 +42,21 @@ const HANDWRITTEN = new Set([
   "radial-chart", "stat-card", "chart-card", "stats-grid",
 ]);
 
+// Las features nuevas tienen demos completas escritas a mano. Detectarlas por
+// nombre evita generar placeholders o colisionar con stories en subcarpetas.
+function collectHandwritten(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name === "generated") continue;
+    const location = resolve(dir, entry.name);
+    if (entry.isDirectory()) collectHandwritten(location);
+    else if (entry.name.endsWith(".stories.tsx")) {
+      HANDWRITTEN.add(entry.name.replace(/\.stories\.tsx$/, ""));
+    }
+  }
+}
+collectHandwritten(resolve(__dirname, "../src/stories"));
+collectHandwritten(resolve(repoRoot, "packages/blocks/src"));
+
 // ARGS: render con props simples → Storybook da controls (solo @lindaui/ui).
 const ARGS = {
   kbd: '{ children: "Ctrl" }',
@@ -95,13 +110,30 @@ const RENDER = {
   },
 };
 
+const BLOCK_RENDER = {
+  "legacy-kpi-card": {
+    imports: ['import { Users } from "lucide-react";'],
+    jsx: '<div style={{ width: 280 }}><M.KPICard title="Contactos activos" value={128} icon={Users} color="primary" trend={{ value: 12, isPositive: true }} /></div>',
+  },
+  "status-filters": {
+    imports: [
+      'import { useState } from "react";',
+      'function StatusFilterDemo() { const [selected, setSelected] = useState(["active"]); return <M.StatusFilters availableStatuses={["new", "active", "complete"]} selectedStatuses={selected} onStatusToggle={(status) => setSelected((current) => current.includes(status) ? current.filter((value) => value !== status) : [...current, status])} labels={{ new: "Nuevos", active: "Activos", complete: "Completados" }} colors={{ new: "primary", active: "warning", complete: "success" }} counts={{ new: 4, active: 8, complete: 2 }} />; }',
+    ],
+    jsx: '<StatusFilterDemo />',
+  },
+};
+
 // Entries que no son componentes: no tiene sentido una story.
 // "package.json" es el export estándar de tooling; use-* son hooks;
 // cn/date/format/time-grouping son utils puras (sin JSX).
 const NON_COMPONENT = new Set([
   "package.json", "cn", "date", "format", "time-grouping", "chat-types",
+  "compound", "motion", "notifications", "charts", "aria",
+  "chat", "analytics", "compat",
 ]);
-const isComponentEntry = (entry) => !NON_COMPONENT.has(entry) && !entry.startsWith("use-");
+const isComponentEntry = (entry) => !NON_COMPONENT.has(entry)
+  && !entry.startsWith("use-") && !entry.startsWith("compat-");
 
 const pascal = (s) =>
   s.split("-").map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join("");
@@ -127,9 +159,9 @@ export const Default: Story = {};
 `;
 }
 
-function renderStory(entry, importBase) {
+function renderStory(entry, importBase, renders = RENDER) {
   const Name = pascal(entry);
-  const { jsx, imports = [] } = RENDER[entry];
+  const { jsx, imports = [] } = renders[entry];
   const extra = imports.length ? imports.join("\n") + "\n" : "";
   return `import type { Meta, StoryObj } from "@storybook/react";
 import * as M from "${importBase}/${entry}";
@@ -210,6 +242,11 @@ for (const { pkg, importBase, group } of PACKAGES) {
       const missing = validateNamedExports(entry, pkgDir, used);
       if (missing.length) invalid.push(`${entry}: exports [${missing.join(", ")}] no existen en el source`);
       content = renderStory(entry, importBase); kind = "render";
+    } else if (!isUi && entry in BLOCK_RENDER) {
+      const used = [...new Set([...(BLOCK_RENDER[entry].jsx.matchAll(/M\.([A-Za-z0-9]+)/g))].map((m) => m[1]))];
+      const missing = validateNamedExports(entry, pkgDir, used);
+      if (missing.length) invalid.push(`${entry}: exports [${missing.join(", ")}] no existen en el source`);
+      content = renderStory(entry, importBase, BLOCK_RENDER); kind = "render";
     } else {
       content = scaffoldStory(entry, importBase, group); kind = "scaffold";
     }
