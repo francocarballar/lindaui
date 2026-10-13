@@ -1,5 +1,11 @@
 # @lindaui/blocks
 
+## 0.5.4
+
+### Patch Changes
+
+- ba7032b: Document exact installed-version evidence and the boundaries between package integrity, builds and browser verification. Harden release verification with downloaded tarball SHA-512/SHA-1 and manifest checks, durable failure receipts, bounded registry convergence retries and protection against concurrent checkout or PR-head changes. Consumer fixtures now reject unexpected installed versions.
+
 ## 0.5.3
 
 ### Patch Changes
