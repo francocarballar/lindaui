@@ -37,3 +37,33 @@ consumer's installed API. New GitHub entries may not be published yet.
 These rules describe the reviewed API family. Types from a newer installed version
 take precedence if a contract has changed. The checker catches specific mistakes;
 it does not replace semantic typechecking.
+
+## Native elements and controls
+
+Use only entries exported with existing artifacts by the installed package.
+These are migration suggestions, not drop-in HTML replacements or autofixes.
+
+| Native element / behavior | Entry / decision |
+|---|---|
+| button / action | @lindaui/ui/button |
+| input text/email/password/tel/url | @lindaui/ui/input |
+| input checkbox / radio | @lindaui/ui/checkbox / @lindaui/ui/radio |
+| input search / number / range | @lindaui/ui/search-field / @lindaui/ui/number-input / @lindaui/ui/slider |
+| input button/submit/reset | @lindaui/ui/button; preserve submission behavior |
+| input hidden/file/date/time/color and other unmapped types | No automatic counterpart in this rule; inspect available contracts and preserve behavior |
+| textarea | @lindaui/ui/textarea |
+| select + option | @lindaui/ui/select, items/value/onChange; one finding for the parent |
+| a with href | @lindaui/ui/link; preserve routing, download and target behavior |
+| details + summary | @lindaui/ui/disclosure; one finding for the parent |
+| dialog | @lindaui/ui/dialog; read open/onClose/title |
+| table | @lindaui/ui/table or blocks/table-pane; current Table uses grid semantics, justify native table if needed |
+| on/off setting / pressed action | ui/switch / ui/toggle-button, selected by behavior |
+| expand/collapse | ui/disclosure or ui/accordion trigger, using installed composition |
+| informational chip / interactive chip | ui/badge / an appropriate installed action or selection control |
+
+The checker recognizes JSX identifiers only. Orphan option/summary elements are
+reported individually. Semantic containers/text/graphics (form, section, article,
+ul/ol/li, p, headings, dl, label, fieldset, legend, time, img/svg/canvas) are never
+native-control findings. `a` without an explicit href is not flagged. Dynamic or
+spread input types get warnings rather than a guessed type. The rule does not
+verify custom abstractions or accessibility exhaustively.

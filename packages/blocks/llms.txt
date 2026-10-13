@@ -291,3 +291,13 @@ API: doctor, api, setup, theme, scaffold, activate and check. Mutation commands
 produce plans by default. Use activate when adopting LindaUI for all UI tasks.
 Always prefer this installed package's exports, types and llms.txt over newer
 unpublished GitHub APIs. See the skill for setup, recipes and verification.
+
+## Consumer control policy
+
+Use installed LindaUI entries for controls and canonical tokens for styling.
+Semantic HTML containers, text, labels and graphics remain appropriate. Select
+input, selection and expansion components by behavior, not only by tag name.
+The lindaui skill check reports recognized native controls with installed
+counterparts. Required native behavior needs an adjacent JSX comment with a
+nonempty reason: {/* lindaui-allow-native: reason */}. Run check in consumer CI;
+static findings do not prove browser behavior or exhaustive compliance.

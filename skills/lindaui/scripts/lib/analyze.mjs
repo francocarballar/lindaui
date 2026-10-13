@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ast, imports, walk, sources, packageNames, installed, peerIssues, resolveEntry, DXError } from './project.mjs';
+import { inspectNativeControls } from './native-controls.mjs';
 
 export function inspectSources(context) {
   const scan = sources(context.root); const findings = []; const parsed = []; const styleImports = [];
@@ -65,7 +66,13 @@ export function api(context, query, list = false) {
 }
 export function check(context) {
   const scan = inspectSources(context); const findings = [...scan.findings, ...peerIssues(context)]; let imported = 0;
+  const nativeControls = { scanned: 0, excluded: [], exceptions: [], unmapped: [] };
   for (const { file, tree, entries } of scan.parsed) {
+    const native = inspectNativeControls(context, file, tree);
+    findings.push(...native.findings);
+    nativeControls.exceptions.push(...native.exceptions); nativeControls.unmapped.push(...native.unmapped);
+    if (native.excluded) nativeControls.excluded.push({ file: file.relative, reason: native.excluded });
+    else nativeControls.scanned++;
     const bindings = new Map();
     for (const entry of entries) {
       const name = packageNames.find(n => entry.value === n || entry.value.startsWith(n + '/')); if (!name) continue;
@@ -96,5 +103,5 @@ export function check(context) {
     if (!info || !resolveEntry(info, '.' + entry.value.slice('@lindaui/tokens'.length))) findings.push({ code: 'INVALID_STYLE_IMPORT', severity: 'error', ...entry, message: 'This stylesheet is not available in installed tokens.' });
   }
   if (imported && !scan.base.length) findings.push({ code: 'STYLES_NOT_FOUND', severity: 'warning', message: 'LindaUI imports were found without a base stylesheet in inspected sources.' });
-  return { findings, coverage: { scanned: scan.files.length, skipped: scan.skipped, lindaImports: imported }, verification: { importResolution: true, knownUsageRules: true, typecheck: 'not-run', browser: 'not-run', accessibility: 'heuristic-only' } };
+  return { findings, coverage: { scanned: scan.files.length, skipped: scan.skipped, lindaImports: imported, nativeControls }, verification: { importResolution: true, knownUsageRules: true, nativeControls: 'installed-counterparts-only', typecheck: 'not-run', browser: 'not-run', accessibility: 'heuristic-only' } };
 }

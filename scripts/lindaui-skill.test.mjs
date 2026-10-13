@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { target, installed, exportTarget, resolveEntry, compatibleDeclaration, digest, sources, ast, walk, imports, compiler, satisfies, peerIssues } from '../skills/lindaui/scripts/lib/project.mjs';
 import { doctor, api, check, inspectSources } from '../skills/lindaui/scripts/lib/analyze.mjs';
@@ -13,6 +14,7 @@ import { makePlan, change, applyPlan, safePath, addImport } from '../skills/lind
 import { theme, scaffold, activate, recipe } from '../skills/lindaui/scripts/lib/generate.mjs';
 import { execute, argumentsFor, renderResult } from '../skills/lindaui/scripts/lindaui.mjs';
 import { managerInvocation, runManager, nodeShimEntry } from '../skills/lindaui/scripts/lib/process.mjs';
+import { inspectNativeControls, nativeScope } from '../skills/lindaui/scripts/lib/native-controls.mjs';
 
 function file(root, path, value) { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), typeof value === 'string' ? value : JSON.stringify(value, null, 2)); }
 function pkg(root, name, version, entries = {}, peers = {}, optional = {}) {
@@ -39,6 +41,110 @@ function fixture(t, { libraries = true, typescript = true, manager = 'npm' } = {
   }
   return root;
 }
+function nativeFixture(t) {
+  const root = fixture(t);
+  pkg(root, '@lindaui/ui', '0.5.2', Object.fromEntries(['button', 'input', 'textarea', 'select', 'link', 'disclosure', 'dialog', 'table', 'checkbox', 'radio', 'search-field', 'number-input', 'slider', 'accordion', 'badge', 'avatar', 'spinner'].map(name => [name, ''])));
+  file(root, 'src/app.css', '@import "@lindaui/tokens/css";');
+  return root;
+}
+test('native controls fail the real CLI even without LindaUI imports; corrected screen passes', t => {
+  const root = nativeFixture(t);
+  file(root, 'src/Applications.tsx', `export const screen = <section><button aria-expanded={true}>Expand</button><select><option value="pending">Pending</option></select><a href="/jobs">Job</a><input/><textarea/><details><summary>More</summary>Body</details><dialog/><table/></section>;`);
+  const invoke = () => spawnSync(process.execPath, [fileURLToPath(new URL('../skills/lindaui/scripts/lindaui.mjs', import.meta.url)), 'check', '--project', root, '--json'], { encoding: 'utf8' });
+  const bad = invoke(); assert.equal(bad.status, 1, bad.stdout);
+  const findings = JSON.parse(bad.stdout).findings;
+  assert.deepEqual(findings.map(f => f.element), ['button', 'select', 'a', 'input', 'textarea', 'details', 'dialog', 'table']);
+  for (const f of findings) {
+    assert.equal(f.code, 'NATIVE_CONTROL'); assert.equal(f.severity, 'error'); assert.equal(f.file, 'src/Applications.tsx'); assert.equal(f.line, 1);
+    assert.match(f.suggestion, /^@lindaui\/ui\//); assert.ok(f.message.includes(`<${f.element}>`)); assert.ok(f.message.includes(f.suggestion));
+  }
+  file(root, 'src/Applications.tsx', `import { Accordion } from '@lindaui/ui/accordion'; import { Select } from '@lindaui/ui/select'; import { Badge } from '@lindaui/ui/badge'; import { Avatar } from '@lindaui/ui/avatar'; import { Link } from '@lindaui/ui/link'; import { Spinner } from '@lindaui/ui/spinner'; export const screen = <section><Accordion/><Select aria-label="Status" items={[]}/><Badge/><Avatar/><Link href="/jobs">Job</Link><Spinner/></section>;`);
+  const good = invoke(); assert.equal(good.status, 0, good.stdout); assert.deepEqual(JSON.parse(good.stdout).findings, []);
+});
+test('semantic containers, text and graphics are never native-control findings', t => {
+  const root = nativeFixture(t);
+  file(root, 'src/Semantics.tsx', 'export const x = <><form/><section/><article/><ul/><ol/><li/><p/><h1/><h2/><h3/><h4/><h5/><h6/><dl/><dt/><dd/><label/><fieldset/><legend/><time/><img/><svg/><canvas/><div/><span/><main/><nav/><header/><footer/><a id="anchor"/><custom-control/><UI.button/></>;');
+  assert.deepEqual(check(target(root)).findings, []);
+});
+test('input suggestions follow literal roles; dynamic/spread types require review', t => {
+  const root = nativeFixture(t);
+  const types = ['text', 'email', 'password', 'tel', 'url', 'checkbox', 'radio', 'search', 'number', 'range', 'button', 'submit', 'reset'];
+  file(root, 'src/Inputs.tsx', `export const x = <><input/>${types.map(type => `<input type="${type}"/>`).join('')}<input type={'CHECKBOX'}/><input type={kind}/><input {...props}/><input type="text" {...props}/></>;`);
+  const findings = check(target(root)).findings;
+  assert.deepEqual(findings.slice(0, 15).map(f => f.suggestion.split('/').at(-1)), ['input', 'input', 'input', 'input', 'input', 'input', 'checkbox', 'radio', 'search-field', 'number-input', 'slider', 'button', 'button', 'button', 'checkbox']);
+  assert.equal(findings[15].severity, 'warning'); assert.equal(findings[16].severity, 'warning');
+  assert.match(findings[15].suggestion, /checkbox/); assert.match(findings[15].message, /runtime role/);
+  assert.equal(findings[17].severity, 'warning');
+  file(root, 'src/Inputs.tsx', 'export const x = <><input type="hidden"/><input type="file"/><input type="date"/><input type="time"/><input type="color"/></>;');
+  const result = check(target(root)); assert.deepEqual(result.findings, []);
+  assert.deepEqual(result.coverage.nativeControls.unmapped.map(n => n.type), ['hidden', 'file', 'date', 'time', 'color']);
+});
+test('pair diagnostics do not duplicate parents and do report orphan children', t => {
+  const root = nativeFixture(t);
+  file(root, 'src/Pairs.tsx', 'export const x = <><select><optgroup label="One"><option/></optgroup>{items.map(x => <option/>)}</select><details><div><summary/></div></details><option/><summary/></>;');
+  assert.deepEqual(check(target(root)).findings.map(f => f.element), ['select', 'details', 'option', 'summary']);
+});
+test('native allowance needs a nonempty reason and is reported without leaking to siblings', t => {
+  const root = nativeFixture(t);
+  file(root, 'src/Viewer.tsx', `export const x = <>
+    {/* lindaui-allow-native: invisible keyboard/IME capture */}
+    <textarea style={{ width: 1, height: 1 }}/>
+    <button/>
+    {/* lindaui-allow-native:   */}<textarea/>
+    {/* lindaui-allow-native */}<button/>
+  </>;`);
+  const result = check(target(root));
+  assert.deepEqual(result.findings.map(f => f.element), ['button', 'textarea', 'button']);
+  assert.deepEqual(result.coverage.nativeControls.exceptions, [{ file: 'src/Viewer.tsx', line: 3, element: 'textarea', reason: 'invisible keyboard/IME capture', suggestions: ['@lindaui/ui/textarea'] }]);
+});
+test('native allowance cannot authorize nested controls, fragments, expressions or across content', t => {
+  const root = nativeFixture(t);
+  file(root, 'src/Local.tsx', `export const x = <>
+    {/* lindaui-allow-native: custom container */}<div><button/></div>
+    {/* lindaui-allow-native: fragment */}<><button/></>
+    {/* lindaui-allow-native: expression */}{true && <button/>}
+    {/* lindaui-allow-native: text */}Visible<button/>
+    {/* lindaui-allow-native: another comment */}{/* ordinary */}<button/>
+    {/* ordinary */}<button/>
+    {/* first */ /* second */}<span/>
+    {}<span/>
+    {42}<button/>
+    {/* lindaui-allow-native: grouped control */}<details><summary>More</summary><button/></details>
+  </>;`);
+  const result = check(target(root)); assert.equal(result.findings.length, 8);
+  assert.deepEqual(result.coverage.nativeControls.exceptions.map(e => e.element), ['details']);
+});
+test('missing package, absent export or missing runtime never suggests an unavailable counterpart', t => {
+  const root = fixture(t, { libraries: false });
+  file(root, 'src/View.tsx', 'export const x = <><button/><input/><a href="/"/></>;');
+  assert.deepEqual(check(target(root)).findings, []);
+  pkg(root, '@lindaui/ui', '0.5.2', { button: '' });
+  assert.deepEqual(check(target(root)).findings.map(f => f.element), ['button']);
+  rmSync(join(root, 'node_modules/@lindaui/ui/dist/button.js'));
+  assert.deepEqual(check(target(root)).findings, []);
+});
+test('native scope reports test/fixture/story exclusions while import rules still apply', t => {
+  const root = nativeFixture(t);
+  const paths = ['test/View.tsx', 'tests/View.jsx', '__tests__/View.tsx', 'e2e/View.tsx', 'fixtures/View.tsx', '__fixtures__/View.tsx', 'src/View.test.tsx', 'src/View.spec.jsx', 'src/View.stories.tsx'];
+  for (const path of paths) file(root, path, 'export const x = <button/>;');
+  file(root, 'tests/Invalid.tsx', 'import { Missing } from "@lindaui/ui/missing"; export const x = <button/>;');
+  file(root, 'src/Production.tsx', 'export const x = <button/>;');
+  const result = check(target(root)); assert.equal(result.findings.filter(f => f.code === 'NATIVE_CONTROL').length, 1);
+  assert.ok(result.findings.some(f => f.code === 'INVALID_IMPORT'));
+  assert.equal(result.coverage.nativeControls.excluded.length, paths.length + 1);
+  const context = target(root); context.manifest.name = '@lindaui/ui';
+  assert.equal(nativeScope(context, { relative: 'src/button.tsx' }), 'library-authoring');
+  assert.equal(inspectNativeControls(context, { relative: 'src/button.tsx' }, null).excluded, 'library-authoring');
+});
+test('strict mode promotes uncertain native input warnings to an exit failure', async t => {
+  const root = nativeFixture(t); file(root, 'src/Unknown.tsx', 'export const x = <input type={kind}/>;');
+  assert.equal((await execute(['check', '--project', root])).ok, true);
+  assert.equal((await execute(['check', '--strict', '--project', root])).ok, false);
+  file(root, 'src/Unknown.tsx', 'export const x = <>{/* lindaui-allow-native: invisible keyboard/IME capture */}<textarea/></>;');
+  assert.equal((await execute(['check', '--strict', '--project', root])).ok, true);
+  file(root, 'src/Unknown.tsx', 'export const x = <>{/* lindaui-allow-native: */}<textarea/></>;');
+  assert.equal((await execute(['check', '--project', root])).ok, false);
+});
 test('application inspection respects installed manifests without a package.json export', t => {
   const root = fixture(t); const context = target(root);
   assert.equal(context.framework, 'vite'); assert.equal(context.manager, 'npm');
@@ -138,6 +244,7 @@ test('activate preserves unrelated instructions and is idempotent', t => {
   const root = fixture(t); file(root, 'AGENTS.md', '# Existing\nKeep this.\n');
   applyPlan(target(root), activate(target(root), {})); const contents = readFileSync(join(root, 'AGENTS.md'), 'utf8');
   assert.ok(contents.startsWith('# Existing\nKeep this.')); assert.equal(activate(target(root), {}).files.length, 0);
+  assert.match(contents, /Controls use installed LindaUI entries/); assert.match(contents, /lindaui-allow-native: reason/); assert.match(contents, /verification\/CI/);
   file(root, 'AGENTS.md', '<!-- lindaui:ui-policy:start -->'); assert.throws(() => activate(target(root), {}), { code: 'POLICY_MARKERS' });
 });
 test('theme uses canonical variables, preserves base order and is idempotent', async t => {

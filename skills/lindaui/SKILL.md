@@ -9,7 +9,7 @@ description: >-
 license: MIT
 metadata:
   author: francocarballar
-  version: "1.0.0"
+  version: "1.1.0"
   environment: "React web, React/React DOM >=19, ESM; optional CLI: Node >=20 on Windows, macOS and Linux"
 ---
 
@@ -44,6 +44,15 @@ adding packages, selecting CSS, using local tarballs, or resolving compatibility
 Prefer appropriate blocks for complete sections, then flat components for their
 controls. Compose a missing pattern with LindaUI primitives and canonical tokens.
 Semantic HTML containers such as form, section, ul, and p remain appropriate.
+
+Controls come from the library when a suitable entry is installed. Use LindaUI
+Button, Input, Textarea, Select and Link rather than raw button/input/textarea/
+select/a controls. Containers, headings, text, labels and graphics remain semantic
+HTML. Choose by behavior: checkbox/radio/search/number/range inputs have distinct
+entries; hidden/file inputs have no equivalent in this rule. Use Switch for an
+on/off setting, ToggleButton for a pressed action, and Disclosure/Accordion
+triggers for expansion. Badge is informational, not a generic interactive chip.
+See the [native element map](references/api-map.md).
 
 ```text
 node "<skill-path>/scripts/lindaui.mjs" api --list --project "<application>" --json
@@ -123,6 +132,25 @@ node "<skill-path>/scripts/lindaui.mjs" check --project "<application>" --typech
 ```
 
 The first command parses JS/TS/JSX and verifies imports plus known usage rules.
+It reports `NATIVE_CONTROL` for recognized raw JSX controls with an installed
+counterpart, even without LindaUI imports. Dynamic/spread input types produce
+review warnings. It does not inspect createElement calls, HTML strings, custom
+component internals or infer every runtime role. Unsupported input types are
+listed as unmapped; absence of findings is not complete design-system compliance.
+For a required native control, place `{/* lindaui-allow-native: reason */}` as
+the immediately preceding JSX sibling, separated only by whitespace. A nonempty
+reason is required; the exception covers only that element and appears in
+`coverage.nativeControls.exceptions`. For example, an invisible textarea capturing
+keyboard/IME for a remote viewer can justify native behavior. Do not apply blanket
+exceptions to containers or fragments. Table's grid semantics may require a
+native table exception; inspect the installed contract before migrating.
+
+Native-control rules exclude test/fixture directories and test/spec/story files,
+and library-authoring projects named @lindaui/ui, @lindaui/blocks or @lindaui/tokens.
+Excluded paths are reported; imports and other usage rules still run there.
+Select the actual consumer with --project; do not scan a monorepo root as an app.
+Add check to the consumer's normal verification/CI, alongside its typecheck and
+behavior tests. Installing this skill alone does not execute the checker.
 Its accessibility warnings are heuristics. The second also executes the existing
 typecheck script when verification is authorized. Run relevant existing build,
 behavior tests, and browser checks when requested or authorized by the task.

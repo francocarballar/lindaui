@@ -13,7 +13,7 @@ for (const file of [join(skill, 'SKILL.md'), ...readdirSync(join(skill, 'referen
     if (!/^https?:/.test(match[1])) assert.ok(existsSync(join(dirname(file), match[1])), `Broken reference: ${file} -> ${match[1]}`);
   }
 }
-for (const path of ['LICENSE', 'agents/openai.yaml', 'scripts/lib/vendor.mjs', 'scripts/lib/THIRD_PARTY_LICENSES.txt', 'assets/api-index.json']) assert.ok(existsSync(join(skill, path)), `Missing ${path}`);
+for (const path of ['LICENSE', 'agents/openai.yaml', 'scripts/lib/vendor.mjs', 'scripts/lib/native-controls.mjs', 'scripts/lib/THIRD_PARTY_LICENSES.txt', 'assets/api-index.json']) assert.ok(existsSync(join(skill, path)), `Missing ${path}`);
 const index = spawnSync(process.execPath, [join(root, 'scripts/build-skill-index.mjs'), '--check'], { encoding: 'utf8' });
 assert.equal(index.status, 0, index.stderr);
 console.log('LindaUI skill: structure, references, licenses, inventory and examples verified.');

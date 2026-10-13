@@ -64,13 +64,13 @@ export function ast(file) {
   try { return parse(file.text, { sourceType: 'unambiguous', plugins: ['jsx', ...( /\.[cm]?tsx?$/.test(file.path) ? ['typescript'] : [])] }); }
   catch (error) { throw new DXError('PARSE_ERROR', `${file.relative ?? file.path}: ${error.message}`); }
 }
-export function walk(node, callback) {
+export function walk(node, callback, parent = null) {
   if (!node || typeof node !== 'object') return;
-  if (typeof node.type === 'string') callback(node);
+  if (typeof node.type === 'string') callback(node, parent);
   for (const [key, child] of Object.entries(node)) {
     if (['loc', 'tokens', 'comments', 'leadingComments', 'trailingComments', 'innerComments', 'extra'].includes(key)) continue;
-    if (Array.isArray(child)) for (const item of child) walk(item, callback);
-    else if (child && typeof child === 'object') walk(child, callback);
+    if (Array.isArray(child)) for (const item of child) walk(item, callback, node);
+    else if (child && typeof child === 'object') walk(child, callback, node);
   }
 }
 export function imports(tree) {

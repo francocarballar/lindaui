@@ -50,7 +50,7 @@ Usage: node <skill>/scripts/lindaui.mjs <command> --project <application> [--jso
 doctor                         Inspect versions, peers, exports and styles
 api <entry>                    Read the installed entry and declarations
 api --list                     List the consumer's actual available imports
-check [--strict] [--typecheck]  Check imports/known usage; optionally run existing typecheck
+check [--strict] [--typecheck]  Check imports, native controls and known usage; optionally typecheck
 setup [--packages ui,blocks]    Plan installation + one base stylesheet
   --entry <file>               Select an existing application/CSS entry
   --style default|violet       Choose one precompiled base (default: default)

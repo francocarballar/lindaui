@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "consumer": "Cazador",
+  "consumerSource": "agent-runtime/apps/web/components/applications.tsx",
+  "consumerVersions": {
+    "@lindaui/ui": "0.5.1",
+    "@lindaui/blocks": "0.5.1",
+    "@lindaui/tokens": "0.4.1"
+  },
+  "method": "Isolated source snapshots from Git, resolved against the consumer installed packages. Old checker copied from LindaUI 028913a; new checker from this change. Static verification only; no consumer browser or deployment claim.",
+  "expected": {
+    "parent": {
+      "oldExit": 0,
+      "newExit": 1,
+      "nativeFindings": 4
+    },
+    "corrected": {
+      "oldExit": 0,
+      "newExit": 0,
+      "nativeFindings": 0
+    }
+  },
+  "receipts": [
+    {
+      "revision": "07cc20d^",
+      "checker": "old",
+      "exitCode": 0,
+      "sourceSha256": "c841d9c189af7aff2d2cb7b4fcd235fdce31882b5b1ebc1cbb048192960f6b3d",
+      "findings": []
+    },
+    {
+      "revision": "07cc20d^",
+      "checker": "new",
+      "exitCode": 1,
+      "sourceSha256": "c841d9c189af7aff2d2cb7b4fcd235fdce31882b5b1ebc1cbb048192960f6b3d",
+      "findings": [
+        {
+          "code": "NATIVE_CONTROL",
+          "severity": "error",
+          "file": "src/applications.tsx",
+          "line": 55,
+          "element": "a",
+          "suggestion": "@lindaui/ui/link",
+          "message": "Native <a>: use @lindaui/ui/link, reading its installed contract. If native HTML is required, add an adjacent {/* lindaui-allow-native: reason */} comment."
+        },
+        {
+          "code": "NATIVE_CONTROL",
+          "severity": "error",
+          "file": "src/applications.tsx",
+          "line": 64,
+          "element": "a",
+          "suggestion": "@lindaui/ui/link",
+          "message": "Native <a>: use @lindaui/ui/link, reading its installed contract. If native HTML is required, add an adjacent {/* lindaui-allow-native: reason */} comment."
+        },
+        {
+          "code": "NATIVE_CONTROL",
+          "severity": "error",
+          "file": "src/applications.tsx",
+          "line": 130,
+          "element": "select",
+          "suggestion": "@lindaui/ui/select",
+          "message": "Native <select>: use @lindaui/ui/select, reading its installed contract. If native HTML is required, add an adjacent {/* lindaui-allow-native: reason */} comment."
+        },
+        {
+          "code": "NATIVE_CONTROL",
+          "severity": "error",
+          "file": "src/applications.tsx",
+          "line": 135,
+          "element": "button",
+          "suggestion": "@lindaui/ui/button",
+          "message": "Native <button>: use @lindaui/ui/button, reading its installed contract. If native HTML is required, add an adjacent {/* lindaui-allow-native: reason */} comment."
+        }
+      ]
+    },
+    {
+      "revision": "07cc20d",
+      "checker": "old",
+      "exitCode": 0,
+      "sourceSha256": "dc24addad110d5762a4bca7da5758312e3885b6f8c9fad2802b7cb3de7102044",
+      "findings": []
+    },
+    {
+      "revision": "07cc20d",
+      "checker": "new",
+      "exitCode": 0,
+      "sourceSha256": "dc24addad110d5762a4bca7da5758312e3885b6f8c9fad2802b7cb3de7102044",
+      "findings": []
+    }
+  ]
+}

@@ -409,3 +409,14 @@ Changesets + Turborepo. `.github/workflows/ci.yml` corre el gate completo (build
 Cambio estructural (nuevo componente + entry, nuevo estilo de wrapper, rename de API, cambio en el pipeline de build, nueva trampa descubierta) → actualizar **este `CLAUDE.md`** en la misma sesión: la tabla de wrappers, "Anti-regresiones", o "Renames" según corresponda. No dejar el contrato desincronizado del código.
 
 **`llms.txt` consumer-facing:** hay un `llms.txt` en la **raíz** (índice estilo llmstxt.org que enlaza a los 3) + uno self-contained por paquete publicable en `packages/<pkg>/llms.txt` — doc para agentes de código que CONSUMEN la lib: install + setup CSS + convenciones críticas (onChange no onValueChange, no SelectItem/ModalContent, Button sin color) + catálogo de TODAS las entries con import path + API real. Es distinto de este CLAUDE.md (que es contrato INTERNO). Al agregar/renombrar una entry o cambiar la API pública de un wrapper ergonómico → actualizar el `llms.txt` del paquete en la misma sesión (las firmas salen del source, no inventar). Los tres paquetes incluyen `llms.txt` en `files` y en sus tarballs npm. La skill consumer-facing vive en `skills/lindaui`; mantener sus referencias, recetas e inventario junto con la API. `pnpm skill:test` y `pnpm skill:validate` verifican CLI y recursos; el workflow LindaUI Skill ejecuta Node 20/24 en Linux, macOS y Windows. `pnpm version-packages` combina Changesets con la regeneración del inventario de la skill.
+
+### Native controls and installed skill copies
+
+The consumer checker detects recognized raw JSX controls only when their matching
+LindaUI entry is installed. Input roles are mapped separately; dynamic/spread types
+produce review warnings. A justified native element uses an immediately preceding
+JSX sibling comment `{/* lindaui-allow-native: reason */}`; exceptions are local and
+reported. Tests, fixtures and stories are excluded from this rule, with paths
+reported; other import/usage rules still apply. Library-authoring projects are
+exempt. Select the consumer with `--project`, never the contributor monorepo root.
+Run check in consumer verification/CI. Semantic HTML remains appropriate.

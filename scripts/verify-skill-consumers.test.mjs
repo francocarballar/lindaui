@@ -42,6 +42,11 @@ test('all four fixture frameworks preserve generated entrypoints and verificatio
   assert.equal(s.managed.filter(call => call.args[0] === 'run').length, 4);
   assert.ok(existsSync(join(result.root, 'vite-ts/src/vite-env.d.ts')));
   assert.equal(existsSync(join(result.root, 'vite-js/tsconfig.json')), false);
+  for (const fixture of result.fixtures) {
+    const demo = readFileSync(join(fixture.project, 'src/Demo.' + (fixture.kind === 'vite-js' ? 'jsx' : 'tsx')), 'utf8');
+    assert.match(demo, /import \{ Button \} from "@lindaui\/ui\/button"/);
+    assert.match(demo, /<Button onPress=/); assert.doesNotMatch(demo, /<button\b/);
+  }
   assert.match(readFileSync(join(result.root, 'next-app/src/app/layout.tsx'), 'utf8'), /<html lang="en">/);
   assert.match(readFileSync(join(result.root, 'next-pages/src/pages/_app.tsx'), 'utf8'), /AppProps/);
   const receipt = JSON.parse(readFileSync(result.receiptPath, 'utf8'));

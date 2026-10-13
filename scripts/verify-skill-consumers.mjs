@@ -46,10 +46,11 @@ export function verifyConsumers({ tarballs, published = false, manager = runMana
       const ext = ts ? 'tsx' : 'jsx';
       const demo = `"use client";
   import { useState } from "react";
+  import { Button } from "@lindaui/ui/button";
   ${Object.values(recipes).map(name => `import { ${name} } from "./components/${name}";`).join('\n')}
   export default function Demo() {
     const [open, setOpen] = useState(false);
-    return <main style={{ padding: "1rem" }}><ContactForm onSubmit={async () => {}} /><SearchableList items={[{ id: "1", label: "Ada" }]} /><DataTable rows={[{ id: "1", name: "Ada", email: "ada@example.com" }]} /><button onClick={() => setOpen(true)}>Open</button><ConfirmationDialog open={open} onClose={() => setOpen(false)} onConfirm={async () => {}} /></main>;
+    return <main style={{ padding: "1rem" }}><ContactForm onSubmit={async () => {}} /><SearchableList items={[{ id: "1", label: "Ada" }]} /><DataTable rows={[{ id: "1", name: "Ada", email: "ada@example.com" }]} /><Button onPress={() => setOpen(true)}>Open</Button><ConfirmationDialog open={open} onClose={() => setOpen(false)} onConfirm={async () => {}} /></main>;
   }
   `;
       file(app, `src/Demo.${ext}`, demo);

@@ -113,3 +113,13 @@ CSS entries include a `types` condition pointing to the shipped `src/style.d.ts`
 Strict TypeScript `noUncheckedSideEffectImports` resolves the extensionless
 `@lindaui/tokens/css` import without a consumer ambient declaration. Runtime
 CSS targets remain unchanged; import styles once at the application root.
+
+## Consumer control policy
+
+Use installed LindaUI entries for controls and canonical tokens for styling.
+Semantic HTML containers, text, labels and graphics remain appropriate. Select
+input, selection and expansion components by behavior, not only by tag name.
+The lindaui skill check reports recognized native controls with installed
+counterparts. Required native behavior needs an adjacent JSX comment with a
+nonempty reason: {/* lindaui-allow-native: reason */}. Run check in consumer CI;
+static findings do not prove browser behavior or exhaustive compliance.
