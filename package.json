@@ -20,7 +20,7 @@
     "gen:block": "node scripts/gen.mjs block",
     "gen:exports": "node scripts/gen.mjs exports",
     "pack:consumer": "node scripts/pack-consumer.mjs",
-    "release": "changeset publish",
+    "release": "node scripts/publish-ordered.mjs",
     "release:flow": "node scripts/release-flow.mjs",
     "test:coverage": "node scripts/run-coverage.mjs",
     "test:e2e:build": "turbo run storybook:build --filter=@lindaui/storybook && turbo run build --filter=verona",
@@ -30,7 +30,8 @@
     "test:e2e:mcp": "e2e mcp",
     "test:e2e:typecheck": "tsc -p tests/tsconfig.json --noEmit",
     "test:coverage:gaps": "node scripts/coverage-gaps.mjs",
-    "test:tooling:coverage": "c8 node --test --test-concurrency=2 \"scripts/*.test.mjs\""
+    "test:tooling:coverage": "c8 node --test --test-concurrency=2 \"scripts/*.test.mjs\"",
+    "release:publish": "node scripts/publish-ordered.mjs"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

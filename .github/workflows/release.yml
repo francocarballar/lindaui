@@ -49,7 +49,8 @@ jobs:
           # robusto, reemplaza workspace:*, saltea paquetes ya publicados, y
           # respeta NPM_CONFIG_PROVENANCE. El Version PR lo sigue armando
           # changesets (este step solo cambia el comando de publish).
-          publish: pnpm -r publish --access public --no-git-checks
+          publish: pnpm release:publish
+          createGithubReleases: false
           title: "chore: version packages"
           commit: "chore: version packages"
         env:
