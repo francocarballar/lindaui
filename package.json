@@ -31,7 +31,9 @@
     "test:e2e:typecheck": "tsc -p tests/tsconfig.json --noEmit",
     "test:coverage:gaps": "node scripts/coverage-gaps.mjs",
     "test:tooling:coverage": "c8 node --test --test-concurrency=2 \"scripts/*.test.mjs\"",
-    "release:publish": "node scripts/publish-ordered.mjs"
+    "release:publish": "node scripts/publish-ordered.mjs",
+    "delivery:check": "pnpm gen:exports --check && pnpm --filter @lindaui/storybook gen:stories --check && pnpm skill:validate && pnpm skill:vendor --check && pnpm skill:test && pnpm build && pnpm test:coverage --serial && pnpm typecheck && pnpm test:e2e:typecheck && pnpm test:e2e && pnpm -r --filter \"@lindaui/*\" --filter \"!@lindaui/storybook\" exec publint && pnpm -r --filter \"@lindaui/ui\" --filter \"@lindaui/blocks\" exec attw --pack --profile esm-only",
+    "delivery:verify": "pnpm release:flow --verify-only && pnpm skill:consumers --published"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",

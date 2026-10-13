@@ -15,3 +15,11 @@ Before implementing or modifying UI in this repository's consumer applications,
 read and follow `skills/lindaui/SKILL.md`, even when LindaUI is not named in the
 request. Use the LindaUI components and tokens by default. Keep library authoring
 and build instructions in CLAUDE.md; the skill describes consumer integration.
+
+## Autonomous delivery
+
+For requests to implement improvements, verify, create atomic commits and complete
+a release autonomously, read `.agents/skills/deliver/SKILL.md` and follow it through
+public verification. The complete request authorizes its commits, push, Version PR
+merge and publication; do not ask for the same authorization again mid-flow.
+For commit-only or review requests, preserve their narrower scope.

@@ -75,7 +75,7 @@ Antes del primer mensaje, 3 chequeos. **Solo hablar si hay algo accionable** (si
 
 **PROHIBIDO aunque lo pidan (sin confirmación):** `changeset publish` / `npm publish` · `git push` a remoto · `git push --force` · crear repo remoto · borrar trabajo sin confirmación tipeada.
 
-**Estado de publicación:** consultar el registry npm con cache-busting y comparar la versión esperada con los manifests del checkout; un commit, tag o workflow verde no prueba que el tarball esté publicado. Git remoto: `origin git@github.com:francocarballar/lindaui.git`. Los workflows CI y Release están activos; los dos últimos runs de `main` observados terminaron bien. **Flujo de release (`release.yml`):** push a `main` con changesets → changesets/action crea/actualiza el Version Packages PR con bumps y changelog → merge del PR → el run sin changesets publica mediante `pnpm -r publish --access public --no-git-checks` (no usar `changeset publish`, ver Anti-regresión #13). El secret `NPM_TOKEN` está configurado en GitHub Actions y se entrega como `NODE_AUTH_TOKEN` + `NPM_TOKEN` al step de publish. La publicación local requiere autenticación npm; la máquina puede no tener sesión. Provenance sigue diferida hasta configurar OIDC Trusted Publishing.
+**Estado de publicación:** consultar el registry npm con cache-busting y comparar la versión esperada con los manifests del checkout; un commit, tag o workflow verde no prueba que el tarball esté publicado. Git remoto: `origin git@github.com:francocarballar/lindaui.git`. Los workflows CI y Release están activos; los dos últimos runs de `main` observados terminaron bien. **Flujo de release (`release.yml`):** push a `main` con changesets → changesets/action crea/actualiza el Version Packages PR con bumps y changelog → merge del PR → el run sin changesets publica mediante `pnpm release:publish` (GitHub primero; pnpm publica después) (no usar `changeset publish`, ver Anti-regresión #13). El secret `NPM_TOKEN` está configurado en GitHub Actions y se entrega como `NODE_AUTH_TOKEN` + `NPM_TOKEN` al step de publish. La publicación local requiere autenticación npm; la máquina puede no tener sesión. Provenance sigue diferida hasta configurar OIDC Trusted Publishing.
 
 ## Arquitectura (referencia rápida)
 
@@ -405,7 +405,7 @@ Vitest + jsdom + `@testing-library/react` + `user-event`. Co-locados. **Solo que
 
 ## Release
 
-Changesets + Turborepo. `.github/workflows/ci.yml` corre el gate completo (build/test/typecheck/storybook/publint/attw) en PRs y en push a `main`. `.github/workflows/release.yml` corre en push a `main`: si hay changesets pendientes, `changesets/action` arma/actualiza el PR "chore: version packages" contra `changeset-release/main`; si no hay, publica directo con `pnpm -r publish --access public --no-git-checks` (NO `changeset publish`, ver Anti-regresión #13). `dist/` y `storybook-static/` están gitignored (se regeneran en CI). Bloqueos de publicación reales: ver "Autorizado / Prohibido".
+Changesets + Turborepo. `.github/workflows/ci.yml` corre el gate completo (build/test/typecheck/storybook/publint/attw) en PRs y en push a `main`. `.github/workflows/release.yml` corre en push a `main`: si hay changesets pendientes, `changesets/action` arma/actualiza el PR "chore: version packages" contra `changeset-release/main`; si no hay, publica con `pnpm release:publish` (GitHub antes de npm) (NO `changeset publish`, ver Anti-regresión #13). `dist/` y `storybook-static/` están gitignored (se regeneran en CI). Bloqueos de publicación reales: ver "Autorizado / Prohibido".
 
 **Automatización del babysitting (`scripts/release-flow.mjs` + skill `release-flow`):** push → watch CI+Release+LindaUI Skill → si aparece el Version PR, watch su CI y LindaUI Skill (auto-`gh run rerun` si cae en el flake de `action_required`) → merge → watch CI+Release+LindaUI Skill post-merge → verifica las versiones esperadas directamente en el registry npm. Sin pausa de confirmación a mitad de camino: invocar el skill/script YA es el pedido explícito que pide "Autorizado / Prohibido" antes de un publish — repetir la pregunta a mitad de flujo sería pedir el mismo permiso dos veces. Si cualquier corrida sale roja de verdad (no el flake), el script aborta sin mergear nada. `pnpm release:flow --dry-run` para validar el estado del repo sin mutar nada.
 
@@ -469,3 +469,20 @@ release source for every copy and verify hashes afterward, including scripts.
 `skill:vendor` bundles CLI dependencies and `skill:consumers` validates generated
 apps; neither propagates installed skills. The standalone sync CLI is included
 in the Node 20/24 Linux/macOS/Windows skill test matrix.
+
+## Entrega autónoma recurrente
+
+Usar `.agents/skills/deliver/SKILL.md` para pedidos de implementar → verificar →
+commits atómicos → release completo. Propuesta y recuperación en
+`docs/workflows/autonomous-delivery.md`. `delivery:check` conserva los gates
+existentes; `delivery:verify` verifica registry y consumidores publicados nuevos.
+`release` y `release:publish` usan `scripts/publish-ordered.mjs`: changelog no vacío,
+releases GitHub públicos antes de npm, tags existentes con contenido equivalente,
+HEAD estable y recibo `coverage/publication/ordering.json` también ante fallos.
+Changesets Action tiene `createGithubReleases: false`: el publisher los crea antes
+de npm y no depende de que Changesets detecte tags nuevos en stdout.
+
+`release:flow` retoma un push con Changesets aunque el Version PR todavía no
+aparezca: espera los workflows del HEAD ya enviado y vuelve a consultar el PR.
+Cuando no hay trabajo pendiente verifica npm; un no-op no equivale a éxito sin
+comprobar la publicación. `--dry-run` conserva su alcance de planificación.

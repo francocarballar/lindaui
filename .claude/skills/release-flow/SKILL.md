@@ -51,12 +51,13 @@ un Version PR abierto ya? ¿estamos al día con origin?), correlo primero con
 5. Mergea el PR (`--squash --delete-branch`), y espera el CI + Release que
    dispara ese merge en `main`.
 6. Lee `packages/*/package.json` (los no-`private`) y corre
-   `npm view <name> version` para reportar las versiones finales publicadas.
+   `release:flow --verify-only`: verifica latest, descarga tarballs, comprueba hashes e identidad y guarda recibos. El publisher CI `release:publish` crea los releases GitHub con changelog antes de npm.
 
 ## Si el script aborta
 
-Sale con `✗ <motivo>` y código de salida 1. No reintentes a ciegas —
-mostrale el error a Franco y decidan juntos:
+Sale con `✗ <motivo>` y código de salida 1. No reintentes a ciegas. Diagnosticar y corregir fallos reparables dentro del
+alcance autorizado, verificar y continuar. Si requiere información o permisos
+externos ausentes, informar el bloqueo concreto:
 - **"Working tree sucio" / "atrás de origin"**: hay que resolver el estado
   del repo antes (commitear, pull) — no es un bug del script.
 - **CI/Release en `failure`**: hay una regresión real. No mergear nada; es
@@ -72,3 +73,11 @@ Si el flujo de release cambia (otro workflow, otro nombre de branch para el
 version PR, etc.), editá `scripts/release-flow.mjs` directamente — es un
 solo archivo Node sin dependencias nuevas (`node:child_process`, `node:fs`),
 mismo estilo que `scripts/gen.mjs` y `scripts/derive-exports.mjs`.
+
+## Entrega completa
+
+Si el pedido incluye implementar mejoras, verificar y crear commits antes del
+release, seguir `.agents/skills/deliver/SKILL.md`. Sus gates `delivery:check` y
+`delivery:verify` cubren el recorrido recurrente. Un fallo reparable se diagnostica
+y corrige dentro del alcance autorizado; no requiere otra confirmación para
+continuar la misma entrega. Ver `docs/workflows/autonomous-delivery.md`.
