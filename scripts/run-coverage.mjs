@@ -39,11 +39,14 @@ export async function runCoverage({ root = repoRoot, tasks = coverageTasks, invo
 
 export async function coverageCLI(args = [], options) {
   if (args.length === 1 && args[0] === '--help') {
-    console.log('Usage: pnpm test:coverage [--help]\nRuns every coverage suite and writes coverage/run.json. Exit: 0 passed, 1 suite failed, 2 runner error.');
+    console.log('Usage: pnpm test:coverage [--serial] [--help]\n--serial limits library task concurrency to one without changing thresholds or test timeouts. Runs every coverage suite and writes coverage/run.json. Exit: 0 passed, 1 suite failed, 2 runner error.');
     return 0;
   }
-  if (args.length) throw new Error(`Unknown coverage options: ${args.join(' ')}`);
-  const report = await runCoverage(options);
+  if (args.length && !(args.length === 1 && args[0] === '--serial')) throw new Error(`Unknown coverage options: ${args.join(' ')}`);
+  const configured = { ...options };
+  if (args.includes('--serial')) configured.tasks = (configured.tasks ?? coverageTasks).map(task =>
+    task.name === 'libraries' ? { ...task, args: [...task.args, '--concurrency=1'] } : task);
+  const report = await runCoverage(configured);
   return report.status === 'passed' ? 0 : 1;
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

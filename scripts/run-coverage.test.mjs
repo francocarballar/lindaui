@@ -68,3 +68,17 @@ test('coverage CLI documents receipts and rejects unsupported options before lau
   assert.match(invalid.stderr, /Unknown coverage options/);
   await assert.rejects(coverageCLI(['--help', '--unexpected']), /Unknown coverage options/);
 });
+
+test('serial CLI records reduced task concurrency while preserving every suite and failure', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'linda-serial-'));
+  try {
+    const options = { root, invoke: (_manager, args) => ({ command: process.execPath, args }),
+      launch: () => { const child = new EventEmitter(); queueMicrotask(() => child.emit('close', 0, null)); return child; } };
+    assert.equal(await coverageCLI(['--serial'], options), 0);
+    const report = JSON.parse(await readFile(join(root, 'coverage/run.json'), 'utf8'));
+    assert.deepEqual(report.tasks[0].args, [...coverageTasks[0].args, '--concurrency=1']);
+    assert.deepEqual(report.tasks[1].args, coverageTasks[1].args);
+    assert.equal(await coverageCLI(['--serial'], { ...options, tasks: [{ name: 'other', args: [] }] }), 0);
+    await assert.rejects(coverageCLI(['--serial', '--serial']), /Unknown coverage options/);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
