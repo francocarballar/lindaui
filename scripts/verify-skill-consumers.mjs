@@ -1,6 +1,6 @@
 // Real npm consumers of packed/public artifacts. Keeps fixtures and receipts for
 // inspection; never links the contributor node_modules or copies library source.
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -16,8 +16,12 @@ export function verifyConsumers({ tarballs, published = false, manager = runMana
 }) {
   if ((!tarballs && !published) || (tarballs && published)) throw new Error(usage);
   const root = createRoot();
+  const expectedVersions = Object.fromEntries(['ui', 'blocks', 'tokens'].map(name => {
+    const manifest = JSON.parse(readFileSync(new URL(`../packages/${name}/package.json`, import.meta.url), 'utf8'));
+    return [manifest.name, manifest.version];
+  }));
   const cli = fileURLToPath(new URL('../skills/lindaui/scripts/lindaui.mjs', import.meta.url));
-  const report = { schemaVersion: 1, platform: process.platform, node: process.version, artifacts: tarballs ? resolve(tarballs) : 'public npm latest', fixtures: [] };
+  const report = { schemaVersion: 1, platform: process.platform, node: process.version, artifacts: tarballs ? resolve(tarballs) : 'public npm latest', expectedVersions, fixtures: [] };
   const save = () => writeFileSync(join(root, 'verification.json'), JSON.stringify(report, null, 2) + '\n');
   function file(app, path, content) {
     mkdirSync(join(app, path, '..'), { recursive: true });
@@ -78,6 +82,12 @@ export function verifyConsumers({ tarballs, published = false, manager = runMana
       }
       record.receipts.push({ install: manager({ manager: 'npm', root: app }, ['install', '--no-audit', '--no-fund']) }); save();
       invoke(app, record, 'setup', ['--packages', 'ui,blocks', '--entry', entry, ...(tarballs ? ['--tarballs', resolve(tarballs), '--offline'] : []), '--apply']);
+      record.installedVersions = {};
+      for (const [name, version] of Object.entries(expectedVersions)) {
+        const installed = JSON.parse(readFileSync(join(app, 'node_modules', name, 'package.json'), 'utf8'));
+        record.installedVersions[name] = installed.version; save();
+        if (installed.name !== name || installed.version !== version) throw new Error(`${name}: expected ${version}, installed ${installed.name}@${installed.version}; refusing stale consumer evidence.`);
+      }
       invoke(app, record, 'api', ['--list']);
       invoke(app, record, 'activate', ['--apply']);
       invoke(app, record, 'theme', ['--entry', entry, '--primary', '#2563eb', '--primary-dark', '#60a5fa', '--apply']);

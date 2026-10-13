@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, existsSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -23,6 +23,14 @@ function adapters(t, config = {}) {
       if (config.invalidJSON) return { status: 0, stdout: 'invalid JSON', stderr: '' };
       if (config.spawnError) return { status: null, stdout: '', stderr: '', error: new Error('process unavailable') };
       if (config.failedCommand === command) return { status: 1, stdout: '{"error":"fixture failure"}', stderr: 'failed' };
+      if (command === 'setup') {
+        const app = args[args.indexOf('--project') + 1];
+        for (const name of ['ui', 'blocks', 'tokens']) {
+          const manifest = JSON.parse(readFileSync(new URL(`../packages/${name}/package.json`, import.meta.url), 'utf8'));
+          const dir = join(app, 'node_modules', manifest.name); mkdirSync(dir, { recursive: true });
+          writeFileSync(join(dir, 'package.json'), JSON.stringify({ ...manifest, ...(config.stale ? { version: '0.0.0' } : {}) }));
+        }
+      }
       return { status: 0, stdout: '{"schemaVersion":1,"status":"fixture-verified"}', stderr: '' };
     },
     log: message => logs.push(message), errorLog: message => errors.push(message),
@@ -35,6 +43,7 @@ test('all four fixture frameworks preserve generated entrypoints and verificatio
   const result = verifyConsumers({ ...s.options, tarballs: '/fixture/vendor' });
   assert.deepEqual(result.fixtures.map(fixture => fixture.kind), ['vite-ts', 'vite-js', 'next-app', 'next-pages']);
   assert.ok(result.fixtures.every(fixture => fixture.status === 'passed'));
+  assert.ok(result.fixtures.every(fixture => JSON.stringify(fixture.installedVersions) === JSON.stringify(result.expectedVersions)));
   assert.ok(s.calls.filter(call => call.args[1] === 'setup').every(call => call.args.includes('--tarballs') && call.args.includes('--offline')));
   assert.ok(s.calls.filter(call => call.args[1] === 'scaffold').some(call => call.args.includes('js')));
   assert.ok(s.calls.filter(call => call.args[1] === 'scaffold').some(call => call.args.includes('ts')));
@@ -110,4 +119,15 @@ test('CLI help and invalid flags complete without installing any consumer', () =
   const invalid = spawnSync(process.execPath, [script, '--published', '--tarballs'], { encoding: 'utf8' });
   assert.equal(invalid.status, 1);
   assert.match(invalid.stderr, /Choose --tarballs/);
+});
+
+test('stale installed package versions fail before scaffold/build and remain visible in receipts', t => {
+  const s = adapters(t, { stale: true });
+  const result = verifyConsumers({ ...s.options, published: true });
+  assert.equal(result.fixtures.length, 1);
+  assert.equal(result.fixtures[0].status, 'failed');
+  assert.match(result.fixtures[0].error.message, /refusing stale consumer evidence/);
+  assert.equal(result.fixtures[0].installedVersions['@lindaui/ui'], '0.0.0');
+  assert.equal(s.calls.some(call => call.args[1] === 'scaffold'), false);
+  assert.equal(s.managed.some(call => call.args[0] === 'run'), false);
 });
