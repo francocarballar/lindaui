@@ -17,7 +17,10 @@ for (const story of stories) {
       window.addEventListener("error", (event) => errors.push(event.message));
       window.addEventListener("unhandledrejection", (event) => errors.push(String(event.reason)));
     });
-    await app.open(`/iframe.html?id=${encodeURIComponent(story.id)}&viewMode=story`);
+    // Storybook lazy-loads story modules after the document load event. Wait
+    // for those requests before asserting visibility; navigate once, no retries.
+    const url = new URL(`/iframe.html?id=${encodeURIComponent(story.id)}&viewMode=story`, app.baseUrl);
+    await browser.goto(url.href, { waitUntil: "networkidle" });
     await expect(browser.locator("#storybook-root")).toBeVisible();
     await expect(browser.locator(".sb-errordisplay")).toBeHidden();
     expect(await browser.evaluate(() => (window as Window & { __lindaErrors?: string[] }).__lindaErrors ?? [])).toEqual([]);
