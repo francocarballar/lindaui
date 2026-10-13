@@ -1,4 +1,6 @@
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -15,17 +17,23 @@ function scenario(t, config = {}) {
     writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: `@fixture/${name}`, version: '1.2.3', private: isPrivate }));
   }
   const calls = [], logs = [], requests = [];
-  let clock = 1000, merged = false, pushed = false, watchFailures = 0, polls = 0;
+  const header = Buffer.alloc(512);
+  const body = Buffer.from(JSON.stringify(config.manifest ?? { name: '@fixture/public', version: '1.2.3' }));
+  header.write('package/package.json'); header.write(body.length.toString(8), 124);
+  const bytes = gzipSync(Buffer.concat([header, body, Buffer.alloc(512 - body.length % 512)]));
+  const integrity = `sha512-${createHash('sha512').update(bytes).digest('base64')}`;
+  const shasum = createHash('sha1').update(bytes).digest('hex');
+  let clock = 1000, merged = false, pushed = false, watched = false, watchFailures = 0, polls = 0;
   const pr = { number: 7, headRefOid: 'version-head', url: 'https://example.test/pr/7' };
   const execute = (command, args, options) => {
     calls.push({ command, args, options });
     const key = args.slice(0, 2).join(' ');
     if (command === 'git') {
       if (args.join(' ') === 'rev-parse --abbrev-ref HEAD') return config.branch ?? 'main';
-      if (args[0] === 'status') return config.dirty ? ' M tracked.txt' : '';
+      if (args[0] === 'status') return config.dirty || (config.dirtyAfterWatch && watched) ? ' M tracked.txt' : '';
       if (args[0] === 'rev-list') return String(args.at(-1) === 'origin/main..main' ? (config.ahead ?? 1) : (config.behind ?? 0));
       if (args[0] === 'push') { pushed = true; return null; }
-      if (args[0] === 'rev-parse') return args[1] === 'origin/main' ? 'merge-head' : 'push-head';
+      if (args[0] === 'rev-parse') return args[1] === 'origin/main' ? 'merge-head' : config.headAfterWatch && watched ? 'other-head' : 'push-head';
       if (args[0] === 'fetch' || args[0] === 'pull') return '';
     }
     if (command === 'gh') {
@@ -46,6 +54,7 @@ function scenario(t, config = {}) {
         ]);
       }
       if (key === 'run watch') {
+        watched = true;
         if (config.watchFailure && (config.alwaysFail || watchFailures++ === 0)) throw new Error('watch failed');
         return null;
       }
@@ -56,13 +65,22 @@ function scenario(t, config = {}) {
   };
   const fetchRegistry = async (url, options) => {
     requests.push({ url, options });
+    if (config.networkError) throw new Error('network unavailable');
+    if (url === 'https://example.test/package.tgz') return {
+      ok: !config.tarballStatus, status: config.tarballStatus ?? 200,
+      arrayBuffer: async () => config.corrupt ? Buffer.from('corrupted') : bytes,
+    };
     return {
-      ok: !config.registryStatus, status: config.registryStatus ?? 200,
-      json: async () => config.metadata ?? { versions: { '1.2.3': { dist: config.shasum ? { tarball: 'https://example.test/package.tgz', shasum: 'abc' } : { tarball: 'https://example.test/package.tgz', integrity: 'sha512-abc' } } }, 'dist-tags': { latest: '1.2.3' } },
+      ok: !config.registryStatus && !(config.statusOnce && requests.length === 1), status: config.registryStatus ?? (requests.length === 1 ? config.statusOnce ?? 200 : 200),
+      json: async () => config.staleOnce && requests.length === 1 ? {} : config.metadata ?? {
+        versions: { '1.2.3': { dist: { tarball: 'https://example.test/package.tgz',
+          ...(!config.shasum ? { integrity } : {}), shasum, ...config.dist } } },
+        'dist-tags': { latest: '1.2.3' }, ...(!config.omitTime ? { time: { '1.2.3': '2026-10-13T00:00:00.000Z' } } : {}),
+      },
     };
   };
   const options = { root, execute, fetchRegistry, now: () => clock, sleep: async (ms) => { clock += ms; }, log: (message) => logs.push(message), dryRun: config.dryRun ?? false };
-  return { flow: createReleaseFlow(options), options, calls, logs, requests };
+  return { flow: createReleaseFlow(options), options, calls, logs, requests, root, integrity, shasum };
 }
 
 for (const [config, error] of [[{ branch: 'feature' }, /corre desde 'main'/], [{ dirty: true }, /sin commitear/], [{ behind: 2 }, /atrás de origin/]]) {
@@ -96,10 +114,10 @@ test('direct releases wait for all workflows then verify only public package ver
   await s.flow.main();
   assert.equal(s.calls.filter(call => call.args[0] === 'push').length, 1);
   assert.equal(s.calls.filter(call => call.args[1] === 'watch').length, 3);
-  assert.equal(s.requests.length, 1);
+  assert.equal(s.requests.length, 2);
   assert.match(s.requests[0].url, /%40fixture%2Fpublic\?release=/);
   assert.equal(s.requests[0].options.headers['cache-control'], 'no-cache');
-  assert.match(s.logs.join('\n'), /@fixture\/public@1.2.3 \(abc\)/);
+  assert.ok(s.logs.some(message => message.includes(s.integrity)));
 });
 
 for (const config of [{ pr: true, ahead: 0 }, { prAfterPush: true, ahead: 1 }]) {
@@ -107,8 +125,10 @@ for (const config of [{ pr: true, ahead: 0 }, { prAfterPush: true, ahead: 1 }]) 
     const s = scenario(t, config);
     await releaseCLI([], s.options);
     assert.equal(s.calls.filter(call => call.args[1] === 'merge').length, 1);
+    const merge = s.calls.find(call => call.args[1] === 'merge');
+    assert.equal(merge.args[merge.args.indexOf('--match-head-commit') + 1], 'version-head');
     assert.equal(s.calls.filter(call => call.args[0] === 'pull').length, 1);
-    assert.equal(s.requests.length, 1);
+    assert.equal(s.requests.length, 2);
     const mergeIndex = s.calls.findIndex(call => call.args[1] === 'merge');
     assert.ok(s.calls.slice(0, mergeIndex).filter(call => call.args[1] === 'watch').length >= 2);
     assert.match(s.logs.join('\n'), /post-merge para merge-head/);
@@ -170,4 +190,78 @@ test('help and unknown CLI flags never enter the release flow', async () => {
   const invalid = spawnSync(process.execPath, [script, '--invalid'], { encoding: 'utf8' });
   assert.equal(invalid.status, 1);
   assert.match(invalid.stderr, /Unknown release option/);
+});
+
+for (const config of [{ dirtyAfterWatch: true }, { headAfterWatch: true }]) {
+  test(`concurrent checkout changes stop the merge without resetting work ${JSON.stringify(config)}`, async t => {
+    const s = scenario(t, { ...config, pr: true, ahead: 0 });
+    await assert.rejects(s.flow.main(), /checkout cambió/);
+    assert.equal(s.calls.some(call => call.args[1] === 'merge'), false);
+    assert.equal(s.calls.some(call => ['reset', 'checkout', 'clean'].includes(call.args[0])), false);
+  });
+}
+
+test('stale registry metadata converges without another publish and preserves byte evidence', async t => {
+  const s = scenario(t, { staleOnce: true });
+  const result = await s.flow.reportPublishedVersions();
+  assert.equal(result.status, 'passed');
+  assert.equal(result.packages[0].attempts, 2);
+  assert.equal(result.packages[0].publishedAt, '2026-10-13T00:00:00.000Z');
+  assert.equal(result.packages[0].integrity, s.integrity);
+  assert.equal(result.packages[0].shasum, s.shasum);
+  assert.ok(readFileSync(result.packages[0].artifact).length > 0);
+  assert.deepEqual(JSON.parse(readFileSync(result.receiptPath, 'utf8')).packages, result.packages);
+  assert.equal(s.calls.length, 0);
+});
+
+for (const [config, message] of [
+  [{ registryStatus: 401 }, /registry respondió 401/],
+  [{ tarballStatus: 503 }, /tarball respondió 503/],
+  [{ corrupt: true }, /integrity mismatch/],
+  [{ dist: { shasum: 'wrong' } }, /shasum mismatch/],
+  [{ dist: { integrity: null, shasum: null } }, /missing tarball integrity/],
+  [{ dist: { tarball: 'http://example.test/package.tgz' } }, /must use HTTPS/],
+  [{ manifest: { name: '@wrong/package', version: '1.2.3' } }, /manifest identity mismatch/],
+  [{ manifest: { name: '@fixture/public', version: 'old' } }, /manifest identity mismatch/],
+]) {
+  test(`publication failures retain failed receipts ${JSON.stringify(config)}`, async t => {
+    const s = scenario(t, config);
+    await assert.rejects(s.flow.reportPublishedVersions(), message);
+    const receipt = JSON.parse(readFileSync(join(s.root, 'coverage/publication/verification.json'), 'utf8'));
+    assert.equal(receipt.status, 'failed');
+    assert.equal(receipt.packages[0].status, 'failed');
+    assert.ok(receipt.error);
+    if (config.corrupt) assert.equal(readFileSync(receipt.packages[0].artifact, 'utf8'), 'corrupted');
+    assert.equal(s.logs.some(message => message.includes('✓')), false);
+  });
+}
+
+test('verify-only checks even a fully synchronized checkout without git/gh mutations', async t => {
+  const s = scenario(t, { ahead: 0 });
+  await releaseCLI(['--verify-only'], s.options);
+  assert.equal(s.calls.length, 0);
+  assert.equal(s.requests.length, 2);
+  await assert.rejects(releaseCLI(['--verify-only', '--dry-run'], s.options), /Choose/);
+});
+
+for (const statusOnce of [404, 429, 503]) {
+  test(`transient registry ${statusOnce} retries metadata without retrying publication`, async t => {
+    const s = scenario(t, { statusOnce, omitTime: true });
+    const result = await s.flow.reportPublishedVersions();
+    assert.equal(result.packages[0].attempts, 2);
+    assert.equal(result.packages[0].publishedAt, null);
+    assert.equal(s.calls.length, 0);
+  });
+}
+
+test('network errors retain failure evidence; tarball credentials and SHA-1 corruption are rejected', async t => {
+  for (const [config, error] of [
+    [{ networkError: true }, /network unavailable/],
+    [{ dist: { tarball: 'https://user:secret@example.test/package.tgz' } }, /without credentials/],
+    [{ shasum: true, corrupt: true }, /shasum mismatch/],
+  ]) {
+    const s = scenario(t, config);
+    await assert.rejects(s.flow.reportPublishedVersions(), error);
+    assert.equal(JSON.parse(readFileSync(join(s.root, 'coverage/publication/verification.json'), 'utf8')).status, 'failed');
+  }
 });

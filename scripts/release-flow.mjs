@@ -16,9 +16,11 @@
 //   node scripts/release-flow.mjs --dry-run   # solo lee estado, no muta nada
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tarballManifest } from "../skills/lindaui/scripts/lib/setup.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -31,7 +33,7 @@ const MAX_WATCH_ATTEMPTS = 3;
 
 /** Inject process/network/clock boundaries so release failure paths are testable. */
 export function createReleaseFlow({
-  root = repoRoot, dryRun = false, execute = execFileSync,
+  root = repoRoot, dryRun = false, verifyOnly = false, execute = execFileSync,
   fetchRegistry = globalThis.fetch, now = Date.now, log = console.log,
   sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 }) {
@@ -118,21 +120,71 @@ export function createReleaseFlow({
 
   async function reportPublishedVersions() {
     log("\nVersiones publicadas y verificadas contra el registry:");
-    for (const pkg of publishablePackages()) {
-      const response = await fetchRegistry(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}?release=${now()}`, {
-        signal: AbortSignal.timeout(15000), headers: { "cache-control": "no-cache" },
-      });
-      if (!response.ok) throw new Error(`${pkg.name}: registry respondió ${response.status}.`);
-      const metadata = await response.json();
-      const published = metadata.versions?.[pkg.version];
-      if (!published?.dist?.tarball || metadata["dist-tags"]?.latest !== pkg.version) {
-        throw new Error(`${pkg.name}@${pkg.version} no está publicado como latest; no declarar éxito.`);
+    const directory = resolve(root, "coverage", "publication");
+    mkdirSync(directory, { recursive: true });
+    const receiptPath = resolve(directory, "verification.json");
+    const report = { schemaVersion: 1, startedAt: now(), status: "running", packages: [],
+      scope: "npm latest, downloaded tarball integrity and manifest identity; not consumer/browser or local payload equivalence" };
+    const save = () => writeFileSync(receiptPath, JSON.stringify(report, null, 2) + "\n");
+    save();
+    try {
+      for (const pkg of publishablePackages()) {
+        const record = { name: pkg.name, version: pkg.version, status: "running", attempts: 0 };
+        report.packages.push(record); save();
+        const deadline = now() + POLL_TIMEOUT_MS;
+        let published;
+        while (true) {
+          record.attempts++;
+          const response = await fetchRegistry(`https://registry.npmjs.org/${encodeURIComponent(pkg.name)}?release=${now()}`, {
+            signal: AbortSignal.timeout(15000), headers: { "cache-control": "no-cache" },
+          });
+          if (!response.ok && response.status !== 404 && response.status !== 429 && response.status < 500) {
+            throw new Error(`${pkg.name}: registry respondió ${response.status}.`);
+          }
+          const metadata = response.ok ? await response.json() : {};
+          published = metadata.versions?.[pkg.version];
+          if (published?.dist?.tarball && metadata["dist-tags"]?.latest === pkg.version) {
+            record.publishedAt = metadata.time?.[pkg.version] ?? null;
+            break;
+          }
+          if (now() >= deadline) throw new Error(`${pkg.name}@${pkg.version} no está publicado como latest; no declarar éxito.`);
+          save(); await sleep(POLL_INTERVAL_MS);
+        }
+        const url = new URL(published.dist.tarball);
+        if (url.protocol !== "https:" || url.username || url.password) throw new Error(`${pkg.name}: tarball URL must use HTTPS without credentials.`);
+        const response = await fetchRegistry(url.href, { signal: AbortSignal.timeout(30000) });
+        if (!response.ok) throw new Error(`${pkg.name}: tarball respondió ${response.status}.`);
+        const bytes = Buffer.from(await response.arrayBuffer());
+        const integrity = `sha512-${createHash("sha512").update(bytes).digest("base64")}`;
+        const shasum = createHash("sha1").update(bytes).digest("hex");
+        const artifact = resolve(directory, `${report.packages.length}.tgz`);
+        writeFileSync(artifact, bytes);
+        Object.assign(record, { tarball: url.href, artifact, bytes: bytes.length, integrity, shasum,
+          expectedIntegrity: published.dist.integrity ?? null, expectedShasum: published.dist.shasum ?? null });
+        save();
+        if (!published.dist.integrity && !published.dist.shasum) throw new Error(`${pkg.name}: missing tarball integrity.`);
+        if (published.dist.integrity && !published.dist.integrity.split(/\s+/).includes(integrity)) throw new Error(`${pkg.name}: SHA-512 integrity mismatch.`);
+        if (published.dist.shasum && published.dist.shasum !== shasum) throw new Error(`${pkg.name}: SHA-1 shasum mismatch.`);
+        const manifest = tarballManifest(artifact);
+        if (manifest.name !== pkg.name || manifest.version !== pkg.version) throw new Error(`${pkg.name}: tarball manifest identity mismatch.`);
+        Object.assign(record, { status: "passed", verifiedAt: now() });
+        save(); log(`  ✓ ${pkg.name}@${pkg.version} (${integrity})`);
       }
-      log(`  ✓ ${pkg.name}@${pkg.version} (${published.dist.integrity ?? published.dist.shasum})`);
+      report.status = "passed";
+    } catch (error) {
+      report.status = "failed"; report.error = error.message;
+      const active = report.packages.find(record => record.status === "running");
+      if (active) { active.status = "failed"; active.error = error.message; }
+      throw error;
+    } finally {
+      report.finishedAt = now(); save();
     }
+    log(`Publication evidence: ${receiptPath}`);
+    return { ...report, receiptPath };
   }
 
   async function main() {
+    if (verifyOnly) return reportPublishedVersions();
     const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
     if (branch !== "main") {
       throw new Error(`Este flujo corre desde 'main', estás en '${branch}'.`);
@@ -141,6 +193,12 @@ export function createReleaseFlow({
     // tooling) no es señal de trabajo sin commitear.
     if (git(["status", "--porcelain", "--untracked-files=no"])) {
       throw new Error("Hay cambios sin commitear en archivos trackeados — commiteá o descartá antes de correr el flujo.");
+    }
+    const initialHead = git(["rev-parse", "HEAD"]);
+    function assertCheckoutStable() {
+      if (git(["status", "--porcelain", "--untracked-files=no"]) || git(["rev-parse", "HEAD"]) !== initialHead) {
+        throw new Error("El checkout cambió durante el release; preservar el trabajo concurrente y revisar antes de push/merge.");
+      }
     }
 
     git(["fetch", "origin", "main", "--quiet"]);
@@ -173,6 +231,7 @@ export function createReleaseFlow({
     }
 
     if (ahead > 0) {
+      assertCheckoutStable();
       log(`Pusheando ${ahead} commit(s)...`);
       git(["push"], { inherit: true });
       const headSha = git(["rev-parse", "HEAD"]);
@@ -199,7 +258,8 @@ export function createReleaseFlow({
     for (const prRun of prRuns) await watchRunResilient(prRun);
 
     log(`Mergeando #${pr.number}...`);
-    gh(["pr", "merge", String(pr.number), "--squash", "--delete-branch"], { inherit: true });
+    assertCheckoutStable();
+    gh(["pr", "merge", String(pr.number), "--squash", "--delete-branch", "--match-head-commit", pr.headRefOid], { inherit: true });
 
     git(["fetch", "origin", "main", "--quiet"]);
     const mergeSha = git(["rev-parse", "origin/main"]);
@@ -214,13 +274,14 @@ export function createReleaseFlow({
 
 export async function releaseCLI(args, options = {}) {
   for (const arg of args) {
-    if (!["--dry-run", "--help"].includes(arg)) throw new Error(`Unknown release option: ${arg}`);
+    if (!["--dry-run", "--verify-only", "--help"].includes(arg)) throw new Error(`Unknown release option: ${arg}`);
   }
   if (args.includes("--help")) {
-    console.log("Usage: node scripts/release-flow.mjs [--dry-run] [--help]");
+    console.log("Usage: node scripts/release-flow.mjs [--dry-run | --verify-only] [--help]\n--verify-only downloads npm tarballs and writes coverage/publication/verification.json; never pushes, merges or publishes.");
     return;
   }
-  await createReleaseFlow({ ...options, dryRun: args.includes("--dry-run") }).main();
+  if (args.includes("--dry-run") && args.includes("--verify-only")) throw new Error("Choose --dry-run or --verify-only, not both.");
+  await createReleaseFlow({ ...options, dryRun: args.includes("--dry-run"), verifyOnly: args.includes("--verify-only") }).main();
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

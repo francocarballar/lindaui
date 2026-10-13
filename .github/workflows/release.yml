@@ -40,6 +40,7 @@ jobs:
       - run: pnpm skill:test
 
       - uses: changesets/action@v1
+        id: changesets
         with:
           version: pnpm version-packages
           # NO usar `changeset publish`: changesets@2.31 + npm 11 crashea en
@@ -62,3 +63,15 @@ jobs:
           # tras configurar OIDC Trusted Publisher (provenance necesita OIDC).
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Publication is not complete until the public registry serves valid bytes.
+      - run: pnpm release:flow --verify-only
+        if: steps.changesets.outputs.published == 'true'
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-publication-evidence
+          path: coverage/publication/
+          if-no-files-found: ignore
+          retention-days: 90
