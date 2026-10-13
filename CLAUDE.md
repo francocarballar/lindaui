@@ -410,7 +410,7 @@ Changesets + Turborepo. `.github/workflows/ci.yml` corre el gate completo (build
 **Automatización del babysitting (`scripts/release-flow.mjs` + skill `release-flow`):** push → watch CI+Release+LindaUI Skill → si aparece el Version PR, watch su CI y LindaUI Skill (auto-`gh run rerun` si cae en el flake de `action_required`) → merge → watch CI+Release+LindaUI Skill post-merge → verifica las versiones esperadas directamente en el registry npm. Sin pausa de confirmación a mitad de camino: invocar el skill/script YA es el pedido explícito que pide "Autorizado / Prohibido" antes de un publish — repetir la pregunta a mitad de flujo sería pedir el mismo permiso dos veces. Si cualquier corrida sale roja de verdad (no el flake), el script aborta sin mergear nada. `pnpm release:flow --dry-run` para validar el estado del repo sin mutar nada.
 
 `pnpm release:flow --verify-only` verifica las versiones del checkout sin push,
-merge ni publish, incluso si no hay commits pendientes. Espera hasta 60 segundos
+merge ni publish, incluso si no hay commits pendientes. Espera hasta 180 segundos
 por metadata pendiente (incluidos 404/429/5xx), usando cache-busting; un error de
 autenticación aborta. Descarga cada tarball HTTPS, exige SHA-512 si la metadata
 lo declara, comprueba también SHA-1 si está presente y valida nombre/versión del
@@ -486,3 +486,9 @@ de npm y no depende de que Changesets detecte tags nuevos en stdout.
 aparezca: espera los workflows del HEAD ya enviado y vuelve a consultar el PR.
 Cuando no hay trabajo pendiente verifica npm; un no-op no equivale a éxito sin
 comprobar la publicación. `--dry-run` conserva su alcance de planificación.
+
+La disponibilidad de npm puede superar el ACK del publisher: en el primer
+release de este workflow, las versiones aparecieron después de la ventana de
+60 segundos. La verificación de registry espera ahora hasta 180 segundos; la
+espera de runs GitHub conserva 60 segundos. No repetir publicaciones para
+resolver metadata pendiente: reconciliar versiones, hashes y latest primero.

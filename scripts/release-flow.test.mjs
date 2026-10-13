@@ -295,3 +295,15 @@ test('Changesets README and config are not a pending version plan', async t => {
   assert(!s.calls.some(call => call.args[1] === 'watch'));
   assert.equal(s.requests.length, 2);
 });
+test('publication verification tolerates availability beyond the old 60 second window', async t => {
+  const s = scenario(t); let metadataAttempts = 0;
+  const fetchRegistry = async (url, options) => {
+    if (url.includes('registry.npmjs.org') && metadataAttempts++ < 27) return { ok: true, json: async () => ({}) };
+    return s.options.fetchRegistry(url, options);
+  };
+  const result = await createReleaseFlow({ ...s.options, fetchRegistry, verifyOnly: true }).main();
+  assert.equal(result.status, 'passed');
+  assert.equal(result.packages[0].attempts, 28);
+  assert(s.options.now() >= 81000 && s.options.now() < 180000);
+  assert(!s.calls.some(call => call.args[0] === 'push' || call.args[1] === 'merge'));
+});

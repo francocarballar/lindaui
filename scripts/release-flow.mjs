@@ -29,6 +29,7 @@ const VERSION_PR_BRANCH = "changeset-release/main";
 const RELEASE_WORKFLOWS = ["CI", "Release", "LindaUI Skill"];
 const POLL_INTERVAL_MS = 3000;
 const POLL_TIMEOUT_MS = 60_000;
+const REGISTRY_TIMEOUT_MS = 180_000;
 const MAX_WATCH_ATTEMPTS = 3;
 
 /** Inject process/network/clock boundaries so release failure paths are testable. */
@@ -131,7 +132,7 @@ export function createReleaseFlow({
       for (const pkg of publishablePackages()) {
         const record = { name: pkg.name, version: pkg.version, status: "running", attempts: 0 };
         report.packages.push(record); save();
-        const deadline = now() + POLL_TIMEOUT_MS;
+        const deadline = now() + REGISTRY_TIMEOUT_MS;
         let published;
         while (true) {
           record.attempts++;
