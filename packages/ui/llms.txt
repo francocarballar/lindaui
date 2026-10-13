@@ -338,3 +338,12 @@ The lindaui skill check reports recognized native controls with installed
 counterparts. Required native behavior needs an adjacent JSX comment with a
 nonempty reason: {/* lindaui-allow-native: reason */}. Run check in consumer CI;
 static findings do not prove browser behavior or exhaustive compliance.
+
+## Verification evidence
+
+Record the exact installed versions of ui, blocks and tokens when reporting an
+integration. A successful build or a matching latest tag alone does not prove
+that the expected packages were tested. Keep checker, typecheck/build and browser
+results separate. Published tarball integrity establishes downloaded bytes and
+package identity; consumer behavior still requires integration and interaction
+tests. See the repository acceptance matrix in CLAUDE.md for release evidence.

@@ -373,6 +373,11 @@ Ejecuta todas las suites aunque falle un umbral y conserva sus resultados en
 `coverage/run.json`; el comando falla si falla cualquier suite.
 El tooling usa dos workers concurrentes. Reporta líneas, sentencias, funciones
 y ramas; un módulo importado no demuestra cobertura de sus comportamientos.
+`pnpm test:coverage --serial` limita a una tarea de librería por vez usando
+el `--concurrency=1` de Turbo instalado; no serializa los workers internos de
+Vitest/c8, ni cambia umbrales o timeouts. No superponer cobertura, E2E y builds
+de consumidores para diagnosticar timeouts: conservar el fallo y repetir la
+misma suite con carga controlada. Los argumentos quedan en `coverage/run.json`.
 La inspección de TypeScript resuelve instalaciones del consumidor o sus ancestros;
 no debe usar el compilador del agente mediante `NODE_PATH`.
 `pnpm test:e2e` compila Storybook y Verona y ejecuta tester.army e2e en Chromium aislado
@@ -403,6 +408,39 @@ Vitest + jsdom + `@testing-library/react` + `user-event`. Co-locados. **Solo que
 Changesets + Turborepo. `.github/workflows/ci.yml` corre el gate completo (build/test/typecheck/storybook/publint/attw) en PRs y en push a `main`. `.github/workflows/release.yml` corre en push a `main`: si hay changesets pendientes, `changesets/action` arma/actualiza el PR "chore: version packages" contra `changeset-release/main`; si no hay, publica directo con `pnpm -r publish --access public --no-git-checks` (NO `changeset publish`, ver Anti-regresión #13). `dist/` y `storybook-static/` están gitignored (se regeneran en CI). Bloqueos de publicación reales: ver "Autorizado / Prohibido".
 
 **Automatización del babysitting (`scripts/release-flow.mjs` + skill `release-flow`):** push → watch CI+Release+LindaUI Skill → si aparece el Version PR, watch su CI y LindaUI Skill (auto-`gh run rerun` si cae en el flake de `action_required`) → merge → watch CI+Release+LindaUI Skill post-merge → verifica las versiones esperadas directamente en el registry npm. Sin pausa de confirmación a mitad de camino: invocar el skill/script YA es el pedido explícito que pide "Autorizado / Prohibido" antes de un publish — repetir la pregunta a mitad de flujo sería pedir el mismo permiso dos veces. Si cualquier corrida sale roja de verdad (no el flake), el script aborta sin mergear nada. `pnpm release:flow --dry-run` para validar el estado del repo sin mutar nada.
+
+`pnpm release:flow --verify-only` verifica las versiones del checkout sin push,
+merge ni publish, incluso si no hay commits pendientes. Espera hasta 60 segundos
+por metadata pendiente (incluidos 404/429/5xx), usando cache-busting; un error de
+autenticación aborta. Descarga cada tarball HTTPS, exige SHA-512 si la metadata
+lo declara, comprueba también SHA-1 si está presente y valida nombre/versión del
+manifest comprimido. No re-publica ante incertidumbre. Guarda tarballs y recibo
+de éxito o fallo en `coverage/publication/`; Release conserva esos artefactos
+durante 90 días cuando hubo publicación. No confundir este recibo con equivalencia
+del payload local ni con pruebas de consumidor/navegador.
+
+### Matriz de aceptación para cambios del checker y releases
+
+Definir las fronteras aplicables antes de ejecutar; conservar evidencia también
+cuando una frontera falla. Ejecutar los gates pesados en secuencia y revalidar
+HEAD + cambios trackeados antes de push/merge. No resetear trabajo concurrente.
+El merge exige `--match-head-commit` del Version PR que pasó los checks; si el PR
+cambia durante la espera, GitHub rechaza el merge de un head sin verificar.
+
+| Frontera | Comprobación | Evidencia y límite |
+|---|---|---|
+| Incidente del checker | Fixture anterior falla, corregido pasa; excepciones y exclusiones explícitas | `skill:test`; `docs/verification/native-controls-cazador.json` es evidencia histórica, no resultado del consumidor actual |
+| Skill distribuida | `skill:validate`, `skill:vendor --check`, matriz del workflow Skill | Valida recursos y plataformas ejecutadas; no prueba invocación automática en cada host |
+| Calidad del código | `test:coverage`, build, typecheck y checks de exports/paquetes | Cobertura por archivo y `coverage/run.json`; no demuestra comportamiento externo |
+| Integración | `skill:consumers --tarballs <dir>` y, tras publicar, `skill:consumers --published` | `verification.json` registra versiones esperadas e instaladas; rechaza versiones distintas antes de scaffold/build |
+| Interacción | E2E y flujos de navegador afectados | Traces/reportes; nombrar frameworks y flujos realmente ejecutados |
+| Publicación npm | `release:flow --verify-only` | `coverage/publication/verification.json`; latest, bytes íntegros e identidad; no compara todo el payload local |
+| Payload y changelog | Comparar archivos de tarballs local/público; revisar changelogs generados por Changesets y releases GitHub | El array `files` define qué viaja a npm; no exigir CHANGELOG.md en tarballs que no lo incluyen |
+| Propagación | `skill:sync --destination <copia>` sobre cada copia instalada | Hash completo, no solo metadata.version; respaldar drift antes de aplicar y usar el algoritmo del instalador para su lock |
+
+Reportar por separado implementación, tests, commits, publicaciones y cambios
+concurrentes pendientes. Una nueva infracción del consumidor detectada por el
+checker demuestra enforcement, no que ese consumidor esté migrado.
 
 ## Protocolo de auto-actualización
 
