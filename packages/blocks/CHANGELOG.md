@@ -1,5 +1,11 @@
 # @lindaui/blocks
 
+## 0.5.3
+
+### Patch Changes
+
+- 226a2f2: Document the consumer control policy in all published agent references. The LindaUI skill 1.1.0 detects raw JSX controls against installed exports, distinguishes input roles, reports local exceptions and scan scope, and provides whole-copy drift verification with backed-up synchronization. Semantic containers remain native HTML; required native behavior uses a local reason. Real consumer fixtures now use LindaUI Button and run the checker before typechecking/building.
+
 ## 0.5.2
 
 ### Patch Changes
