@@ -418,6 +418,10 @@ manifest comprimido. No re-publica ante incertidumbre. Guarda tarballs y recibo
 de éxito o fallo en `coverage/publication/`; Release conserva esos artefactos
 durante 90 días cuando hubo publicación. No confundir este recibo con equivalencia
 del payload local ni con pruebas de consumidor/navegador.
+El gate del workflow usa `hasChangesets == 'false'`, no `published`: con el
+publisher pnpm o tags creados antes de npm, Changesets puede informar published
+false aunque el registry ya tenga las versiones. Verificar también corridas
+sin versiones nuevas; exigir éxito del step y su artifact, no solo del workflow.
 
 ### Matriz de aceptación para cambios del checker y releases
 

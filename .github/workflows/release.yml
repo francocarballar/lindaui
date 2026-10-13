@@ -65,8 +65,10 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # Publication is not complete until the public registry serves valid bytes.
+      # `published` can be false with a custom pnpm publisher/preexisting tags.
+      # Verify every publish-phase run, including already-published versions.
       - run: pnpm release:flow --verify-only
-        if: steps.changesets.outputs.published == 'true'
+        if: steps.changesets.outputs.hasChangesets == 'false'
 
       - uses: actions/upload-artifact@v4
         if: always()
