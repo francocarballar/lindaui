@@ -15,6 +15,7 @@ import { theme, scaffold, activate, recipe } from '../skills/lindaui/scripts/lib
 import { execute, argumentsFor, renderResult } from '../skills/lindaui/scripts/lindaui.mjs';
 import { managerInvocation, runManager, nodeShimEntry } from '../skills/lindaui/scripts/lib/process.mjs';
 import { inspectNativeControls, nativeScope } from '../skills/lindaui/scripts/lib/native-controls.mjs';
+import { skillInventory, syncSkill, syncCLI } from '../skills/lindaui/scripts/sync.mjs';
 
 function file(root, path, value) { mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), typeof value === 'string' ? value : JSON.stringify(value, null, 2)); }
 function pkg(root, name, version, entries = {}, peers = {}, optional = {}) {
@@ -144,6 +145,62 @@ test('strict mode promotes uncertain native input warnings to an exit failure', 
   assert.equal((await execute(['check', '--strict', '--project', root])).ok, true);
   file(root, 'src/Unknown.tsx', 'export const x = <>{/* lindaui-allow-native: */}<textarea/></>;');
   assert.equal((await execute(['check', '--project', root])).ok, false);
+});
+test('skill synchronization compares entire copies, backs up drift and verifies exact content', t => {
+  const root = fixture(t); const source = join(root, 'canonical'); const destination = join(root, 'installed');
+  file(source, 'SKILL.md', '---\nname: lindaui\n---\nVersion 1.1.0\n'); file(source, 'scripts/check.mjs', 'new implementation');
+  file(destination, 'SKILL.md', '---\nname: lindaui\n---\nVersion 1.1.0\n'); file(destination, 'scripts/check.mjs', 'divergent implementation'); file(destination, 'extra.mjs', 'local customization');
+  const before = skillInventory(destination); const plan = syncSkill(destination, { source });
+  assert.equal(plan.status, 'drift'); assert.equal(plan.backup, null); assert.equal(skillInventory(destination).hash, before.hash);
+  assert.deepEqual(plan.changes.map(c => [c.path, c.action]), [['extra.mjs', 'remove'], ['scripts/check.mjs', 'update']]);
+  const applied = syncSkill(destination, { source, apply: true, backupRoot: root });
+  assert.equal(applied.status, 'synchronized'); assert.equal(applied.actualHash, applied.expectedHash);
+  assert.equal(skillInventory(applied.backup).hash, before.hash);
+  assert.equal(readFileSync(join(applied.backup, 'extra.mjs'), 'utf8'), 'local customization');
+  assert.deepEqual(syncSkill(destination, { source, apply: true }).changes, []);
+  const fresh = join(root, 'new-installed');
+  const freshReport = syncCLI(['--destination', fresh, '--apply'], { source });
+  assert.equal(freshReport.backup, null); assert.equal(freshReport.status, 'synchronized');
+  assert.ok(freshReport.changes.every(c => c.action === 'create' && c.before === null));
+  assert.equal(syncCLI(['--destination', fresh], { source }).status, 'matched');
+  assert.equal(syncCLI([]).status, 'help'); assert.equal(syncCLI(['--help']).status, 'help');
+  for (const args of [['--unknown'], ['--destination'], ['--destination', '--apply'], ['--destination', fresh, '--wrong'], ['--destination', fresh, '--apply', 'extra']]) assert.throws(() => syncCLI(args));
+});
+test('skill synchronization refuses unowned directories, nested copies and symlinks', t => {
+  const root = fixture(t); const source = join(root, 'canonical');
+  file(source, 'SKILL.md', '---\nname: lindaui\n---\n');
+  file(root, 'unowned/SKILL.md', '---\nname: another-skill\n---\n');
+  assert.throws(() => syncSkill(join(root, 'unowned'), { source, apply: true }), /not a lindaui skill/);
+  assert.throws(() => syncSkill(source, { source }), /separate/);
+  assert.throws(() => syncSkill(join(source, 'nested'), { source }), /separate/);
+  assert.throws(() => syncSkill(join(source, '..nested'), { source }), /separate/);
+  assert.throws(() => syncSkill(join(root, 'fresh'), { source: join(root, 'unowned') }), /canonical lindaui/);
+  file(root, 'SKILL.md', '---\nname: lindaui\n---\n');
+  assert.throws(() => syncSkill(root, { source }), /separate/);
+  const link = join(root, 'linked'); symlinkSync(source, link, process.platform === 'win32' ? 'junction' : 'dir');
+  assert.throws(() => syncSkill(link, { source }), /symlink/);
+  const internal = join(source, 'linked'); symlinkSync(join(source, 'SKILL.md'), internal);
+  assert.throws(() => skillInventory(source), /Unsupported skill path/);
+});
+test('skill synchronization reports backup for partial filesystem failures', t => {
+  const root = fixture(t); const source = join(root, 'canonical'); const destination = join(root, 'installed');
+  for (const dir of [source, destination]) file(dir, 'SKILL.md', '---\nname: lindaui\n---\n');
+  file(source, 'new.mjs', 'new'); mkdirSync(join(destination, 'new.mjs'));
+  assert.throws(() => syncSkill(destination, { source, apply: true, backupRoot: root }), /Previous copy backup:.*lindaui-skill-backup-/);
+  const fresh = join(root, 'fresh'); let scans = 0;
+  const inventory = path => { const value = skillInventory(path); return ++scans === 2 ? { ...value, hash: 'changed-during-copy' } : value; };
+  assert.throws(() => syncSkill(fresh, { source, apply: true, backupRoot: root, inventory }), /changed during synchronization/);
+});
+test('sync CLI exits 1 on drift, 0 after apply and 2 for invalid arguments', t => {
+  const root = fixture(t); const destination = join(root, 'installed');
+  file(destination, 'SKILL.md', '---\nname: lindaui\n---\n');
+  const script = fileURLToPath(new URL('../skills/lindaui/scripts/sync.mjs', import.meta.url));
+  const invoke = args => spawnSync(process.execPath, [script, ...args], { encoding: 'utf8' });
+  assert.equal(invoke(['--destination', destination]).status, 1);
+  const applied = invoke(['--destination', destination, '--apply']); assert.equal(applied.status, 0, applied.stderr);
+  t.after(() => rmSync(JSON.parse(applied.stdout).backup, { recursive: true, force: true }));
+  assert.equal(invoke(['--destination', destination]).status, 0);
+  assert.equal(invoke(['--wrong']).status, 2); assert.equal(invoke(['--help']).status, 0);
 });
 test('application inspection respects installed manifests without a package.json export', t => {
   const root = fixture(t); const context = target(root);

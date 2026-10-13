@@ -161,3 +161,21 @@ JSON schemaVersion is 1. Exit 0 means the command completed without error findin
 warnings still require attention. Exit 1 means findings (including warnings with
 `--strict`); exit 2 means command, precondition, or execution failure. Coverage and
 skipped paths are reported. See [troubleshooting](references/troubleshooting.md).
+
+## Update and compare installed copies
+
+Use one canonical release checkout or freshly installed skill as the source.
+Compare each project/workspace copy, including scripts, against that same source:
+
+```text
+node "<canonical-skill>/scripts/sync.mjs" --destination "<installed-skill>"
+node "<canonical-skill>/scripts/sync.mjs" --destination "<installed-skill>" --apply
+```
+
+The default compares every file without writing; drift exits 1. Apply backs up
+the complete previous copy, then synchronizes and verifies the full content hash.
+Review the reported backup before discarding local customizations. An interrupted
+update can be partial; inspect the destination and backup before retrying. Compare
+all copies after updating, even when their metadata versions match. Library
+contributors can use `pnpm skill:sync`; `skill:vendor` builds CLI dependencies and
+`skill:consumers` validates fixture apps, neither updates installed copies.

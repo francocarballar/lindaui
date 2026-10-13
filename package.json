@@ -12,6 +12,7 @@
     "skill:index": "node scripts/build-skill-index.mjs",
     "skill:vendor": "node scripts/build-skill-vendor.mjs",
     "skill:consumers": "node scripts/verify-skill-consumers.mjs",
+    "skill:sync": "node skills/lindaui/scripts/sync.mjs",
     "version-packages": "changeset version && node scripts/build-skill-index.mjs",
     "typecheck": "turbo typecheck",
     "prepare": "husky",

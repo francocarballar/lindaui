@@ -420,3 +420,10 @@ reported. Tests, fixtures and stories are excluded from this rule, with paths
 reported; other import/usage rules still apply. Library-authoring projects are
 exempt. Select the consumer with `--project`, never the contributor monorepo root.
 Run check in consumer verification/CI. Semantic HTML remains appropriate.
+
+`pnpm skill:sync --destination <installed-skill>` compares the complete content
+hash; `--apply` backs up previous contents before synchronizing. Use one canonical
+release source for every copy and verify hashes afterward, including scripts.
+`skill:vendor` bundles CLI dependencies and `skill:consumers` validates generated
+apps; neither propagates installed skills. The standalone sync CLI is included
+in the Node 20/24 Linux/macOS/Windows skill test matrix.
