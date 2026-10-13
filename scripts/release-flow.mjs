@@ -16,7 +16,7 @@
 //   node scripts/release-flow.mjs --dry-run   # solo lee estado, no muta nada
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, readdirSync, mkdirSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -213,8 +213,11 @@ export function createReleaseFlow({
       "--json", "number,headRefOid,url",
     ])[0];
 
-    if (ahead === 0 && !existingPr) {
-      log("Nada para pushear y no hay Version PR abierto — no hay nada que hacer.");
+    const changesetDirectory = resolve(root, '.changeset');
+    const pendingVersions = existsSync(changesetDirectory) && readdirSync(changesetDirectory).some(name => name.endsWith('.md') && name !== 'README.md');
+    if (ahead === 0 && !existingPr && !pendingVersions) {
+      log("Nada para pushear ni versionar — verificar la publicación existente.");
+      if (!dryRun) await reportPublishedVersions();
       return;
     }
 
@@ -237,6 +240,11 @@ export function createReleaseFlow({
       const headSha = git(["rev-parse", "HEAD"]);
       log(`Esperando CI + Release para ${headSha}...`);
       await waitForPushWorkflows("main", headSha);
+    }
+
+    if (ahead === 0 && !existingPr && pendingVersions) {
+      log("Changesets ya pusheados: retomar checks y esperar el Version PR del mismo HEAD.");
+      await waitForPushWorkflows("main", initialHead);
     }
 
     let pr = existingPr ?? runJson("gh", [

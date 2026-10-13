@@ -16,6 +16,10 @@ function scenario(t, config = {}) {
     mkdirSync(directory, { recursive: true });
     writeFileSync(join(directory, 'package.json'), JSON.stringify({ name: `@fixture/${name}`, version: '1.2.3', private: isPrivate }));
   }
+  if (config.pendingVersions) {
+    mkdirSync(join(root, '.changeset'));
+    for (const name of ['README.md', 'config.json', 'delivery.md']) writeFileSync(join(root, '.changeset', name), 'version plan');
+  }
   const calls = [], logs = [], requests = [];
   const header = Buffer.alloc(512);
   const body = Buffer.from(JSON.stringify(config.manifest ?? { name: '@fixture/public', version: '1.2.3' }));
@@ -37,7 +41,7 @@ function scenario(t, config = {}) {
       if (args[0] === 'fetch' || args[0] === 'pull') return '';
     }
     if (command === 'gh') {
-      if (key === 'pr list') return JSON.stringify(config.pr || (pushed && config.prAfterPush) ? [pr] : []);
+      if (key === 'pr list') return JSON.stringify(config.pr || (pushed && config.prAfterPush) || (watched && config.prAfterWatch) ? [pr] : []);
       if (key === 'pr diff') return '+ "version": "1.2.3"\n+ unrelated';
       if (key === 'pr merge') { merged = true; return null; }
       if (key === 'run list') {
@@ -95,8 +99,8 @@ for (const [config, error] of [[{ branch: 'feature' }, /corre desde 'main'/], [{
 test('nothing ahead and no Version PR performs no publishing work', async t => {
   const s = scenario(t, { ahead: 0 });
   await s.flow.main();
-  assert.match(s.logs.join('\n'), /no hay nada que hacer/);
-  assert.equal(s.requests.length, 0);
+  assert.match(s.logs.join('\n'), /verificar la publicación/);
+  assert.equal(s.requests.length, 2);
 });
 
 for (const config of [{ ahead: 1 }, { ahead: 0, pr: true }, { ahead: 1, pr: true }]) {
@@ -264,4 +268,30 @@ test('network errors retain failure evidence; tarball credentials and SHA-1 corr
     await assert.rejects(s.flow.reportPublishedVersions(), error);
     assert.equal(JSON.parse(readFileSync(join(s.root, 'coverage/publication/verification.json'), 'utf8')).status, 'failed');
   }
+});
+
+test('resumes a pushed changeset before the Version PR appears without another push', async t => {
+  const s = scenario(t, { ahead: 0, pendingVersions: true, prAfterWatch: true });
+  await s.flow.main();
+  assert(!s.calls.some(call => call.command === 'git' && call.args[0] === 'push'));
+  assert(s.calls.some(call => call.command === 'gh' && call.args[1] === 'merge'));
+  assert.equal(s.requests.length, 2);
+});
+test('pending pushed versions dry run never watches, merges or verifies', async t => {
+  const s = scenario(t, { ahead: 0, pendingVersions: true, dryRun: true });
+  await s.flow.main();
+  assert(!s.calls.some(call => call.args[1] === 'watch'));
+  assert.equal(s.requests.length, 0);
+});
+test('no-op dry run does not query npm', async t => {
+  const s = scenario(t, { ahead: 0, dryRun: true }); await s.flow.main(); assert.equal(s.requests.length, 0);
+});
+test('Changesets README and config are not a pending version plan', async t => {
+  const s = scenario(t, { ahead: 0 });
+  mkdirSync(join(s.options.root, '.changeset'));
+  writeFileSync(join(s.options.root, '.changeset', 'README.md'), 'guide');
+  writeFileSync(join(s.options.root, '.changeset', 'config.json'), '{}');
+  await s.flow.main();
+  assert(!s.calls.some(call => call.args[1] === 'watch'));
+  assert.equal(s.requests.length, 2);
 });
