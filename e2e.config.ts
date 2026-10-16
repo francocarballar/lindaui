@@ -18,7 +18,7 @@ export default {
     { name: "chromium-mobile", viewport: { width: 390, height: 844 } },
   ].map(({ name, viewport }) => ({
       name,
-      engine: web({ browser: "chromium", viewport }),
+      engine: web({ browser: "chromium", locale: "en-US", viewport }),
       app: {
         url: "http://127.0.0.1:0",
         command: {
